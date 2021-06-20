@@ -59,7 +59,7 @@ SimVideo video(VGA_WIDTH, VGA_HEIGHT, VGA_ROTATE);
 // ------------------
 int initialReset = 48;
 bool run_enable = 1;
-int batchSize = 2500000 / 100;
+int batchSize = 250000 / 100;
 bool single_step = 0;
 bool multi_step = 0;
 int multi_step_amount = 1024;
@@ -176,7 +176,7 @@ int main(int argc, char** argv, char** env) {
 	// Setup video output
 	if (video.Initialise(windowTitle) == 1) { return 1; }
 
-	//bus.QueueDownload("bird.bin", 0);
+	bus.QueueDownload("../src/boot_rom.bin", 0);
 
 
 #ifdef WIN32
@@ -220,7 +220,7 @@ int main(int argc, char** argv, char** env) {
 		if (ImGui::Button("START")) { run_enable = 1; } ImGui::SameLine();
 		if (ImGui::Button("STOP")) { run_enable = 0; } ImGui::SameLine();
 		ImGui::Checkbox("RUN", &run_enable);
-		ImGui::SliderInt("Batch size", &batchSize, 1, 1000000);
+		ImGui::SliderInt("Batch size", &batchSize, 1, 100000);
 
 		if (single_step == 1) { single_step = 0; }
 		if (ImGui::Button("Single Step")) { run_enable = 0; single_step = 1; }
@@ -242,15 +242,15 @@ int main(int argc, char** argv, char** env) {
 		ImGui::Image(video.texture_id, ImVec2(video.output_width * m, video.output_height * m));
 		ImGui::End();
 
-                //ImGui::Begin("ROM Editor");
-                //mem_edit_1.DrawContents(top->top__DOT__soc__DOT__rom__DOT__mem, 4096, 0);
-                //ImGui::End();
-                //ImGui::Begin("RAM Editor");
-                //mem_edit_2.DrawContents(top->top__DOT__soc__DOT__ram__DOT__mem, 4096, 0);
-                //ImGui::End();
-                //ImGui::Begin("VRAM Editor");
-                //mem_edit_3.DrawContents(top->top__DOT__soc__DOT__vga__DOT__vmem, 16000, 0);
-                //ImGui::End();
+                ImGui::Begin("ROM Editor");
+                mem_edit_1.DrawContents(top->top__DOT__soc__DOT__rom__DOT__mem, 4096, 0);
+                ImGui::End();
+                ImGui::Begin("RAM Editor");
+                mem_edit_2.DrawContents(top->top__DOT__soc__DOT__ram__DOT__mem, 4096, 0);
+                ImGui::End();
+                ImGui::Begin("VRAM Editor");
+                mem_edit_3.DrawContents(top->top__DOT__soc__DOT__video__DOT__vmem, 320*200, 0);
+                ImGui::End();
 
 		        ImGui::Begin("CPU Registers");
                 ImGui::Spacing();
@@ -272,18 +272,17 @@ int main(int argc, char** argv, char** env) {
                 ImGui::Text("IX      0x%04X", top->top__DOT__soc__DOT__T80x__DOT__i_tv80_core__DOT__i_reg__DOT__IX);
                 ImGui::Text("IY      0x%04X", top->top__DOT__soc__DOT__T80x__DOT__i_tv80_core__DOT__i_reg__DOT__IY);
                 ImGui::Text("SP      0x%04X", top->top__DOT__soc__DOT__T80x__DOT__i_tv80_core__DOT__SP);
-*//*
-                ImGui::Text("PC      0x%04X", top->top__DOT__soc__DOT__T80x__DOT__i_tv80_core__DOT__PC);*/
+*/
 
                 ImGui::End();
 
 		video.UpdateTexture();
 
 		// Pass inputs to sim
-		//top->inputs = 0;
+		top->inputs = 0;
 		for (int i = 0; i < input.inputCount; i++)
 		{
-			//if (input.inputs[i]) { top->inputs |= (1 << i); }
+			if (input.inputs[i]) { top->inputs |= (1 << i); }
 		}
 				
 		// Run simulation

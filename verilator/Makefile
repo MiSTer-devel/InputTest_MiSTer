@@ -55,8 +55,8 @@ CC_OPT = -O
 V_SRC = \
         sim.v \
         $(RTL)/soc.v \
-        $(RTL)/bram.v  \
-        $(RTL)/vga.v \
+        $(RTL)/dpram.v  \
+        $(RTL)/video.v \
 ../rtl/tv80/tv80_core.v \
 ../rtl/tv80/tv80_alu.v \
 ../rtl/tv80/tv80_mcode.v \

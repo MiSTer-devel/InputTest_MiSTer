@@ -1,20 +1,10 @@
 `timescale 1ns / 1ps
-// A simple system-on-a-chip (SoC) for the MiST
-// (c) 2015 Till Harbaum
 
-// VGA controller generating 160x100 pixles. The VGA mode ised is 640x400
-// combining every 4 row and column
-
-// http://tinyvga.com/vga-timing/640x400@70Hz
-
-module vga (
-   // pixel clock
-   input  pclk,
-	
-	// CPU interface (write only!)
-	input  cpu_clk,
+module video (
+	input  pclk,			// pixel clock
+	input  cpu_clk,			// 
 	input  cpu_wr,
-	input [13:0] cpu_addr,
+	input [15:0] cpu_addr,
 	input [7:0] cpu_data,
 		
    // VGA output
@@ -23,9 +13,9 @@ module vga (
    output [7:0] r,
    output [7:0] g,
    output [7:0] b,
-   output reg VGA_HB,
-   output reg VGA_VB,
-   output VGA_DE
+   output reg hb,
+   output reg vb,
+   output reg de
 );
 					
 // 640x400 70HZ VESA according to  http://tinyvga.com/vga-timing/640x400@70Hz
@@ -39,29 +29,34 @@ parameter VFP = 12;     // unused time before vsync
 parameter VS  = 2;      // width of vsync
 parameter VBP = 35;     // unused time after vsync
 
+parameter VGA_WIDTH   = 320;    // width of backbuffer
+parameter VGA_HEIGHT  = 200;    // height of backbuffer
+
 reg[9:0]  h_cnt;        // horizontal pixel counter
 reg[9:0]  v_cnt;        // vertical pixel counter
 
-reg hblank;
-reg vblank;
+reg [15:0] video_counter;
+reg [7:0] pixel;
 
-// both counters count from the begin of the visibla area
+// 16000 bytes of internal video memory for 160x100 pixel at 8 Bit (RGB 332)
+reg [7:0] vmem [(VGA_WIDTH*VGA_HEIGHT)-1:0];
 
 // horizontal pixel counter
-always@(posedge pclk) begin
+always@(posedge pclk)
+begin
 	if(h_cnt==H+HFP+HS+HBP-1)   h_cnt <= 0;
 	else                        h_cnt <= h_cnt + 1;
-
 	// generate negative hsync signal
 	if(h_cnt == H+HFP)    hs <= 1'b0;
 	if(h_cnt == H+HFP+HS) hs <= 1'b1;
-
-	end
+end
 
 // veritical pixel counter
-always@(posedge pclk) begin
+always@(posedge pclk)
+begin
 	// the vertical counter is processed at the begin of each hsync
-	if(h_cnt == H+HFP) begin
+	if(h_cnt == H+HFP)
+	begin
 		if(v_cnt==VS+VBP+V+VFP-1)  v_cnt <= 0; 
 		else							        v_cnt <= v_cnt + 1;
 
@@ -71,20 +66,15 @@ always@(posedge pclk) begin
 	end
 end
 
-// read VRAM
-reg [13:0] video_counter;
-reg [7:0] pixel;
-reg de;
-
-// 16000 bytes of internal video memory for 160x100 pixel at 8 Bit (RGB 332)
-reg [7:0] vmem [160*100-1:0];
-
 // write VRAM via CPU interface
 always @(posedge cpu_clk)
+begin
 	if(cpu_wr) 
 		vmem[cpu_addr] <= cpu_data;
+end
 
-always@(posedge pclk) begin
+always@(posedge pclk) 
+begin
         // The video counter is being reset at the begin of each vsync.
         // Otherwise it's increased every fourth pixel in the visible area.
         // At the end of the first three of four lines the counter is
@@ -93,41 +83,38 @@ always@(posedge pclk) begin
         // VGA lines.
 
 	// visible area?
-        if(v_cnt < V)
-                VGA_VB<=0;
-        else
-                VGA_VB<=1;
-        if(h_cnt < H)
-                VGA_HB<=0;
-        else
-                VGA_HB<=1;
+	if(v_cnt < V)
+		vb<=0;
+	else
+		vb<=1;
+	if(h_cnt < H)
+		hb<=0;
+	else
+		hb<=1;
+
 	if((v_cnt < V) && (h_cnt < H)) begin
-		if(h_cnt[1:0] == 2'b11)
-			video_counter <= video_counter + 14'd1;
+		if(h_cnt[0] == 1'b1)
+			video_counter <= video_counter + 16'd1;
 		
-		//pixel <= (v_cnt[2] ^ h_cnt[2])?8'h00:8'hff;    // checkboard
+		//pixel <= (v_cnt[4] ^ h_cnt[4])?8'h00:8'hff;    // checkboard
 		//pixel <= video_counter[7:0];                // color pattern
 		pixel <= vmem[video_counter];               // read VRAM
 		de<=1;
 	end else begin
 		if(h_cnt == H+HFP) begin
 			if(v_cnt == V+VFP)
-				video_counter <= 14'd0;
-			else if((v_cnt < V) && (v_cnt[1:0] != 2'b11))
-				video_counter <= video_counter - 14'd160;
+				video_counter <= 16'd0;
+			else if((v_cnt < V) && (v_cnt[0] != 1'b1))
+				video_counter <= video_counter - VGA_WIDTH;
 		de<=0;
 		end
-			
-		pixel <= 8'h00;   // black
+		pixel <= 8'hF0;   // black
 	end
 end
 
 // seperate 8 bits into three colors (332)
 assign r = { pixel[7:5],  pixel[7:5] , pixel[7:6]};
 assign g = { pixel[4:2],  pixel[4:2] , pixel[4:3]};
-assign b = { pixel[1:0], pixel[1:0] , pixel[1:0],pixel[1:0] };
-
-
-assign VGA_DE = de;
+assign b = { pixel[1:0],  pixel[1:0] , pixel[1:0], pixel[1:0] };
 
 endmodule
