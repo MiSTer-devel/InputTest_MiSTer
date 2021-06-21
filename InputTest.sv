@@ -32,7 +32,6 @@ module emu
 	output  [7:0] VGA_B,
 	output        VGA_HS,
 	output        VGA_VS,
-	output        VGA_DE,    // = ~(VBlank | HBlank)
 	output        VGA_F1,
 	output [1:0]  VGA_SL,
 	output        VGA_SCALER, // Force VGA scaler
@@ -246,8 +245,7 @@ soc soc(
    .VGA_VS(VGA_VS),
    .VGA_R(VGA_R),
    .VGA_G(VGA_G),
-   .VGA_B(VGA_B),
-   .VGA_DE(VGA_DE)
+   .VGA_B(VGA_B)
 );
 
 

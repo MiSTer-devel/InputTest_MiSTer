@@ -7,7 +7,7 @@ Area                                    Addr        Size        Decimal Bytes (A
 
       Value  Global                              Global Defined In Module
       -----  --------------------------------   ------------------------
-     00000000  .__.ABS.                           
+     00000000  .__.ABS.                           puts
      00000000  l__BSEG                         
      00000000  l__BSS                          
      00000000  l__CABS                         
@@ -36,46 +36,49 @@ Area                                    Addr        Size        Decimal Bytes (A
      00000003  l__HEADER6                      
      00000003  l__HEADER7                      
      00000004  l__HEADER1                      
-     00000007  l__DATA                         
+     00000006  l__DATA                         
      0000000C  l__HEADER8                      
      0000000F  l__GSINIT                       
      00000200  s__CODE                         
-     00000305  l__INITIALIZED                  
-     00000305  l__INITIALIZER                  
-     00000423  l__CODE                         
-     00000623  s__HOME                         
-     00000623  s__INITIALIZER                  
-     00000928  s__GSINIT                       
-     00000937  s__GSFINAL                      
-     00004000  _input0                            boot_rom
-     00004001  _input1                            boot_rom
+     00000304  l__INITIALIZED                  
+     00000304  l__INITIALIZER                  
+     00000447  l__CODE                         
+     00000647  s__HOME                         
+     00000647  s__INITIALIZER                  
+     0000094B  s__GSINIT                       
+     0000095A  s__GSFINAL                      
+     00006000  _input0                            boot_rom
+     00006001  _input1                            boot_rom
      00008000  s__DATA                         
-     00008007  s__INITIALIZED                  
-     0000830C  s__BSEG                         
-     0000830C  s__BSS                          
-     0000830C  s__HEAP                         
+     00008006  s__INITIALIZED                  
+     0000830A  s__BSEG                         
+     0000830A  s__BSS                          
+     0000830A  s__HEAP                         
 
 ASxxxx Linker V03.00 + NoICE + sdld,  page 2.
 Hexadecimal  [32-Bits]
 
 Area                                    Addr        Size        Decimal Bytes (Attributes)
 --------------------------------        ----        ----        ------- ----- ------------
-_CODE                               00000200    00000423 =        1059. bytes (REL,CON)
+_CODE                               00000200    00000447 =        1095. bytes (REL,CON)
 
       Value  Global                              Global Defined In Module
       -----  --------------------------------   ------------------------
      00000200  __clock                            crt0
      00000204  _exit                              crt0
      0000020A  _putchar                           boot_rom
-     0000036B  _VGA_WIDTH                         boot_rom
-     0000036D  _VGA_HEIGHT                        boot_rom
-     0000036F  _put_pixel                         boot_rom
-     000003A2  _cls                               boot_rom
-     000003F8  _draw_line                         boot_rom
-     000005AF  _main                              boot_rom
-     000005FD  _abs                               
-     00000609  __mulint                           
-     0000060F  __mul16                            
+     0000031A  _VGA_WIDTH                         boot_rom
+     0000031C  _VGA_HEIGHT                        boot_rom
+     0000031E  _put_pixel                         boot_rom
+     00000351  _cls                               boot_rom
+     00000397  _draw_line                         boot_rom
+     0000054E  _main                              boot_rom
+     000005D0  _abs                               
+     000005DC  __mulint                           
+     000005E2  __mul16                            
+     000005F6  _memset                            _memset
+     00000621  _puts                              puts
+
 ASxxxx Linker V03.00 + NoICE + sdld,  page 3.
 Hexadecimal  [32-Bits]
 
@@ -162,7 +165,7 @@ Hexadecimal  [32-Bits]
 
 Area                                    Addr        Size        Decimal Bytes (Attributes)
 --------------------------------        ----        ----        ------- ----- ------------
-_INITIALIZER                        00000623    00000305 =         773. bytes (REL,CON)
+_INITIALIZER                        00000647    00000304 =         772. bytes (REL,CON)
 
       Value  Global                              Global Defined In Module
       -----  --------------------------------   ------------------------
@@ -171,18 +174,18 @@ Hexadecimal  [32-Bits]
 
 Area                                    Addr        Size        Decimal Bytes (Attributes)
 --------------------------------        ----        ----        ------- ----- ------------
-_GSINIT                             00000928    0000000F =          15. bytes (REL,CON)
+_GSINIT                             0000094B    0000000F =          15. bytes (REL,CON)
 
       Value  Global                              Global Defined In Module
       -----  --------------------------------   ------------------------
-     00000928  gsinit                             crt0
+     0000094B  gsinit                             crt0
 
 ASxxxx Linker V03.00 + NoICE + sdld,  page 14.
 Hexadecimal  [32-Bits]
 
 Area                                    Addr        Size        Decimal Bytes (Attributes)
 --------------------------------        ----        ----        ------- ----- ------------
-_GSFINAL                            00000937    00000001 =           1. bytes (REL,CON)
+_GSFINAL                            0000095A    00000001 =           1. bytes (REL,CON)
 
       Value  Global                              Global Defined In Module
       -----  --------------------------------   ------------------------
@@ -191,7 +194,7 @@ Hexadecimal  [32-Bits]
 
 Area                                    Addr        Size        Decimal Bytes (Attributes)
 --------------------------------        ----        ----        ------- ----- ------------
-_DATA                               00008000    00000007 =           7. bytes (REL,CON)
+_DATA                               00008000    00000006 =           6. bytes (REL,CON)
 
       Value  Global                              Global Defined In Module
       -----  --------------------------------   ------------------------
@@ -201,21 +204,20 @@ _DATA                               00008000    00000007 =           7. bytes (R
      00008003  _vsync_last                        boot_rom
      00008004  _input0_cache                      boot_rom
      00008005  _input1_cache                      boot_rom
-     00008006  _color                             boot_rom
-
 ASxxxx Linker V03.00 + NoICE + sdld,  page 16.
 Hexadecimal  [32-Bits]
 
 Area                                    Addr        Size        Decimal Bytes (Attributes)
 --------------------------------        ----        ----        ------- ----- ------------
-_INITIALIZED                        00008007    00000305 =         773. bytes (REL,CON)
+_INITIALIZED                        00008006    00000304 =         772. bytes (REL,CON)
 
       Value  Global                              Global Defined In Module
       -----  --------------------------------   ------------------------
-     00008007  _y                                 boot_rom
-     00008008  _cur_x                             boot_rom
-     0000800A  _cur_y                             boot_rom
-     0000800C  _font                              font
+     00008006  _y                                 boot_rom
+     00008007  _cur_x                             boot_rom
+     00008008  _cur_y                             boot_rom
+     00008009  _color                             boot_rom
+     0000800A  _font                              font
 
 ASxxxx Linker V03.00 + NoICE + sdld,  page 17.
 
@@ -230,6 +232,8 @@ Libraries Linked                          [ object file ]
 
 /usr/bin/../share/sdcc/lib/z80/z80.lib    [ abs.rel ]
 /usr/bin/../share/sdcc/lib/z80/z80.lib    [ mul.rel ]
+/usr/bin/../share/sdcc/lib/z80/z80.lib    [ _memset.rel ]
+/usr/bin/../share/sdcc/lib/z80/z80.lib    [ puts.rel ]
 
 ASxxxx Linker V03.00 + NoICE + sdld,  page 18.
 

@@ -46,6 +46,8 @@ int count_line;
 int count_frame;
 bool last_hblank;
 bool last_vblank;
+bool last_hsync;
+bool last_vsync;
 
 // Statistics
 #ifdef WIN32
@@ -395,13 +397,14 @@ void SimVideo::StartFrame() {
 #endif
 }
 
-void SimVideo::Clock(bool hblank, bool vblank, uint32_t colour) {
-
-	int ox = count_pixel + 1;
-	int oy = count_line;
+void SimVideo::Clock(bool hblank, bool vblank, bool hsync, bool vsync, uint32_t colour) {
 
 	// Only draw outside of blanks
 	if (!(hblank || vblank)) {
+
+		//int ox = count_pixel + 1;
+		int ox = count_pixel;
+		int oy = count_line;
 
 		int x = ox, xs = output_width, y = oy;
 
@@ -442,18 +445,20 @@ void SimVideo::Clock(bool hblank, bool vblank, uint32_t colour) {
 
 	}
 
-	// Increment pixel counter
-	count_pixel++;
+	// Increment pixel counter when not blanked
+	if (!(hblank || vblank)) {
+		count_pixel++;
+	}
 
-	// Falling edge of hblank
-	if (last_hblank && !hblank) {
+	// Next line on rising hsync
+	if (last_hsync && !hsync) {
 		// Increment line and reset pixel count
 		count_line++;
 		count_pixel = 0;
 	}
 
-	// Falling edge of vblank
-	if (last_vblank && !vblank) {
+	// Reset on rising vsync
+	if (last_vsync && !vsync) {
 		count_frame++;
 		count_line = 0;
 
@@ -470,6 +475,10 @@ void SimVideo::Clock(bool hblank, bool vblank, uint32_t colour) {
 		stats_fps = (float)(1000.0 / stats_frameTime);
 
 	}
+
+
 	last_hblank = hblank;
 	last_vblank = vblank;
+	last_hsync = hsync;
+	last_vsync = vsync;
 }

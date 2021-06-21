@@ -40,10 +40,10 @@ module top(VGA_R,VGA_B,VGA_G,VGA_HS,VGA_VS,VGA_HB,VGA_VB,reset,clk_sys,clk_vid,i
    wire m_down = inputs[2];
    wire m_up = inputs[3];
 
-wire VGA_DE;
 soc soc(
    .clk_sys(clk_sys),
    .clk_pix(clk_sys),
+   .reset(reset | ioctl_download),
    .VGA_HS(VGA_HS),
    .VGA_VS(VGA_VS),
    .VGA_R(VGA_R),
@@ -51,10 +51,10 @@ soc soc(
    .VGA_B(VGA_B),
    .VGA_HB(VGA_HB),
    .VGA_VB(VGA_VB),
-   .VGA_DE(VGA_DE),
    .dn_addr(ioctl_addr[13:0]),
    .dn_data(ioctl_dout),
    .dn_wr(ioctl_wr),
+   .dn_index(ioctl_index),
    .inputs({btn_coin, btn_start, m_bomb, m_fire, m_right, m_left, m_down, m_up})
 );
 

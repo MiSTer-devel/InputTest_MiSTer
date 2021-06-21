@@ -7,45 +7,48 @@ Symbol Table
     .__.ABS.                                                    =  0000 G
     .__.CPU.                                                    =  0000 L
     .__.H$L.                                                    =  0000 L
-  0 _VGA_HEIGHT                                                    0163 GR
-  0 _VGA_WIDTH                                                     0161 GR
+  0 _VGA_HEIGHT                                                    0112 GR
+  0 _VGA_WIDTH                                                     0110 GR
+  0 ___str_0                                                       03B6 R
     __mulint                                                       **** GX
+  7 __xinit__color                                                 0003 R
   7 __xinit__cur_x                                                 0001 R
-  7 __xinit__cur_y                                                 0003 R
+  7 __xinit__cur_y                                                 0002 R
   7 __xinit__y                                                     0000 R
     _abs                                                           **** GX
-  0 _cls                                                           0198 GR
-  1 _color                                                         0006 GR
+  0 _cls                                                           0147 GR
+  2 _color                                                         0003 GR
   2 _cur_x                                                         0001 GR
-  2 _cur_y                                                         0003 GR
-  0 _draw_line                                                     01EE GR
+  2 _cur_y                                                         0002 GR
+  0 _draw_line                                                     018D GR
     _font                                                          **** GX
   1 _hsync                                                         0000 GR
   1 _hsync_last                                                    0001 GR
-    _input0                                                     =  4000 G
+    _input0                                                     =  6000 G
   1 _input0_cache                                                  0004 GR
-    _input1                                                     =  4001 G
+    _input1                                                     =  6001 G
   1 _input1_cache                                                  0005 GR
-  0 _main                                                          03A5 GR
-  0 _put_pixel                                                     0165 GR
+  0 _main                                                          0344 GR
+    _memset                                                        **** GX
+  0 _put_pixel                                                     0114 GR
   0 _putchar                                                       0000 GR
+    _puts                                                          **** GX
   1 _vsync                                                         0002 GR
   1 _vsync_last                                                    0003 GR
   2 _y                                                             0000 GR
-
 
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next), page 2.
 Hexadecimal [16-Bits]
 
 Area Table
 
-   0 _CODE                                      size  3F3   flags    0
-   1 _DATA                                      size    7   flags    0
-   2 _INITIALIZED                               size    5   flags    0
+   0 _CODE                                      size  3C6   flags    0
+   1 _DATA                                      size    6   flags    0
+   2 _INITIALIZED                               size    4   flags    0
    3 _DABS                                      size    0   flags    8
    4 _HOME                                      size    0   flags    0
    5 _GSINIT                                    size    0   flags    0
    6 _GSFINAL                                   size    0   flags    0
-   7 _INITIALIZER                               size    5   flags    0
+   7 _INITIALIZER                               size    4   flags    0
    8 _CABS                                      size    0   flags    8
 
