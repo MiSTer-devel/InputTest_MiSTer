@@ -34,9 +34,7 @@
 module jtframe_vtimer(
     input               clk,
     input               pxl_cen,
-    output  reg [8:0]   vdump,
-    output  reg [8:0]   vrender,
-    output  reg [8:0]   vrender1,
+    output  reg [8:0]   V,
     output  reg [8:0]   H,
     output  reg         Hinit,
     output  reg         Vinit,
@@ -46,28 +44,22 @@ module jtframe_vtimer(
     output  reg         VS
 );
 
-reg LVBL2, LVBL1;
-
 `ifdef SIMULATION
 initial begin
     Hinit    = 0;
     Vinit    = 0;
     LHBL     = 0;
     LVBL     = 1;
-    LVBL1    = 1;
-    LVBL2    = 1;
     HS       = 0;
     VS       = 0;
     H        = 0;
-    vrender1 = 0;
-    vrender  = 0;
-    vdump    = 0;
+    V        = 0;
 end
 `endif
 
 // Default values suit Contra arcade
-parameter [8:0] V_START  = 9'd0,
-                VB_START = 9'd239,
+parameter [8:0] VCNT_START = 9'd0,
+                VB_START = 9'd240,
                 VB_END   = 9'd255,
                 VCNT_END = VB_END,
                 VS_START = 9'd244,
@@ -86,35 +78,39 @@ parameter [8:0] V_START  = 9'd0,
 // H counter
 always @(posedge clk) if(pxl_cen) begin
     Hinit <= H == HINIT;
-    H     <= H == HCNT_END ? HCNT_START : (H+9'd1);
+    H     <= H == HCNT_END ? HCNT_START : (H + 9'd1);
 end
 
 always @(posedge clk) if(pxl_cen) begin
-    if( H == H_VNEXT ) begin
-        Vinit    <= vdump==VB_END;
-        vrender1 <= vrender1==VCNT_END ? V_START : vrender1 + 9'd1;
-        vrender  <= vrender1;
-        vdump    <= vrender;
+    if(H==H_VNEXT) begin
+        Vinit <= V == VB_END;
+        V     <= V == VCNT_END ? VCNT_START : (V + 9'd1);
     end
 
-    if( H == HB_START ) begin
+    if(H==HB_START)
+    begin
         LHBL <= 0;
-    end else if( H == HB_END ) LHBL <= 1;
-    if( H == H_VB ) begin
-        { LVBL, LVBL1 } <= { LVBL1, LVBL2 };
-        case( vrender1 )
-            VB_START: LVBL2 <= 0;
-            VB_END:   LVBL2 <= 1;
+    end
+    else
+    begin
+        if( H == HB_END ) LHBL <= 1;
+    end
+
+    if(H==H_VB) begin
+        case(V)
+            VB_START: LVBL <= 0;
+            VB_END:   LVBL <= 1;
             default:;
-        endcase // vdump
+        endcase 
     end
 
     if (H==HS_START) begin
         HS <= 1;
     end
+
     if( H==H_VS ) begin
-        if (vdump==VS_START) VS <= 1;
-        if (vdump==VS_END  ) VS <= 0;
+        if (V==VS_START) VS <= 1;
+        if (V==VS_END  ) VS <= 0;
     end
 
     if (H==HS_END) HS <= 0;

@@ -17,36 +17,50 @@ module soc (
 	output			VGA_VB
 );
 
-wire _hblank;
-wire _vblank;
-assign VGA_HB = ~_hblank;
-assign VGA_VB = ~_vblank;
+wire _hb;
+wire _vb;
+assign VGA_HB = ~_hb;
+assign VGA_VB = ~_vb;
 
 wire [8:0] hcnt;
 wire [8:0] vcnt;
+wire hinit;
+wire vinit;
 
 // Display timing module from JTFRAME
 jtframe_vtimer #(
-	.HB_START(9'd320)
+	.HB_START(9'd320),
+	.VB_START(9'd240)
 ) vtimer 
 (
 	.clk(clk_sys),
 	.pxl_cen(clk_pix),
-	.vdump(vcnt),
-	.vrender(),
-	.vrender1(),
+	.V(vcnt),
 	.H(hcnt),
-	.Hinit(),
-	.Vinit(),
-	.LHBL(_hblank),
-	.LVBL(_vblank),
+	.Hinit(hinit),
+	.Vinit(vinit),
+	.LHBL(_hb),
+	.LVBL(_vb),
 	.HS(VGA_HS),
 	.VS(VGA_VS)
 );
 
 // DEBUG OUTPUT
 assign VGA_R = hcnt[7:0];
-assign VGA_B = vcnt[7:0];
+assign VGA_G = vcnt[7:0];
+assign VGA_B = voff;
+
+// reg [7:0] hoff;
+reg [7:0] voff;
+
+always @(posedge clk_sys)
+begin
+	if(vinit == 1'b1) voff <= voff + 8'b1;
+// 	//if(hinit == 1'b1) hoff <= hoff + 8'b1;
+// 	$display("%d %d", vrender, vrender1);
+end
+
+
 
 // CPU control signals
 wire [15:0] cpu_addr;

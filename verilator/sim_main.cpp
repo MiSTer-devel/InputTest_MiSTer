@@ -50,8 +50,8 @@ const int input_pause = 11;
 
 // Video
 // -----
-#define VGA_WIDTH 640
-#define VGA_HEIGHT 400
+#define VGA_WIDTH 400
+#define VGA_HEIGHT 300
 #define VGA_ROTATE 0  // 90 degrees anti-clockwise
 SimVideo video(VGA_WIDTH, VGA_HEIGHT, VGA_ROTATE);
 
@@ -59,7 +59,7 @@ SimVideo video(VGA_WIDTH, VGA_HEIGHT, VGA_ROTATE);
 // ------------------
 int initialReset = 48;
 bool run_enable = 1;
-int batchSize = 250000 / 100;
+int batchSize = 2500000 / 1000;
 bool single_step = 0;
 bool multi_step = 0;
 int multi_step_amount = 1024;
@@ -221,7 +221,7 @@ int main(int argc, char** argv, char** env) {
 		if (ImGui::Button("START")) { run_enable = 1; } ImGui::SameLine();
 		if (ImGui::Button("STOP")) { run_enable = 0; } ImGui::SameLine();
 		ImGui::Checkbox("RUN", &run_enable);
-		ImGui::SliderInt("Batch size", &batchSize, 1, 100000);
+		ImGui::SliderInt("Batch size", &batchSize, 1, 250000);
 
 		if (single_step == 1) { single_step = 0; }
 		if (ImGui::Button("Single Step")) { run_enable = 0; single_step = 1; }
@@ -239,7 +239,7 @@ int main(int argc, char** argv, char** env) {
 		ImGui::Text("minx: %d maxx: %d miny: %d maxy: %d", video.stats_xMin, video.stats_xMax, video.stats_yMin, video.stats_yMax);
 
 		// Draw VGA output
-		float m = 1.0;
+		float m = 2.0;
 		ImGui::Image(video.texture_id, ImVec2(video.output_width * m, video.output_height * m));
 		ImGui::End();
 

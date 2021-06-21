@@ -3,7 +3,6 @@ set_global_assignment -name QIP_FILE rtl/T80/t80.qip
 set_global_assignment -name QIP_FILE rtl/tv80/TV80.qip
 set_global_assignment -name CDF_FILE jtag.cdf
 set_global_assignment -name QIP_FILE sys/sys.qip
-set_global_assignment -name VERILOG_FILE rtl/video.v
 set_global_assignment -name VERILOG_FILE rtl/JTFRAME/jtframe_vtimer.v
 set_global_assignment -name VERILOG_FILE rtl/soc.v
 set_global_assignment -name VERILOG_FILE rtl/dpram.v
