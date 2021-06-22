@@ -5,6 +5,7 @@
 // Memory maps
 unsigned char __at(0x6000) input0;
 unsigned char __at(0x7000) joystick[24];
+unsigned char __at(0x7100) analog[24];
 unsigned char __at(0x8000) chram[2048];
 unsigned char __at(0x8800) colram[2048];
 
@@ -70,6 +71,7 @@ void page_inputs()
 	write_string("UDLR", 0xFF, 9, 3);
 	write_string("JOY 1)", 0xF0, 2, 4);
 	write_string("JOY 2)", 0xE0, 2, 5);
+	write_string("JOY 3)", 0xD0, 2, 6);
 }
 
 char asc_0 = 48;
@@ -93,7 +95,7 @@ void main()
 		{
 			color++;
 			write_string("--- MiSTer Input Tester ---", color, 6, 1);
-
+			int y = 4;
 			for (char b = 0; b < 2; b++)
 			{
 				char m = 0b00000001;
@@ -102,10 +104,23 @@ void main()
 					char x = 9 + i + (b * 10);
 					for (char j = 0; j < 3; j++)
 					{
-						write_char((joystick[b + (j * 32)] & m) ? asc_1 : asc_0, 0xFF, x, 4 + j);
+						write_char((joystick[(b * 8) + (j * 32)] & m) ? asc_1 : asc_0, 0xFF, x, 4 + j);
 					}
 					m <<= 1;
 				}
+			}
+
+			y += 6;
+
+			char m = 0b00000001;
+			char str[9];
+			for (char j = 0; j < 8; j++)
+			{
+				signed char jx = analog[(j * 16)];
+				signed char jy = analog[(j * 16) + 8];
+				sprintf(str, "%d,%d", jx, jy);
+				write_string(str, 0xFF, 5, y);
+				m <<= 1;
 			}
 		}
 		hsync_last = hsync;

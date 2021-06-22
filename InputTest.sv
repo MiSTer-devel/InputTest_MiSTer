@@ -192,8 +192,7 @@ localparam CONF_STR = {
 	"-;",
 	"O89,Aspect ratio,Original,Full Screen,[ARC1],[ARC2];",
 	"-;",
-	"-;",
-	"-;",
+	"J1,A,B,C,X,Y,Z,L,R,Select,Start;",
 	"V,v",`BUILD_DATE
 };
 
@@ -214,7 +213,7 @@ wire  [7:0] ioctl_din;
 wire  [7:0] ioctl_index;
 wire        ioctl_wait;
 
-wire [15:0] joystick_0, joystick_1;
+wire [31:0] joystick_0, joystick_1;
 
 wire [21:0] gamma_bus;
 
@@ -293,22 +292,21 @@ wire reset = (RESET | status[0] | buttons[1] | rom_download);
 assign LED_USER = rom_download;
 
 soc soc(
-   .clk_sys(clk_sys),
-   .ce_pix(ce_pix),
-   .reset(reset | ioctl_download),
-   .VGA_HS(hs),
-   .VGA_VS(vs),
-   .VGA_R(r),
-   .VGA_G(g),
-   .VGA_B(b),
-   .VGA_HB(hblank),
-   .VGA_VB(vblank),
-   .dn_addr(ioctl_addr[13:0]),
-   .dn_data(ioctl_dout),
-   .dn_wr(ioctl_wr),
-   .dn_index(ioctl_index),
-   .inputs1(joystick_0[7:0]),
-   .inputs2(joystick_1[7:0])
+	.clk_sys(clk_sys),
+	.ce_pix(ce_pix),
+	.reset(reset | ioctl_download),
+	.VGA_HS(hs),
+	.VGA_VS(vs),
+	.VGA_R(r),
+	.VGA_G(g),
+	.VGA_B(b),
+	.VGA_HB(hblank),
+	.VGA_VB(vblank),
+	.dn_addr(ioctl_addr[13:0]),
+	.dn_data(ioctl_dout),
+	.dn_wr(ioctl_wr),
+	.dn_index(ioctl_index),
+	.joystick({joystick_5,joystick_4,joystick_3,joystick_2,joystick_1,joystick_0})
 );
 
 endmodule

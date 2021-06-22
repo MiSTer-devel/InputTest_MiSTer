@@ -22,12 +22,12 @@ module top(
 	input [31:0] joystick_5,
 	
 	// analog -127..+127, Y: [15:8], X: [7:0]
-	// input [15:0] joystick_analog_0;
-	// input [15:0] joystick_analog_1;
-	// input [15:0] joystick_analog_2;
-	// input [15:0] joystick_analog_3;
-	// input [15:0] joystick_analog_4;
-	// input [15:0] joystick_analog_5;
+	input [15:0] joystick_analog_0,
+	input [15:0] joystick_analog_1,
+	input [15:0] joystick_analog_2,
+	input [15:0] joystick_analog_3,
+	input [15:0] joystick_analog_4,
+	input [15:0] joystick_analog_5,
 
 	output [7:0] VGA_R/*verilator public_flat*/,
 	output [7:0] VGA_G/*verilator public_flat*/,
@@ -62,7 +62,8 @@ soc soc(
 	.dn_wr(ioctl_wr),
 	.dn_index(ioctl_index),
 	
-	.joystick({joystick_5,joystick_4,joystick_3,joystick_2,joystick_1,joystick_0})
+	.joystick({joystick_5,joystick_4,joystick_3,joystick_2,joystick_1,joystick_0}),
+	.analog({joystick_analog_5,joystick_analog_4,joystick_analog_3,joystick_analog_2,joystick_analog_1,joystick_analog_0})
 );
 
 endmodule 

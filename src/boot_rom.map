@@ -42,13 +42,14 @@ Area                                    Addr        Size        Decimal Bytes (A
      0000000C  l__HEADER8                      
      0000000F  l__GSINIT                       
      00000200  s__CODE                         
-     0000033E  l__CODE                         
-     0000053E  s__HOME                         
-     0000053E  s__INITIALIZER                  
-     00000540  s__GSINIT                       
-     0000054F  s__GSFINAL                      
+     00001023  l__CODE                         
+     00001223  s__HOME                         
+     00001223  s__INITIALIZER                  
+     00001225  s__GSINIT                       
+     00001234  s__GSFINAL                      
      00006000  _input0                            boot_rom
      00007000  _joystick                          boot_rom
+     00007100  _analog                            boot_rom
      00008000  _chram                             boot_rom
      00008800  _colram                            boot_rom
      0000C000  s__DATA                         
@@ -62,7 +63,7 @@ Hexadecimal  [32-Bits]
 
 Area                                    Addr        Size        Decimal Bytes (Attributes)
 --------------------------------        ----        ----        ------- ----- ------------
-_CODE                               00000200    0000033E =         830. bytes (REL,CON)
+_CODE                               00000200    00001023 =        4131. bytes (REL,CON)
 
       Value  Global                              Global Defined In Module
       -----  --------------------------------   ------------------------
@@ -75,10 +76,14 @@ _CODE                               00000200    0000033E =         830. bytes (R
      0000027E  _write_char                        boot_rom
      000002B7  _page_border                       boot_rom
      00000382  _page_inputs                       boot_rom
-     000003E6  _main                              boot_rom
-     00000515  __mulint                           
-     0000051B  __mul16                            
-     0000052F  _strlen                            
+     00000404  _main                              boot_rom
+     000005F0  __mulint                           
+     000005F6  __mul16                            
+     0000062A  _vsprintf                          sprintf
+     0000065F  _sprintf                           sprintf
+     00000693  _strlen                            
+     000007BD  __print_format                     printf_large
+     00001222  ___sdcc_call_hl                    
 
 ASxxxx Linker V03.00 + NoICE + sdld,  page 3.
 Hexadecimal  [32-Bits]
@@ -166,7 +171,7 @@ Hexadecimal  [32-Bits]
 
 Area                                    Addr        Size        Decimal Bytes (Attributes)
 --------------------------------        ----        ----        ------- ----- ------------
-_INITIALIZER                        0000053E    00000002 =           2. bytes (REL,CON)
+_INITIALIZER                        00001223    00000002 =           2. bytes (REL,CON)
 
       Value  Global                              Global Defined In Module
       -----  --------------------------------   ------------------------
@@ -175,18 +180,18 @@ Hexadecimal  [32-Bits]
 
 Area                                    Addr        Size        Decimal Bytes (Attributes)
 --------------------------------        ----        ----        ------- ----- ------------
-_GSINIT                             00000540    0000000F =          15. bytes (REL,CON)
+_GSINIT                             00001225    0000000F =          15. bytes (REL,CON)
 
       Value  Global                              Global Defined In Module
       -----  --------------------------------   ------------------------
-     00000540  gsinit                             crt0
+     00001225  gsinit                             crt0
 
 ASxxxx Linker V03.00 + NoICE + sdld,  page 14.
 Hexadecimal  [32-Bits]
 
 Area                                    Addr        Size        Decimal Bytes (Attributes)
 --------------------------------        ----        ----        ------- ----- ------------
-_GSFINAL                            0000054F    00000001 =           1. bytes (REL,CON)
+_GSFINAL                            00001234    00000001 =           1. bytes (REL,CON)
 
       Value  Global                              Global Defined In Module
       -----  --------------------------------   ------------------------
@@ -228,7 +233,10 @@ boot_rom.rel                              [ boot_rom ]
 Libraries Linked                          [ object file ]
 
 /usr/bin/../share/sdcc/lib/z80/z80.lib    [ mul.rel ]
+/usr/bin/../share/sdcc/lib/z80/z80.lib    [ sprintf.rel ]
 /usr/bin/../share/sdcc/lib/z80/z80.lib    [ strlen.rel ]
+/usr/bin/../share/sdcc/lib/z80/z80.lib    [ printf_large.rel ]
+/usr/bin/../share/sdcc/lib/z80/z80.lib    [ __sdcc_call_hl.rel ]
 
 ASxxxx Linker V03.00 + NoICE + sdld,  page 18.
 
