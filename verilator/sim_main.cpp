@@ -50,8 +50,8 @@ const int input_pause = 11;
 
 // Video
 // -----
-#define VGA_WIDTH 400
-#define VGA_HEIGHT 300
+#define VGA_WIDTH 320
+#define VGA_HEIGHT 240
 #define VGA_ROTATE 0  // 90 degrees anti-clockwise
 SimVideo video(VGA_WIDTH, VGA_HEIGHT, VGA_ROTATE);
 
@@ -59,7 +59,7 @@ SimVideo video(VGA_WIDTH, VGA_HEIGHT, VGA_ROTATE);
 // ------------------
 int initialReset = 48;
 bool run_enable = 1;
-int batchSize = 2500000 / 1000;
+int batchSize = 150000;
 bool single_step = 0;
 bool multi_step = 0;
 int multi_step_amount = 1024;
@@ -74,8 +74,8 @@ double sc_time_stamp() {	// Called by $time in Verilog.
 }
 
 int clockSpeed = 24; // This is not used, just a reminder for the dividers below
-SimClock clk_sys(2); // 12mhz
-SimClock clk_pix(2); // 6mhz
+SimClock clk_sys(1); // 12mhz
+SimClock clk_pix(1); // 6mhz
 
 void resetSim() {
 	main_time = 0;
@@ -95,14 +95,14 @@ int verilate() {
 
 		// Clock dividers
 		clk_sys.Tick();
-		clk_pix.Tick();
+		clk_pix.Tick(); 
 
 		// Set system clock in core
 		top->clk_sys = clk_sys.clk;
 		top->clk_vid = clk_pix.clk;
 
 		// Output pixels on rising edge of pixel clock
-		if (clk_pix.clk && !clk_pix.old) {
+		if (clk_pix.IsRising()) {
 			uint32_t colour = 0xFF000000 | top->VGA_B << 16 | top->VGA_G << 8 | top->VGA_R;
 			video.Clock(top->VGA_HB, top->VGA_VB, top->VGA_HS, top->VGA_VS, colour);
 		}
@@ -177,7 +177,7 @@ int main(int argc, char** argv, char** env) {
 	if (video.Initialise(windowTitle) == 1) { return 1; }
 
 	bus.QueueDownload("../src/boot_rom.bin", 0);
-	bus.QueueDownload("../src/font.bin", 1);
+	bus.QueueDownload("../MiSTer.pf", 1);
 
 
 #ifdef WIN32
@@ -243,51 +243,37 @@ int main(int argc, char** argv, char** env) {
 		ImGui::Image(video.texture_id, ImVec2(video.output_width * m, video.output_height * m));
 		ImGui::End();
 
-		ImGui::Begin("PGROM Editor");
-		mem_edit_1.DrawContents(top->top__DOT__soc__DOT__pgrom__DOT__mem, 4096, 0);
-		ImGui::End();
-		ImGui::Begin("CHROM Editor");
-		mem_edit_1.DrawContents(top->top__DOT__soc__DOT__chrom__DOT__mem, 1024, 0);
-		ImGui::End();
-		//ImGui::Begin("RAM Editor");
-  //              mem_edit_2.DrawContents(top->top__DOT__soc__DOT__ram__DOT__mem, 4096, 0);
-  //              ImGui::End();
-				//ImGui::Begin("VRAM Editor");
-				//mem_edit_3.DrawContents(top->top__DOT__soc__DOT__video__DOT__vmem, 320*200, 0);
-				//ImGui::End();
+		//ImGui::Begin("PGROM Editor");
+		//mem_edit_1.DrawContents(top->top__DOT__soc__DOT__pgrom__DOT__mem, 16384, 0);
+		//ImGui::End();
+		//ImGui::Begin("CHROM Editor");
+		//mem_edit_1.DrawContents(top->top__DOT__soc__DOT__chrom__DOT__mem, 1024, 0);
+		//ImGui::End();
+		//ImGui::Begin("WKRAM Editor");
+		//mem_edit_2.DrawContents(top->top__DOT__soc__DOT__wkram__DOT__mem, 16384, 0);
+		//ImGui::End();
+		//ImGui::Begin("CHRAM Editor");
+		//mem_edit_3.DrawContents(top->top__DOT__soc__DOT__chram__DOT__mem, 2048, 0);
+		//ImGui::End();
+		//ImGui::Begin("COLRAM Editor");
+		//mem_edit_3.DrawContents(top->top__DOT__soc__DOT__colram__DOT__mem, 2048, 0);
+		//ImGui::End();
 
 		ImGui::Begin("CPU Registers");
 		ImGui::Spacing();
 		ImGui::Text("PC      0x%04X", top->top__DOT__soc__DOT__T80x__DOT__i_tv80_core__DOT__PC);
 		ImGui::Text("ACC      0x%04X", top->top__DOT__soc__DOT__T80x__DOT__i_tv80_core__DOT__ACC);
-		ImGui::Text("Main Registers");
-		/*
-						ImGui::Text("B       0x%02X", top->top__DOT__soc__DOT__T80x__DOT__i_tv80_core__DOT__i_reg__DOT__B);
-						ImGui::Text("C       0x%02X", top->top__DOT__soc__DOT__T80x__DOT__i_tv80_core__DOT__i_reg__DOT__C);
-						ImGui::Text("D       0x%02X", top->top__DOT__soc__DOT__T80x__DOT__i_tv80_core__DOT__i_reg__DOT__D);
-						ImGui::Text("E       0x%02X", top->top__DOT__soc__DOT__T80x__DOT__i_tv80_core__DOT__i_reg__DOT__E);
-						ImGui::Text("H       0x%02X", top->top__DOT__soc__DOT__T80x__DOT__i_tv80_core__DOT__i_reg__DOT__H);
-						ImGui::Text("L       0x%02X", top->top__DOT__soc__DOT__T80x__DOT__i_tv80_core__DOT__i_reg__DOT__L);
-		*/
-		//ImGui::Spacing();
-		//ImGui::Separator();
-		//ImGui::Text("16 bit Registers");
-/*
-				ImGui::Text("IX      0x%04X", top->top__DOT__soc__DOT__T80x__DOT__i_tv80_core__DOT__i_reg__DOT__IX);
-				ImGui::Text("IY      0x%04X", top->top__DOT__soc__DOT__T80x__DOT__i_tv80_core__DOT__i_reg__DOT__IY);
-				ImGui::Text("SP      0x%04X", top->top__DOT__soc__DOT__T80x__DOT__i_tv80_core__DOT__SP);
-*/
-
 		ImGui::End();
 
 		video.UpdateTexture();
 
 		// Pass inputs to sim
-		top->inputs = 0;
+		top->joystick_0 = 0;
 		for (int i = 0; i < input.inputCount; i++)
 		{
-			if (input.inputs[i]) { top->inputs |= (1 << i); }
+			if (input.inputs[i]) { top->joystick_0 |= (1 << i); }
 		}
+		top->joystick_1 = top->joystick_0;
 
 		// Run simulation
 		if (run_enable) {

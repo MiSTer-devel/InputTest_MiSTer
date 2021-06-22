@@ -32,12 +32,14 @@ module emu
 	output  [7:0] VGA_B,
 	output        VGA_HS,
 	output        VGA_VS,
+	output        VGA_DE,    // = ~(VBlank | HBlank)
 	output        VGA_F1,
 	output [1:0]  VGA_SL,
 	output        VGA_SCALER, // Force VGA scaler
 
 	input  [11:0] HDMI_WIDTH,
 	input  [11:0] HDMI_HEIGHT,
+	output        HDMI_FREEZE,
 
 `ifdef MISTER_FB
 	// Use framebuffer in DDRAM (USE_FB=1 in qsf)
@@ -164,9 +166,9 @@ assign {SD_SCK, SD_MOSI, SD_CS} = 'Z;
 assign {SDRAM_DQ, SDRAM_A, SDRAM_BA, SDRAM_CLK, SDRAM_CKE, SDRAM_DQML, SDRAM_DQMH, SDRAM_nWE, SDRAM_nCAS, SDRAM_nRAS, SDRAM_nCS} = 'Z;
 assign {DDRAM_CLK, DDRAM_BURSTCNT, DDRAM_ADDR, DDRAM_DIN, DDRAM_BE, DDRAM_RD, DDRAM_WE} = '0;  
 
-assign VGA_SL = 0;
 assign VGA_F1 = 0;
 assign VGA_SCALER = 0;
+assign HDMI_FREEZE = 0;
 
 assign AUDIO_S = 0;
 assign AUDIO_L = 0;
@@ -184,8 +186,6 @@ wire [1:0] ar = status[9:8];
 assign VIDEO_ARX = (!ar) ? 12'd4 : (ar - 1'd1);
 assign VIDEO_ARY = (!ar) ? 12'd3 : 12'd0;
 
-assign LED_USER  = copy_in_progress;
-
 `include "build_id.v"
 localparam CONF_STR = {
 	"InputTest;;",
@@ -197,56 +197,118 @@ localparam CONF_STR = {
 	"V,v",`BUILD_DATE
 };
 
-
-
 //
 // HPS is the module that communicates between the linux and fpga
 //
 wire [31:0] status;
+wire  [1:0] buttons;
+wire        forced_scandoubler;
+wire        direct_video;
 
-hps_io #(.STRLEN(($size(CONF_STR)>>3)) , .PS2DIV(1000), .WIDE(0)) hps_io
+wire        ioctl_download;
+wire        ioctl_upload;
+wire        ioctl_wr;
+wire [24:0] ioctl_addr;
+wire  [7:0] ioctl_dout;
+wire  [7:0] ioctl_din;
+wire  [7:0] ioctl_index;
+wire        ioctl_wait;
+
+wire [15:0] joystick_0, joystick_1;
+
+wire [21:0] gamma_bus;
+
+hps_io #(.CONF_STR(CONF_STR)) hps_io
 (
 	.clk_sys(clk_sys),
 	.HPS_BUS(HPS_BUS),
-	.status(status),
 
-	
-	.conf_str(CONF_STR)
-	
+	.buttons(buttons),
+	.status(status),
+	.status_menumask({direct_video}),
+
+	.forced_scandoubler(forced_scandoubler),
+	.direct_video(direct_video),
+
+	.ioctl_download(ioctl_download),
+	.ioctl_upload(ioctl_upload),
+	.ioctl_wr(ioctl_wr),
+	.ioctl_addr(ioctl_addr),
+	.ioctl_dout(ioctl_dout),
+	.ioctl_din(ioctl_din),
+	.ioctl_index(ioctl_index),
+	.ioctl_wait(ioctl_wait),
+
+	.joystick_0(joystick_0),
+	.joystick_1(joystick_1)
 );
-///////////////////
-//  PLL - clocks are the most important part of a system
-///////////////////////////////////////////////////
-wire clk_sys, locked;
+
+
+////////////////////   CLOCKS   ///////////////////
+
+wire clk_sys;
+reg ce_pix;
 
 pll pll
 (
 	.refclk(CLK_50M),
 	.rst(0),
-	.outclk_0(clk_sys), // 25.116279 Mhz - for the vga pixel clock
-	.locked(locked)
+	.outclk_0(clk_sys)
+);
+
+
+///////////////////   CLOCK DIVIDER   ////////////////////
+
+always @(posedge clk_sys) begin
+	reg div;
+	div <= div + 1'd1;
+	ce_pix <= !div;
+end
+
+
+///////////////////   VIDEO   ////////////////////
+wire hblank, vblank;
+wire hs, vs;
+
+wire [7:0] r;
+wire [7:0] g;
+wire [7:0] b;
+wire [23:0] rgb = {r,g,b};
+arcade_video #(224,24) arcade_video
+(
+	.*,
+	.clk_video(clk_sys),
+	.RGB_in(rgb),
+	.HBlank(hblank),
+	.VBlank(vblank),
+	.HSync(hs),
+	.VSync(vs),
+	.fx(status[5:3])
 );
 
 ///////////////////////////////////////////////////
 
-assign CLK_VIDEO = clk_sys;
-assign CE_PIXEL = 1;
-
-///////////////////////////////////////////////////
-wire [3:0] r, g, b;
-wire vs,hs;
-wire ce_pix;
-wire hblank, vblank;
+wire rom_download = ioctl_download && (ioctl_index < 8'd2);
+wire reset = (RESET | status[0] | buttons[1] | rom_download);
+assign LED_USER = rom_download;
 
 soc soc(
-   .clk_sys(clk_sys), // wrong
-   .pixel_clock(clk_sys), // wrong
-   .VGA_HS(VGA_HS),
-   .VGA_VS(VGA_VS),
-   .VGA_R(VGA_R),
-   .VGA_G(VGA_G),
-   .VGA_B(VGA_B)
+   .clk_sys(clk_sys),
+   .ce_pix(ce_pix),
+   .reset(reset | ioctl_download),
+   .VGA_HS(hs),
+   .VGA_VS(vs),
+   .VGA_R(r),
+   .VGA_G(g),
+   .VGA_B(b),
+   .VGA_HB(hblank),
+   .VGA_VB(vblank),
+   .dn_addr(ioctl_addr[13:0]),
+   .dn_data(ioctl_dout),
+   .dn_wr(ioctl_wr),
+   .dn_index(ioctl_index),
+   .inputs1(joystick_0[7:0]),
+   .inputs2(joystick_1[7:0])
 );
-
 
 endmodule

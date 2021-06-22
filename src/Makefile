@@ -1,15 +1,17 @@
 SDCC=sdcc
 CPU=z80
 CODE=boot_rom
-OBJ=boot_rom.rel font.rel
+OBJ=boot_rom.rel
+DATALOC=0xC000
+#DATALOC=0x8000
 
 all: $(CODE).bin
 
 %.rel: %.c
-	$(SDCC) -m$(CPU) -c $<
+	$(SDCC) -m$(CPU) -c --data-loc $(DATALOC) $<
 	
 %.ihx: $(OBJ)
-	$(SDCC) -m$(CPU) $(OBJ)
+	$(SDCC) -m$(CPU) --data-loc $(DATALOC) $(OBJ)
  
 %.hex: %.ihx
 	mv $< $@

@@ -1,5 +1,5 @@
 #verilator -cc -exe --public --compiler msvc --converge-limit 2000 -Wno-WIDTH -Wno-IMPLICIT -Wno-MODDUP -Wno-UNSIGNED -Wno-CASEINCOMPLETE -Wno-CASEX -Wno-SYMRSVDWORD -Wno-COMBDLY -Wno-INITIALDLY -Wno-BLKANDNBLK -Wno-UNOPTFLAT -Wno-SELRANGE -Wno-CMPCONST -Wno-CASEOVERLAP -Wno-PINMISSING --top-module top      sim.v \
-verilator -cc -exe --public --compiler msvc +define+SIMULATION=1 +define+SIMULATION_VTIMER=1 --converge-limit 2000 --top-module top sim.v \
+verilator -cc -exe --public --compiler msvc +define+SIMULATION=1 --converge-limit 2000 --top-module top sim.v \
 ../rtl/dpram.v \
 ../rtl/spram.v \
 ../rtl/JTFRAME/jtframe_vtimer.v \

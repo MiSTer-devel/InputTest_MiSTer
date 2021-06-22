@@ -1,144 +1,112 @@
-
 #include <stdio.h>
+#include <stdbool.h>
 #include <string.h>
-#include <stdlib.h>   // for abs()
 
-extern unsigned char font[];
+// Memory maps
+unsigned char __at(0x6000) input0;
+unsigned char __at(0x7000) joystick[24];
+unsigned char __at(0x8000) chram[2048];
+unsigned char __at(0x8800) colram[2048];
 
-const unsigned int VGA_WIDTH = 160;
-const unsigned int VGA_HEIGHT = 100;
+// Character map
+const unsigned char chram_cols = 64;
+const unsigned char chram_rows = 32;
+unsigned int chram_size;
 
-unsigned char __at (0x6000) input0;
-unsigned char __at (0x6001) input1;
-
-unsigned char y = 0;
 unsigned char hsync;
 unsigned char hsync_last;
 unsigned char vsync;
 unsigned char vsync_last;
-unsigned char input0_cache;
-unsigned char input1_cache;
 
-unsigned char color;
-unsigned char cur_x=0, cur_y=0;
-
-int putchar(int c) {
-  unsigned char *p;
-  unsigned char *dptr = (unsigned char*)(160*(8*cur_y) + 8*cur_x);
-  char i, j;
-
-  if(c < 32) {
-    if(c == '\r') 
-      cur_x=0;
-
-    if(c == '\n') {
-      cur_y++;
-      cur_x=0;
-
-      if(cur_y >= 12)
-	cur_y = 0;
-    }
-    return;
-  }
-
-  if(c < 0) return;
-
-  p = font+8*(unsigned char)(c-32);
-  for(i=0;i<8;i++) {
-    unsigned char l = *p++;
-    for(j=0;j<8;j++) {
-      *dptr++ = (l & 0x80)?color:0x00;
-      l <<= 1;
-    }
-    dptr += (160-8);
-  }
-
-  cur_x++;
-  if(cur_x >= 20) {
-    cur_x = 0;
-    cur_y++;
-
-    if(cur_y >= 12)
-      cur_y = 0;
-  }
+void clear_chars()
+{
+	for (unsigned int p = 0; p < chram_size; p++)
+	{
+		chram[p] = 0;
+	}
 }
 
-// draw a pixel
-void put_pixel(unsigned int x, unsigned int y, unsigned char color) {
-  *((unsigned int*)(VGA_WIDTH*y+x)) = color;
+void write_string(const char *string, char color, unsigned int x, unsigned int y)
+{
+	unsigned int p = (y * chram_cols) + x;
+	unsigned char l = strlen(string);
+	for (char c = 0; c < l; c++)
+	{
+		chram[p] = string[c];
+		colram[p] = color;
+		p++;
+	}
 }
 
-void cls(unsigned char color) {
-  unsigned char i;
-  unsigned int *p = (unsigned int*)0;
-  for(i=0;i<VGA_HEIGHT;i++) {
-    memset(p, color, VGA_WIDTH);
-    p += VGA_WIDTH;
-  }
+void write_char(unsigned char c, char color, unsigned int x, unsigned int y)
+{
+	unsigned int p = (y * chram_cols) + x;
+	chram[p] = c;
+	colram[p] = color;
 }
 
-// bresenham algorithm to draw a line
-void draw_line(unsigned int x, unsigned int y, 
-	       unsigned int x2, unsigned int y2, 
-	       unsigned char color) {
-  unsigned int longest, shortest, numerator, i;
-  int dx1 = (x<x2)?1:-1;
-  int dy1 = (y<y2)?1:-1;
-  int dx2, dy2;
-  
-  longest = abs(x2 - x);
-  shortest = abs(y2 - y);
-  if(longest<shortest) {
-    longest = abs(y2 - y);
-    shortest = abs(x2 - x);
-    dx2 = 0;            
-    dy2 = dy1;
-  } else {
-    dx2 = dx1;
-    dy2 = 0;
-  }
-
-  numerator = longest/2;
-  for(i=0;i<=longest;i++) {
-    put_pixel(x,y,color) ;
-    if(numerator >= longest-shortest) {
-      numerator += shortest ;
-      numerator -= longest ;
-      x += dx1;
-      y += dy1;
-    } else {
-      numerator += shortest ;
-      x += dx2;
-      y += dy2;
-    }
-  }
+void page_border(char color)
+{
+	write_char(128, color, 0, 0);
+	write_char(130, color, 39, 0);
+	write_char(133, color, 0, 29);
+	write_char(132, color, 39, 29);
+	for (char x = 1; x < 39; x++)
+	{
+		write_char(129, color, x, 0);
+		write_char(129, color, x, 29);
+	}
+	for (char y = 1; y < 29; y++)
+	{
+		write_char(131, color, 0, y);
+		write_char(131, color, 39, y);
+	}
 }
 
-char color = 0x66;
+void page_inputs()
+{
+	clear_chars();
+	page_border(0b00000111);
+	write_string("UDLR", 0xFF, 9, 3);
+	write_string("JOY 1)", 0xF0, 2, 4);
+	write_string("JOY 2)", 0xE0, 2, 5);
+}
 
-void main() {
-	while(1) {
+char asc_0 = 48;
+char asc_1 = 49;
 
-	// get inputs
-		input0_cache = input0;
-		hsync = input0_cache & 0x80;
-		vsync = input0_cache & 0x40;
+void main()
+{
+	chram_size = chram_cols * chram_rows;
+	char color = 0xAB;
+	page_inputs();
 
-		if(hsync && !hsync_last){
-			y++;
-		}
-		if(vsync && !vsync_last){
-			y=0;
+	while (1)
+	{
+		hsync = input0 & 0x80;
+		vsync = input0 & 0x40;
 
-			cur_x = 0;
-			cur_y = 0;
+		// if(hsync && !hsync_last){
+		// }
+
+		if (vsync && !vsync_last)
+		{
 			color++;
-			cls(~color);
-    	puts(" << Z80 SoC >>\n");
+			write_string("--- MiSTer Input Tester ---", color, 6, 1);
 
-			// process inputs
-			input1_cache = input1;
-
+			for (char b = 0; b < 2; b++)
+			{
+				char m = 0b00000001;
+				for (char i = 0; i < 8; i++)
+				{
+					char x = 9 + i + (b * 10);
+					for (char j = 0; j < 3; j++)
+					{
+						write_char((joystick[b + (j * 32)] & m) ? asc_1 : asc_0, 0xFF, x, 4 + j);
+					}
+					m <<= 1;
+				}
+			}
 		}
 		hsync_last = hsync;
 		vsync_last = vsync;
