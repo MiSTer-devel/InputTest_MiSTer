@@ -131,6 +131,10 @@ void main()
 				write_string(str2, 0xFF, 28, y + j);
 				m <<= 1;
 			}
+
+
+// ADD THE PADDLES AND SPINNERS HERE
+
 		}
 		hsync_last = hsync;
 		vsync_last = vsync;

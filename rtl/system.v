@@ -8,12 +8,18 @@ module system (
 	input [7:0]		dn_data,
 	input [7:0]		dn_index,
 
-	// 6 joysticks, 32 buttons each
+	// 6 devices, 32 buttons each
 	input [191:0]	joystick,
 
-	// 6 joysticks, 16 bits each - -127..+127, Y: [15:8], X: [7:0]
+	// 6 devices, 16 bits each - -127..+127, Y: [15:8], X: [7:0]
 	input [95:0]	analog,
 	
+	// 6 devices, 8 bits each - paddle 0..255
+	input [47:0]	paddle,
+
+	// 6 devices, 9 bits eachspinner [7:0] -128..+127, [8] - toggle with every update
+	input [53:0]	spinner,
+
 	output			VGA_HS,
 	output			VGA_VS,
 	output [7:0]	VGA_R,
@@ -109,12 +115,10 @@ wire [7:0] colram_data_out;
 
 // Hardware inputs
 wire [7:0] in0_data_out = {VGA_HS, VGA_VS, 6'b101000};
-
-wire [7:0] joystick_bit = cpu_addr[7:0];
-wire [7:0] joystick_data_out = joystick[joystick_bit +: 8];
-
-wire [6:0] analog_bit = cpu_addr[6:0];
-wire [7:0] analog_data_out = analog[analog_bit +: 8];
+wire [7:0] joystick_data_out = joystick[cpu_addr[7:0] +: 8];
+wire [7:0] analog_data_out = analog[cpu_addr[6:0] +: 8];
+wire [7:0] paddle_data_out = paddle[cpu_addr[5:0] +: 8];
+wire [7:0] spinner_data_out = spinner[cpu_addr[5:0] +: 8];
 
 // CPU address decodes
 wire pgrom_cs = cpu_addr[15:14] == 2'b00;
@@ -125,6 +129,8 @@ wire wkram_cs = cpu_addr[15:14] == 2'b11;
 wire in0_cs = cpu_addr == 16'h6000;
 wire joystick_cs = cpu_addr[15:8] == 8'b01110000;
 wire analog_cs = cpu_addr[15:8] == 8'b01110001;
+wire paddle_cs = cpu_addr[15:8] == 8'b01110010;
+wire spinner_cs = cpu_addr[15:8] == 8'b01110011;
 
 always @(posedge clk_sys) begin
 // 	if(pgrom_cs) $display("%x pgrom o %x", cpu_addr, pgrom_data_out);
@@ -145,6 +151,8 @@ assign cpu_din = pgrom_cs ? pgrom_data_out :
 				 in0_cs ? in0_data_out :
 				 joystick_cs ? joystick_data_out :
 				 analog_cs ? analog_data_out :
+				 paddle_cs ? paddle_data_out :
+				 spinner_cs ? spinner_data_out :
 				 8'b00000000;
 
 // Rom upload write enables

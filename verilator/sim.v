@@ -29,6 +29,20 @@ module top(
 	input [15:0] joystick_analog_4,
 	input [15:0] joystick_analog_5,
 
+	input [7:0] paddle_0,
+	input [7:0] paddle_1,
+	input [7:0] paddle_2,
+	input [7:0] paddle_3,
+	input [7:0] paddle_4,
+	input [7:0] paddle_5,
+
+	input [8:0] spinner_0,
+	input [8:0] spinner_1,
+	input [8:0] spinner_2,
+	input [8:0] spinner_3,
+	input [8:0] spinner_4,
+	input [8:0] spinner_5,
+
 	output [7:0] VGA_R/*verilator public_flat*/,
 	output [7:0] VGA_G/*verilator public_flat*/,
 	output [7:0] VGA_B/*verilator public_flat*/,
@@ -63,7 +77,9 @@ system system(
 	.dn_index(ioctl_index),
 	
 	.joystick({joystick_5,joystick_4,joystick_3,joystick_2,joystick_1,joystick_0}),
-	.analog({joystick_analog_5,joystick_analog_4,joystick_analog_3,joystick_analog_2,joystick_analog_1,joystick_analog_0})
+	.analog({joystick_analog_5,joystick_analog_4,joystick_analog_3,joystick_analog_2,joystick_analog_1,joystick_analog_0}),
+	.paddle({paddle_5,paddle_4,paddle_3,paddle_2,paddle_1,paddle_0}),
+	.spinner({spinner_5,spinner_4,spinner_3,spinner_2,spinner_1,spinner_0})
 );
 
 endmodule 

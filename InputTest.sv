@@ -225,6 +225,18 @@ wire [15:0] joystick_analog_2;
 wire [15:0] joystick_analog_3;
 wire [15:0] joystick_analog_4;
 wire [15:0] joystick_analog_5;
+wire  [7:0] paddle_0;
+wire  [7:0] paddle_1;
+wire  [7:0] paddle_2;
+wire  [7:0] paddle_3;
+wire  [7:0] paddle_4;
+wire  [7:0] paddle_5;
+wire  [8:0] spinner_0;
+wire  [8:0] spinner_1;
+wire  [8:0] spinner_2;
+wire  [8:0] spinner_3;
+wire  [8:0] spinner_4;
+wire  [8:0] spinner_5;
 
 wire [21:0] gamma_bus;
 
@@ -261,7 +273,21 @@ hps_io #(.CONF_STR(CONF_STR)) hps_io
 	.joystick_analog_2(joystick_analog_2),
 	.joystick_analog_3(joystick_analog_3),
 	.joystick_analog_4(joystick_analog_4),
-	.joystick_analog_5(joystick_analog_5)
+	.joystick_analog_5(joystick_analog_5),
+
+	.paddle_0(paddle_0),
+	.paddle_1(paddle_1),
+	.paddle_2(paddle_2),
+	.paddle_3(paddle_3),
+	.paddle_4(paddle_4),
+	.paddle_5(paddle_5),
+
+	.spinner_0(spinner_0),
+	.spinner_1(spinner_1),
+	.spinner_2(spinner_2),
+	.spinner_3(spinner_3),
+	.spinner_4(spinner_4),
+	.spinner_5(spinner_5)
 );
 
 
@@ -329,7 +355,9 @@ system system(
 	.dn_wr(ioctl_wr),
 	.dn_index(ioctl_index),
 	.joystick({joystick_5,joystick_4,joystick_3,joystick_2,joystick_1,joystick_0}),
-	.analog({joystick_analog_5,joystick_analog_4,joystick_analog_3,joystick_analog_2,joystick_analog_1,joystick_analog_0})
+	.analog({joystick_analog_5,joystick_analog_4,joystick_analog_3,joystick_analog_2,joystick_analog_1,joystick_analog_0}),
+	.paddle({paddle_5,paddle_4,paddle_3,paddle_2,paddle_1,paddle_0}),
+	.spinner({spinner_5,spinner_4,spinner_3,spinner_2,spinner_1,spinner_0})
 );
 
 endmodule
