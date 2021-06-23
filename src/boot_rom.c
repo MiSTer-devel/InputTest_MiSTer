@@ -68,10 +68,15 @@ void page_inputs()
 {
 	clear_chars();
 	page_border(0b00000111);
-	write_string("UDLR", 0xFF, 9, 3);
-	write_string("JOY 1)", 0xF0, 2, 4);
-	write_string("JOY 2)", 0xE0, 2, 5);
-	write_string("JOY 3)", 0xD0, 2, 6);
+	write_string("UDLRABCXYZLRSs", 0xFF, 7, 3);
+	write_string("AX  AY", 0xFF, 25, 3);
+
+	char label[5];
+	for (unsigned char j = 0; j < 6; j++)
+	{
+		sprintf(label, "JOY%d", j + 1);
+		write_string(label, 0xFF - (j*2), 2, 4 + j);
+	}
 }
 
 char asc_0 = 48;
@@ -101,8 +106,8 @@ void main()
 				char m = 0b00000001;
 				for (char i = 0; i < 8; i++)
 				{
-					char x = 9 + i + (b * 10);
-					for (char j = 0; j < 3; j++)
+					char x = 7 + i + (b * 8);
+					for (char j = 0; j < 6; j++)
 					{
 						write_char((joystick[(b * 8) + (j * 32)] & m) ? asc_1 : asc_0, 0xFF, x, 4 + j);
 					}
@@ -110,16 +115,18 @@ void main()
 				}
 			}
 
-			y += 6;
+			y = 4;
 
 			char m = 0b00000001;
-			char str[9];
-			for (char j = 0; j < 8; j++)
+			char str[4];
+			for (char j = 0; j < 6; j++)
 			{
 				signed char jx = analog[(j * 16)];
 				signed char jy = analog[(j * 16) + 8];
-				sprintf(str, "%d,%d", jx, jy);
-				write_string(str, 0xFF, 5, y);
+				sprintf(str, "%d", jx);
+				write_string(str, 0xFF, 25, y + j);
+				sprintf(str, "%d", jy);
+				write_string(str, 0xFF, 29, y + j);
 				m <<= 1;
 			}
 		}

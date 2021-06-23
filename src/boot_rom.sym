@@ -7,12 +7,11 @@ Symbol Table
     .__.ABS.                                                    =  0000 G
     .__.CPU.                                                    =  0000 L
     .__.H$L.                                                    =  0000 L
-  0 ___str_0                                                       01E0 R
-  0 ___str_1                                                       01E5 R
-  0 ___str_2                                                       01EC R
-  0 ___str_3                                                       01F3 R
-  0 ___str_4                                                       03C4 R
-  0 ___str_5                                                       03E0 R
+  0 ___str_0                                                       022A R
+  0 ___str_1                                                       0239 R
+  0 ___str_2                                                       0240 R
+  0 ___str_3                                                       0438 R
+  0 ___str_4                                                       0454 R
     __mulint                                                       **** GX
   7 __xinit__asc_0                                                 0000 R
   7 __xinit__asc_1                                                 0001 R
@@ -29,7 +28,7 @@ Symbol Table
   1 _hsync_last                                                    0003 GR
     _input0                                                     =  6000 G
     _joystick                                                   =  7000 G
-  0 _main                                                          01FA GR
+  0 _main                                                          0246 GR
   0 _page_border                                                   00AD GR
   0 _page_inputs                                                   0178 GR
     _sprintf                                                       **** GX
@@ -45,7 +44,7 @@ Hexadecimal [16-Bits]
 
 Area Table
 
-   0 _CODE                                      size  3E6   flags    0
+   0 _CODE                                      size  457   flags    0
    1 _DATA                                      size    6   flags    0
    2 _INITIALIZED                               size    2   flags    0
    3 _DABS                                      size    0   flags    8

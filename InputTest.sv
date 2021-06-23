@@ -213,7 +213,18 @@ wire  [7:0] ioctl_din;
 wire  [7:0] ioctl_index;
 wire        ioctl_wait;
 
-wire [31:0] joystick_0, joystick_1;
+wire [31:0] joystick_0;
+wire [31:0] joystick_1;
+wire [31:0] joystick_2;
+wire [31:0] joystick_3;
+wire [31:0] joystick_4;
+wire [31:0] joystick_5;
+wire [15:0] joystick_analog_0;
+wire [15:0] joystick_analog_1;
+wire [15:0] joystick_analog_2;
+wire [15:0] joystick_analog_3;
+wire [15:0] joystick_analog_4;
+wire [15:0] joystick_analog_5;
 
 wire [21:0] gamma_bus;
 
@@ -239,7 +250,18 @@ hps_io #(.CONF_STR(CONF_STR)) hps_io
 	.ioctl_wait(ioctl_wait),
 
 	.joystick_0(joystick_0),
-	.joystick_1(joystick_1)
+	.joystick_1(joystick_1),
+	.joystick_2(joystick_2),
+	.joystick_3(joystick_3),
+	.joystick_4(joystick_4),
+	.joystick_5(joystick_5),
+
+	.joystick_analog_0(joystick_analog_0),
+	.joystick_analog_1(joystick_analog_1),
+	.joystick_analog_2(joystick_analog_2),
+	.joystick_analog_3(joystick_analog_3),
+	.joystick_analog_4(joystick_analog_4),
+	.joystick_analog_5(joystick_analog_5)
 );
 
 
@@ -306,7 +328,8 @@ soc soc(
 	.dn_data(ioctl_dout),
 	.dn_wr(ioctl_wr),
 	.dn_index(ioctl_index),
-	.joystick({joystick_5,joystick_4,joystick_3,joystick_2,joystick_1,joystick_0})
+	.joystick({joystick_5,joystick_4,joystick_3,joystick_2,joystick_1,joystick_0}),
+	.analog({joystick_analog_5,joystick_analog_4,joystick_analog_3,joystick_analog_2,joystick_analog_1,joystick_analog_0})
 );
 
 endmodule

@@ -42,11 +42,11 @@ Area                                    Addr        Size        Decimal Bytes (A
      0000000C  l__HEADER8                      
      0000000F  l__GSINIT                       
      00000200  s__CODE                         
-     00001023  l__CODE                         
-     00001223  s__HOME                         
-     00001223  s__INITIALIZER                  
-     00001225  s__GSINIT                       
-     00001234  s__GSFINAL                      
+     00001094  l__CODE                         
+     00001294  s__HOME                         
+     00001294  s__INITIALIZER                  
+     00001296  s__GSINIT                       
+     000012A5  s__GSFINAL                      
      00006000  _input0                            boot_rom
      00007000  _joystick                          boot_rom
      00007100  _analog                            boot_rom
@@ -63,7 +63,7 @@ Hexadecimal  [32-Bits]
 
 Area                                    Addr        Size        Decimal Bytes (Attributes)
 --------------------------------        ----        ----        ------- ----- ------------
-_CODE                               00000200    00001023 =        4131. bytes (REL,CON)
+_CODE                               00000200    00001094 =        4244. bytes (REL,CON)
 
       Value  Global                              Global Defined In Module
       -----  --------------------------------   ------------------------
@@ -76,14 +76,14 @@ _CODE                               00000200    00001023 =        4131. bytes (R
      0000027E  _write_char                        boot_rom
      000002B7  _page_border                       boot_rom
      00000382  _page_inputs                       boot_rom
-     00000404  _main                              boot_rom
-     000005F0  __mulint                           
-     000005F6  __mul16                            
-     0000062A  _vsprintf                          sprintf
-     0000065F  _sprintf                           sprintf
-     00000693  _strlen                            
-     000007BD  __print_format                     printf_large
-     00001222  ___sdcc_call_hl                    
+     00000450  _main                              boot_rom
+     00000661  __mulint                           
+     00000667  __mul16                            
+     0000069B  _vsprintf                          sprintf
+     000006D0  _sprintf                           sprintf
+     00000704  _strlen                            
+     0000082E  __print_format                     printf_large
+     00001293  ___sdcc_call_hl                    
 
 ASxxxx Linker V03.00 + NoICE + sdld,  page 3.
 Hexadecimal  [32-Bits]
@@ -171,7 +171,7 @@ Hexadecimal  [32-Bits]
 
 Area                                    Addr        Size        Decimal Bytes (Attributes)
 --------------------------------        ----        ----        ------- ----- ------------
-_INITIALIZER                        00001223    00000002 =           2. bytes (REL,CON)
+_INITIALIZER                        00001294    00000002 =           2. bytes (REL,CON)
 
       Value  Global                              Global Defined In Module
       -----  --------------------------------   ------------------------
@@ -180,18 +180,18 @@ Hexadecimal  [32-Bits]
 
 Area                                    Addr        Size        Decimal Bytes (Attributes)
 --------------------------------        ----        ----        ------- ----- ------------
-_GSINIT                             00001225    0000000F =          15. bytes (REL,CON)
+_GSINIT                             00001296    0000000F =          15. bytes (REL,CON)
 
       Value  Global                              Global Defined In Module
       -----  --------------------------------   ------------------------
-     00001225  gsinit                             crt0
+     00001296  gsinit                             crt0
 
 ASxxxx Linker V03.00 + NoICE + sdld,  page 14.
 Hexadecimal  [32-Bits]
 
 Area                                    Addr        Size        Decimal Bytes (Attributes)
 --------------------------------        ----        ----        ------- ----- ------------
-_GSFINAL                            00001234    00000001 =           1. bytes (REL,CON)
+_GSFINAL                            000012A5    00000001 =           1. bytes (REL,CON)
 
       Value  Global                              Global Defined In Module
       -----  --------------------------------   ------------------------

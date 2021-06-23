@@ -2,12 +2,20 @@
 
 ## Overview
 
-A mini-system running an input test utility.  Shows all possible MiSTer inputs simultaneously!
+A custom mini-system running an input test utility.  Shows all possible MiSTer inputs simultaneously!
 
-## System
+## System architecture 
 
+A simple 8-bit computer with a 40x30 character display, each character can be set to one of 256 colours
 
-
+Components:
+ - Z80 CPU (tv80 by Guy Hutchison, based on VHDL T80 core by Daniel Wallner)
+ - jtframe_vtimer for VGA timing (from JTFRAME by Jotego)
+ - 16Kb program ROM
+ - 16Kb work RAM
+ - 2Kb character ROM (uses standard MiSTer bitmap font)
+ - 2Kb character RAM
+ - 2Kb colour RAM
 
 ## Memory Map
 

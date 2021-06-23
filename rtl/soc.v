@@ -123,17 +123,19 @@ wire chram_cs = cpu_addr[15:11] == 5'b10000;
 wire colram_cs = cpu_addr[15:11] == 5'b10001;
 wire wkram_cs = cpu_addr[15:14] == 2'b11;
 wire in0_cs = cpu_addr == 16'h6000;
-wire joystick_cs = cpu_addr[15:7] == 9'b011100000;
-wire analog_cs = cpu_addr[15:7] == 9'b011100001;
+wire joystick_cs = cpu_addr[15:8] == 8'b01110000;
+wire analog_cs = cpu_addr[15:8] == 8'b01110001;
 
-// always @(posedge clk_sys) begin
+always @(posedge clk_sys) begin
 // 	if(pgrom_cs) $display("%x pgrom o %x", cpu_addr, pgrom_data_out);
 // 	if(wkram_cs) $display("%x wkram i %x o %x w %b", cpu_addr, cpu_dout, wkram_data_out, wkram_wr);
 // 	if(chram_cs) $display("%x chram i %x o %x w %b", cpu_addr, cpu_dout, chram_data_out, chram_wr);
 // 	if(colram_cs) $display("%x colram i %x o %x w %b", cpu_addr, cpu_dout, colram_data_out, colram_wr);
 // 	if(in0_cs) $display("%x in0 i %x o %x", cpu_addr, cpu_dout, in0_data_out);
-// 	if(joystick_cs) $display("%b  %b", joystick_bit, joystick_data_out);
-// end
+ 	//if(joystick_cs) $display("joystick %b  %b", joystick_bit, joystick_data_out);
+ 	//if(analog_cs) $display("analog %b  %b", analog_bit, analog_data_out);
+	// $display("%x", cpu_addr);
+ end
 
 // CPU data mux
 assign cpu_din = pgrom_cs ? pgrom_data_out :

@@ -262,7 +262,7 @@ int main(int argc, char** argv, char** env) {
 		ImGui::Begin("CPU Registers");
 		ImGui::Spacing();
 		ImGui::Text("PC      0x%04X", top->top__DOT__soc__DOT__T80x__DOT__i_tv80_core__DOT__PC);
-		ImGui::Text("ACC      0x%04X", top->top__DOT__soc__DOT__T80x__DOT__i_tv80_core__DOT__ACC);
+		ImGui::Text("ACC     0x%04X", top->top__DOT__soc__DOT__T80x__DOT__i_tv80_core__DOT__ACC);
 		ImGui::End();
 
 		video.UpdateTexture();
@@ -274,6 +274,9 @@ int main(int argc, char** argv, char** env) {
 			if (input.inputs[i]) { top->joystick_0 |= (1 << i); }
 		}
 		top->joystick_1 = top->joystick_0;
+
+		top->joystick_analog_0 = 0b0001100100001111;
+
 
 		// Run simulation
 		if (run_enable) {

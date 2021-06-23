@@ -58,6 +58,7 @@ V_SRC = \
         $(RTL)/dpram.v  \
         $(RTL)/spram.v  \
 		$(RTL)/JTFRAME/jtframe_vtimer.v
+		$(RTL)/JTFRAME/jtframe_cen24.v
 ../rtl/tv80/tv80_core.v \
 ../rtl/tv80/tv80_alu.v \
 ../rtl/tv80/tv80_mcode.v \
