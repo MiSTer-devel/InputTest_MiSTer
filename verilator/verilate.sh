@@ -4,7 +4,7 @@ verilator -cc -exe --public --compiler msvc +define+SIMULATION=1 --converge-limi
 ../rtl/spram.v \
 ../rtl/JTFRAME/jtframe_vtimer.v \
 ../rtl/JTFRAME/jtframe_cen24.v \
-../rtl/soc.v \
+../rtl/system.v \
 ../rtl/tv80/tv80_core.v \
 ../rtl/tv80/tv80_alu.v \
 ../rtl/tv80/tv80_mcode.v \

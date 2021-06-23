@@ -118,15 +118,17 @@ void main()
 			y = 4;
 
 			char m = 0b00000001;
-			char str[4];
+			char str1[4];
+			char str2[4];
 			for (char j = 0; j < 6; j++)
 			{
 				signed char jx = analog[(j * 16)];
 				signed char jy = analog[(j * 16) + 8];
-				sprintf(str, "%d", jx);
-				write_string(str, 0xFF, 25, y + j);
-				sprintf(str, "%d", jy);
-				write_string(str, 0xFF, 29, y + j);
+				
+				sprintf(str1, "%4d", jx);
+				write_string(str1, 0xFF, 23, y + j);
+				sprintf(str2, "%-4d", jy);
+				write_string(str2, 0xFF, 28, y + j);
 				m <<= 1;
 			}
 		}

@@ -10,8 +10,9 @@ Symbol Table
   0 ___str_0                                                       022A R
   0 ___str_1                                                       0239 R
   0 ___str_2                                                       0240 R
-  0 ___str_3                                                       0438 R
-  0 ___str_4                                                       0454 R
+  0 ___str_3                                                       0436 R
+  0 ___str_4                                                       0452 R
+  0 ___str_5                                                       0456 R
     __mulint                                                       **** GX
   7 __xinit__asc_0                                                 0000 R
   7 __xinit__asc_1                                                 0001 R
@@ -44,7 +45,7 @@ Hexadecimal [16-Bits]
 
 Area Table
 
-   0 _CODE                                      size  457   flags    0
+   0 _CODE                                      size  45B   flags    0
    1 _DATA                                      size    6   flags    0
    2 _INITIALIZED                               size    2   flags    0
    3 _DABS                                      size    0   flags    8

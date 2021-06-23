@@ -54,7 +54,7 @@ CC_OPT = -O
 
 V_SRC = \
         sim.v \
-        $(RTL)/soc.v \
+        $(RTL)/system.v \
         $(RTL)/dpram.v  \
         $(RTL)/spram.v  \
 		$(RTL)/JTFRAME/jtframe_vtimer.v

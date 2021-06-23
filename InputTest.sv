@@ -313,7 +313,7 @@ wire rom_download = ioctl_download && (ioctl_index < 8'd2);
 wire reset = (RESET | status[0] | buttons[1] | rom_download);
 assign LED_USER = rom_download;
 
-soc soc(
+system system(
 	.clk_sys(clk_sys),
 	.ce_pix(ce_pix),
 	.reset(reset | ioctl_download),

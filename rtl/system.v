@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-module soc (
+module system (
 	input			clk_sys,
 	input 			ce_pix,
 	input			reset,

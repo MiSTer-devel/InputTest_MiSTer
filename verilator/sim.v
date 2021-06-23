@@ -46,7 +46,7 @@ module top(
 	output reg		ioctl_wait=1'b0
 );
 
-soc soc(
+system system(
 	.clk_sys(clk_sys),
 	.ce_pix(clk_sys),
 	.reset(reset | ioctl_download),

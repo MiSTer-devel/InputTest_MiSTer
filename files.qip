@@ -4,6 +4,6 @@ set_global_assignment -name CDF_FILE jtag.cdf
 set_global_assignment -name QIP_FILE sys/sys.qip
 set_global_assignment -name VERILOG_FILE rtl/JTFRAME/jtframe_vtimer.v
 set_global_assignment -name VERILOG_FILE rtl/JTFRAME/jtframe_cen24.v
-set_global_assignment -name VERILOG_FILE rtl/soc.v
+set_global_assignment -name VERILOG_FILE rtl/system.v
 set_global_assignment -name VERILOG_FILE rtl/dpram.v
 set_global_assignment -name VERILOG_FILE rtl/spram.v

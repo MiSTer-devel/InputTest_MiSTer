@@ -474,7 +474,7 @@
    0246 DD E5         [15]  472 	push	ix
    0248 DD 21 00 00   [14]  473 	ld	ix,#0
    024C DD 39         [15]  474 	add	ix,sp
-   024E 21 EC FF      [10]  475 	ld	hl, #-20
+   024E 21 E8 FF      [10]  475 	ld	hl, #-24
    0251 39            [11]  476 	add	hl, sp
    0252 F9            [ 6]  477 	ld	sp, hl
                             478 ;boot_rom.c:87: chram_size = chram_cols * chram_rows;
@@ -509,10 +509,10 @@
                             507 ;boot_rom.c:99: if (vsync && !vsync_last)
    0284 FD 7E 00      [19]  508 	ld	a, 0 (iy)
    0287 B7            [ 4]  509 	or	a, a
-   0288 CAr29r04      [10]  510 	jp	Z, 00106$
+   0288 CAr27r04      [10]  510 	jp	Z, 00106$
    028B 3Ar05r00      [13]  511 	ld	a,(#_vsync_last + 0)
    028E B7            [ 4]  512 	or	a, a
-   028F C2r29r04      [10]  513 	jp	NZ, 00106$
+   028F C2r27r04      [10]  513 	jp	NZ, 00106$
                             514 ;boot_rom.c:101: color++;
    0292 DD 34 FB      [23]  515 	inc	-5 (ix)
                             516 ;boot_rom.c:102: write_string("--- MiSTer Input Tester ---", color, 6, 1);
@@ -523,7 +523,7 @@
    029C DD 7E FB      [19]  521 	ld	a, -5 (ix)
    029F F5            [11]  522 	push	af
    02A0 33            [ 6]  523 	inc	sp
-   02A1 21r38r04      [10]  524 	ld	hl, #___str_3
+   02A1 21r36r04      [10]  524 	ld	hl, #___str_3
    02A4 E5            [11]  525 	push	hl
    02A5 CDr17r00      [17]  526 	call	_write_string
    02A8 21 07 00      [10]  527 	ld	hl, #7
@@ -564,13 +564,13 @@
    02DB DD 7E FC      [19]  562 	ld	a, -4 (ix)
    02DE 2E 00         [ 7]  563 	ld	l, #0x00
    02E0 C6 04         [ 7]  564 	add	a, #0x04
-   02E2 DD 77 F4      [19]  565 	ld	-12 (ix), a
+   02E2 DD 77 F2      [19]  565 	ld	-14 (ix), a
    02E5 7D            [ 4]  566 	ld	a, l
    02E6 CE 00         [ 7]  567 	adc	a, #0x00
-   02E8 DD 77 F5      [19]  568 	ld	-11 (ix), a
+   02E8 DD 77 F3      [19]  568 	ld	-13 (ix), a
    02EB DD 7E FF      [19]  569 	ld	a, -1 (ix)
-   02EE DD 77 F2      [19]  570 	ld	-14 (ix), a
-   02F1 DD 36 F3 00   [19]  571 	ld	-13 (ix), #0x00
+   02EE DD 77 F0      [19]  570 	ld	-16 (ix), a
+   02F1 DD 36 F1 00   [19]  571 	ld	-15 (ix), #0x00
    02F5 DD 7E FC      [19]  572 	ld	a, -4 (ix)
    02F8 0F            [ 4]  573 	rrca
    02F9 0F            [ 4]  574 	rrca
@@ -599,11 +599,11 @@
    031A                     597 00126$:
    031A C5            [11]  598 	push	bc
    031B D5            [11]  599 	push	de
-   031C DD 6E F4      [19]  600 	ld	l, -12 (ix)
-   031F DD 66 F5      [19]  601 	ld	h, -11 (ix)
+   031C DD 6E F2      [19]  600 	ld	l, -14 (ix)
+   031F DD 66 F3      [19]  601 	ld	h, -13 (ix)
    0322 E5            [11]  602 	push	hl
-   0323 DD 6E F2      [19]  603 	ld	l, -14 (ix)
-   0326 DD 66 F3      [19]  604 	ld	h, -13 (ix)
+   0323 DD 6E F0      [19]  603 	ld	l, -16 (ix)
+   0326 DD 66 F1      [19]  604 	ld	h, -15 (ix)
    0329 E5            [11]  605 	push	hl
    032A 3E FF         [ 7]  606 	ld	a, #0xff
    032C F5            [11]  607 	push	af
@@ -631,154 +631,157 @@
    0346 C3rAFr02      [10]  629 	jp	00118$
    0349                     630 00103$:
                             631 ;boot_rom.c:120: char m = 0b00000001;
-   0349 DD 36 F2 01   [19]  632 	ld	-14 (ix), #0x01
-                            633 ;boot_rom.c:122: for (char j = 0; j < 6; j++)
-   034D 21 00 00      [10]  634 	ld	hl, #0x0000
+   0349 DD 36 F0 01   [19]  632 	ld	-16 (ix), #0x01
+                            633 ;boot_rom.c:123: for (char j = 0; j < 6; j++)
+   034D 21 04 00      [10]  634 	ld	hl, #0x0004
    0350 39            [11]  635 	add	hl, sp
-   0351 DD 75 F4      [19]  636 	ld	-12 (ix), l
-   0354 DD 74 F5      [19]  637 	ld	-11 (ix), h
-   0357 DD 7E F4      [19]  638 	ld	a, -12 (ix)
+   0351 DD 75 F2      [19]  636 	ld	-14 (ix), l
+   0354 DD 74 F3      [19]  637 	ld	-13 (ix), h
+   0357 DD 7E F2      [19]  638 	ld	a, -14 (ix)
    035A DD 77 F8      [19]  639 	ld	-8 (ix), a
-   035D DD 7E F5      [19]  640 	ld	a, -11 (ix)
+   035D DD 7E F3      [19]  640 	ld	a, -13 (ix)
    0360 DD 77 F9      [19]  641 	ld	-7 (ix), a
-   0363 DD 7E F4      [19]  642 	ld	a, -12 (ix)
-   0366 DD 77 F6      [19]  643 	ld	-10 (ix), a
-   0369 DD 7E F5      [19]  644 	ld	a, -11 (ix)
-   036C DD 77 F7      [19]  645 	ld	-9 (ix), a
-   036F DD 7E F4      [19]  646 	ld	a, -12 (ix)
-   0372 DD 77 F0      [19]  647 	ld	-16 (ix), a
-   0375 DD 7E F5      [19]  648 	ld	a, -11 (ix)
-   0378 DD 77 F1      [19]  649 	ld	-15 (ix), a
-   037B DD 36 FE 00   [19]  650 	ld	-2 (ix), #0x00
-   037F                     651 00121$:
-   037F DD 7E FE      [19]  652 	ld	a, -2 (ix)
-   0382 D6 06         [ 7]  653 	sub	a, #0x06
-   0384 D2r29r04      [10]  654 	jp	NC, 00106$
-                            655 ;boot_rom.c:124: signed char jx = analog[(j * 16)];
-   0387 DD 6E FE      [19]  656 	ld	l, -2 (ix)
-   038A 26 00         [ 7]  657 	ld	h, #0x00
-   038C 29            [11]  658 	add	hl, hl
-   038D 29            [11]  659 	add	hl, hl
-   038E 29            [11]  660 	add	hl, hl
-   038F 29            [11]  661 	add	hl, hl
-   0390 11 00 71      [10]  662 	ld	de, #_analog
-   0393 19            [11]  663 	add	hl, de
-   0394 4E            [ 7]  664 	ld	c, (hl)
-                            665 ;boot_rom.c:125: signed char jy = analog[(j * 16) + 8];
-   0395 DD 7E FE      [19]  666 	ld	a, -2 (ix)
-   0398 07            [ 4]  667 	rlca
-   0399 07            [ 4]  668 	rlca
-   039A 07            [ 4]  669 	rlca
-   039B 07            [ 4]  670 	rlca
-   039C E6 F0         [ 7]  671 	and	a, #0xf0
-   039E C6 08         [ 7]  672 	add	a, #0x08
-   03A0 5F            [ 4]  673 	ld	e, a
-   03A1 17            [ 4]  674 	rla
-   03A2 9F            [ 4]  675 	sbc	a, a
-   03A3 57            [ 4]  676 	ld	d, a
-   03A4 21 00 71      [10]  677 	ld	hl, #_analog
-   03A7 19            [11]  678 	add	hl, de
-   03A8 7E            [ 7]  679 	ld	a, (hl)
-   03A9 DD 77 FD      [19]  680 	ld	-3 (ix), a
-                            681 ;boot_rom.c:126: sprintf(str, "%d", jx);
-   03AC 79            [ 4]  682 	ld	a, c
-   03AD 17            [ 4]  683 	rla
-   03AE 9F            [ 4]  684 	sbc	a, a
-   03AF 47            [ 4]  685 	ld	b, a
-   03B0 DD 5E F4      [19]  686 	ld	e, -12 (ix)
-   03B3 DD 56 F5      [19]  687 	ld	d, -11 (ix)
-   03B6 C5            [11]  688 	push	bc
-   03B7 21r54r04      [10]  689 	ld	hl, #___str_4
-   03BA E5            [11]  690 	push	hl
-   03BB D5            [11]  691 	push	de
-   03BC CDr00r00      [17]  692 	call	_sprintf
-   03BF 21 06 00      [10]  693 	ld	hl, #6
-   03C2 39            [11]  694 	add	hl, sp
-   03C3 F9            [ 6]  695 	ld	sp, hl
-                            696 ;boot_rom.c:127: write_string(str, 0xFF, 25, y + j);
-   03C4 DD 4E FE      [19]  697 	ld	c, -2 (ix)
-   03C7 06 00         [ 7]  698 	ld	b, #0x00
-   03C9 03            [ 6]  699 	inc	bc
-   03CA 03            [ 6]  700 	inc	bc
-   03CB 03            [ 6]  701 	inc	bc
-   03CC 03            [ 6]  702 	inc	bc
-   03CD DD 5E F8      [19]  703 	ld	e, -8 (ix)
-   03D0 DD 56 F9      [19]  704 	ld	d, -7 (ix)
-   03D3 C5            [11]  705 	push	bc
-   03D4 C5            [11]  706 	push	bc
-   03D5 21 19 00      [10]  707 	ld	hl, #0x0019
-   03D8 E5            [11]  708 	push	hl
-   03D9 3E FF         [ 7]  709 	ld	a, #0xff
-   03DB F5            [11]  710 	push	af
-   03DC 33            [ 6]  711 	inc	sp
-   03DD D5            [11]  712 	push	de
-   03DE CDr17r00      [17]  713 	call	_write_string
-   03E1 21 07 00      [10]  714 	ld	hl, #7
-   03E4 39            [11]  715 	add	hl, sp
-   03E5 F9            [ 6]  716 	ld	sp, hl
-   03E6 C1            [10]  717 	pop	bc
-                            718 ;boot_rom.c:128: sprintf(str, "%d", jy);
-   03E7 DD 7E FD      [19]  719 	ld	a, -3 (ix)
-   03EA 5F            [ 4]  720 	ld	e, a
-   03EB 17            [ 4]  721 	rla
-   03EC 9F            [ 4]  722 	sbc	a, a
-   03ED 57            [ 4]  723 	ld	d, a
-   03EE DD 6E F6      [19]  724 	ld	l, -10 (ix)
-   03F1 DD 66 F7      [19]  725 	ld	h, -9 (ix)
-   03F4 C5            [11]  726 	push	bc
-   03F5 D5            [11]  727 	push	de
-   03F6 11r54r04      [10]  728 	ld	de, #___str_4
-   03F9 D5            [11]  729 	push	de
-   03FA E5            [11]  730 	push	hl
-   03FB CDr00r00      [17]  731 	call	_sprintf
-   03FE 21 06 00      [10]  732 	ld	hl, #6
-   0401 39            [11]  733 	add	hl, sp
-   0402 F9            [ 6]  734 	ld	sp, hl
-   0403 C1            [10]  735 	pop	bc
-                            736 ;boot_rom.c:129: write_string(str, 0xFF, 29, y + j);
-   0404 DD 5E F0      [19]  737 	ld	e, -16 (ix)
-   0407 DD 56 F1      [19]  738 	ld	d, -15 (ix)
-   040A C5            [11]  739 	push	bc
-   040B 21 1D 00      [10]  740 	ld	hl, #0x001d
-   040E E5            [11]  741 	push	hl
-   040F 3E FF         [ 7]  742 	ld	a, #0xff
-   0411 F5            [11]  743 	push	af
-   0412 33            [ 6]  744 	inc	sp
-   0413 D5            [11]  745 	push	de
-   0414 CDr17r00      [17]  746 	call	_write_string
-   0417 21 07 00      [10]  747 	ld	hl, #7
-   041A 39            [11]  748 	add	hl, sp
-   041B F9            [ 6]  749 	ld	sp, hl
-                            750 ;boot_rom.c:130: m <<= 1;
-   041C DD 7E F2      [19]  751 	ld	a, -14 (ix)
-   041F 87            [ 4]  752 	add	a, a
-   0420 DD 77 F2      [19]  753 	ld	-14 (ix), a
-                            754 ;boot_rom.c:122: for (char j = 0; j < 6; j++)
-   0423 DD 34 FE      [23]  755 	inc	-2 (ix)
-   0426 C3r7Fr03      [10]  756 	jp	00121$
-   0429                     757 00106$:
-                            758 ;boot_rom.c:133: hsync_last = hsync;
-   0429 3Ar02r00      [13]  759 	ld	a,(#_hsync + 0)
-   042C 32r03r00      [13]  760 	ld	(#_hsync_last + 0),a
-                            761 ;boot_rom.c:134: vsync_last = vsync;
-   042F 3Ar04r00      [13]  762 	ld	a,(#_vsync + 0)
-   0432 32r05r00      [13]  763 	ld	(#_vsync_last + 0),a
-                            764 ;boot_rom.c:136: }
-   0435 C3r70r02      [10]  765 	jp	00109$
-   0438                     766 ___str_3:
-   0438 2D 2D 2D 20 4D 69   767 	.ascii "--- MiSTer Input Tester ---"
+   0363 21 00 00      [10]  642 	ld	hl, #0x0000
+   0366 39            [11]  643 	add	hl, sp
+   0367 DD 75 F6      [19]  644 	ld	-10 (ix), l
+   036A DD 74 F7      [19]  645 	ld	-9 (ix), h
+   036D DD 7E F6      [19]  646 	ld	a, -10 (ix)
+   0370 DD 77 F4      [19]  647 	ld	-12 (ix), a
+   0373 DD 7E F7      [19]  648 	ld	a, -9 (ix)
+   0376 DD 77 F5      [19]  649 	ld	-11 (ix), a
+   0379 DD 36 FE 00   [19]  650 	ld	-2 (ix), #0x00
+   037D                     651 00121$:
+   037D DD 7E FE      [19]  652 	ld	a, -2 (ix)
+   0380 D6 06         [ 7]  653 	sub	a, #0x06
+   0382 D2r27r04      [10]  654 	jp	NC, 00106$
+                            655 ;boot_rom.c:125: signed char jx = analog[(j * 16)];
+   0385 DD 6E FE      [19]  656 	ld	l, -2 (ix)
+   0388 26 00         [ 7]  657 	ld	h, #0x00
+   038A 29            [11]  658 	add	hl, hl
+   038B 29            [11]  659 	add	hl, hl
+   038C 29            [11]  660 	add	hl, hl
+   038D 29            [11]  661 	add	hl, hl
+   038E 11 00 71      [10]  662 	ld	de, #_analog
+   0391 19            [11]  663 	add	hl, de
+   0392 4E            [ 7]  664 	ld	c, (hl)
+                            665 ;boot_rom.c:126: signed char jy = analog[(j * 16) + 8];
+   0393 DD 7E FE      [19]  666 	ld	a, -2 (ix)
+   0396 07            [ 4]  667 	rlca
+   0397 07            [ 4]  668 	rlca
+   0398 07            [ 4]  669 	rlca
+   0399 07            [ 4]  670 	rlca
+   039A E6 F0         [ 7]  671 	and	a, #0xf0
+   039C C6 08         [ 7]  672 	add	a, #0x08
+   039E 5F            [ 4]  673 	ld	e, a
+   039F 17            [ 4]  674 	rla
+   03A0 9F            [ 4]  675 	sbc	a, a
+   03A1 57            [ 4]  676 	ld	d, a
+   03A2 21 00 71      [10]  677 	ld	hl, #_analog
+   03A5 19            [11]  678 	add	hl, de
+   03A6 7E            [ 7]  679 	ld	a, (hl)
+   03A7 DD 77 FD      [19]  680 	ld	-3 (ix), a
+                            681 ;boot_rom.c:128: sprintf(str1, "%4d", jx);
+   03AA 79            [ 4]  682 	ld	a, c
+   03AB 17            [ 4]  683 	rla
+   03AC 9F            [ 4]  684 	sbc	a, a
+   03AD 47            [ 4]  685 	ld	b, a
+   03AE DD 5E F2      [19]  686 	ld	e, -14 (ix)
+   03B1 DD 56 F3      [19]  687 	ld	d, -13 (ix)
+   03B4 C5            [11]  688 	push	bc
+   03B5 21r52r04      [10]  689 	ld	hl, #___str_4
+   03B8 E5            [11]  690 	push	hl
+   03B9 D5            [11]  691 	push	de
+   03BA CDr00r00      [17]  692 	call	_sprintf
+   03BD 21 06 00      [10]  693 	ld	hl, #6
+   03C0 39            [11]  694 	add	hl, sp
+   03C1 F9            [ 6]  695 	ld	sp, hl
+                            696 ;boot_rom.c:129: write_string(str1, 0xFF, 23, y + j);
+   03C2 DD 4E FE      [19]  697 	ld	c, -2 (ix)
+   03C5 06 00         [ 7]  698 	ld	b, #0x00
+   03C7 03            [ 6]  699 	inc	bc
+   03C8 03            [ 6]  700 	inc	bc
+   03C9 03            [ 6]  701 	inc	bc
+   03CA 03            [ 6]  702 	inc	bc
+   03CB DD 5E F8      [19]  703 	ld	e, -8 (ix)
+   03CE DD 56 F9      [19]  704 	ld	d, -7 (ix)
+   03D1 C5            [11]  705 	push	bc
+   03D2 C5            [11]  706 	push	bc
+   03D3 21 17 00      [10]  707 	ld	hl, #0x0017
+   03D6 E5            [11]  708 	push	hl
+   03D7 3E FF         [ 7]  709 	ld	a, #0xff
+   03D9 F5            [11]  710 	push	af
+   03DA 33            [ 6]  711 	inc	sp
+   03DB D5            [11]  712 	push	de
+   03DC CDr17r00      [17]  713 	call	_write_string
+   03DF 21 07 00      [10]  714 	ld	hl, #7
+   03E2 39            [11]  715 	add	hl, sp
+   03E3 F9            [ 6]  716 	ld	sp, hl
+   03E4 C1            [10]  717 	pop	bc
+                            718 ;boot_rom.c:130: sprintf(str2, "%-4d", jy);
+   03E5 DD 7E FD      [19]  719 	ld	a, -3 (ix)
+   03E8 5F            [ 4]  720 	ld	e, a
+   03E9 17            [ 4]  721 	rla
+   03EA 9F            [ 4]  722 	sbc	a, a
+   03EB 57            [ 4]  723 	ld	d, a
+   03EC DD 6E F6      [19]  724 	ld	l, -10 (ix)
+   03EF DD 66 F7      [19]  725 	ld	h, -9 (ix)
+   03F2 C5            [11]  726 	push	bc
+   03F3 D5            [11]  727 	push	de
+   03F4 11r56r04      [10]  728 	ld	de, #___str_5
+   03F7 D5            [11]  729 	push	de
+   03F8 E5            [11]  730 	push	hl
+   03F9 CDr00r00      [17]  731 	call	_sprintf
+   03FC 21 06 00      [10]  732 	ld	hl, #6
+   03FF 39            [11]  733 	add	hl, sp
+   0400 F9            [ 6]  734 	ld	sp, hl
+   0401 C1            [10]  735 	pop	bc
+                            736 ;boot_rom.c:131: write_string(str2, 0xFF, 28, y + j);
+   0402 DD 5E F4      [19]  737 	ld	e, -12 (ix)
+   0405 DD 56 F5      [19]  738 	ld	d, -11 (ix)
+   0408 C5            [11]  739 	push	bc
+   0409 21 1C 00      [10]  740 	ld	hl, #0x001c
+   040C E5            [11]  741 	push	hl
+   040D 3E FF         [ 7]  742 	ld	a, #0xff
+   040F F5            [11]  743 	push	af
+   0410 33            [ 6]  744 	inc	sp
+   0411 D5            [11]  745 	push	de
+   0412 CDr17r00      [17]  746 	call	_write_string
+   0415 21 07 00      [10]  747 	ld	hl, #7
+   0418 39            [11]  748 	add	hl, sp
+   0419 F9            [ 6]  749 	ld	sp, hl
+                            750 ;boot_rom.c:132: m <<= 1;
+   041A DD 7E F0      [19]  751 	ld	a, -16 (ix)
+   041D 87            [ 4]  752 	add	a, a
+   041E DD 77 F0      [19]  753 	ld	-16 (ix), a
+                            754 ;boot_rom.c:123: for (char j = 0; j < 6; j++)
+   0421 DD 34 FE      [23]  755 	inc	-2 (ix)
+   0424 C3r7Dr03      [10]  756 	jp	00121$
+   0427                     757 00106$:
+                            758 ;boot_rom.c:135: hsync_last = hsync;
+   0427 3Ar02r00      [13]  759 	ld	a,(#_hsync + 0)
+   042A 32r03r00      [13]  760 	ld	(#_hsync_last + 0),a
+                            761 ;boot_rom.c:136: vsync_last = vsync;
+   042D 3Ar04r00      [13]  762 	ld	a,(#_vsync + 0)
+   0430 32r05r00      [13]  763 	ld	(#_vsync_last + 0),a
+                            764 ;boot_rom.c:138: }
+   0433 C3r70r02      [10]  765 	jp	00109$
+   0436                     766 ___str_3:
+   0436 2D 2D 2D 20 4D 69   767 	.ascii "--- MiSTer Input Tester ---"
         53 54 65 72 20 49
         6E 70 75 74 20 54
         65 73 74 65 72 20
         2D 2D 2D
-   0453 00                  768 	.db 0x00
-   0454                     769 ___str_4:
-   0454 25 64               770 	.ascii "%d"
-   0456 00                  771 	.db 0x00
-                            772 	.area _CODE
-                            773 	.area _INITIALIZER
-   0000                     774 __xinit__asc_0:
-   0000 30                  775 	.db #0x30	; 48	'0'
-   0001                     776 __xinit__asc_1:
-   0001 31                  777 	.db #0x31	; 49	'1'
-                            778 	.area _CABS (ABS)
+   0451 00                  768 	.db 0x00
+   0452                     769 ___str_4:
+   0452 25 34 64            770 	.ascii "%4d"
+   0455 00                  771 	.db 0x00
+   0456                     772 ___str_5:
+   0456 25 2D 34 64         773 	.ascii "%-4d"
+   045A 00                  774 	.db 0x00
+                            775 	.area _CODE
+                            776 	.area _INITIALIZER
+   0000                     777 __xinit__asc_0:
+   0000 30                  778 	.db #0x30	; 48	'0'
+   0001                     779 __xinit__asc_1:
+   0001 31                  780 	.db #0x31	; 49	'1'
+                            781 	.area _CABS (ABS)

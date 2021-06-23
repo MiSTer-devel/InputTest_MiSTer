@@ -472,7 +472,7 @@ _main::
 	push	ix
 	ld	ix,#0
 	add	ix,sp
-	ld	hl, #-20
+	ld	hl, #-24
 	add	hl, sp
 	ld	sp, hl
 ;boot_rom.c:87: chram_size = chram_cols * chram_rows;
@@ -562,13 +562,13 @@ _main::
 	ld	a, -4 (ix)
 	ld	l, #0x00
 	add	a, #0x04
-	ld	-12 (ix), a
+	ld	-14 (ix), a
 	ld	a, l
 	adc	a, #0x00
-	ld	-11 (ix), a
+	ld	-13 (ix), a
 	ld	a, -1 (ix)
-	ld	-14 (ix), a
-	ld	-13 (ix), #0x00
+	ld	-16 (ix), a
+	ld	-15 (ix), #0x00
 	ld	a, -4 (ix)
 	rrca
 	rrca
@@ -597,11 +597,11 @@ _main::
 00126$:
 	push	bc
 	push	de
-	ld	l, -12 (ix)
-	ld	h, -11 (ix)
-	push	hl
 	ld	l, -14 (ix)
 	ld	h, -13 (ix)
+	push	hl
+	ld	l, -16 (ix)
+	ld	h, -15 (ix)
 	push	hl
 	ld	a, #0xff
 	push	af
@@ -629,30 +629,30 @@ _main::
 	jp	00118$
 00103$:
 ;boot_rom.c:120: char m = 0b00000001;
-	ld	-14 (ix), #0x01
-;boot_rom.c:122: for (char j = 0; j < 6; j++)
+	ld	-16 (ix), #0x01
+;boot_rom.c:123: for (char j = 0; j < 6; j++)
+	ld	hl, #0x0004
+	add	hl, sp
+	ld	-14 (ix), l
+	ld	-13 (ix), h
+	ld	a, -14 (ix)
+	ld	-8 (ix), a
+	ld	a, -13 (ix)
+	ld	-7 (ix), a
 	ld	hl, #0x0000
 	add	hl, sp
-	ld	-12 (ix), l
-	ld	-11 (ix), h
-	ld	a, -12 (ix)
-	ld	-8 (ix), a
-	ld	a, -11 (ix)
-	ld	-7 (ix), a
-	ld	a, -12 (ix)
-	ld	-10 (ix), a
-	ld	a, -11 (ix)
-	ld	-9 (ix), a
-	ld	a, -12 (ix)
-	ld	-16 (ix), a
-	ld	a, -11 (ix)
-	ld	-15 (ix), a
+	ld	-10 (ix), l
+	ld	-9 (ix), h
+	ld	a, -10 (ix)
+	ld	-12 (ix), a
+	ld	a, -9 (ix)
+	ld	-11 (ix), a
 	ld	-2 (ix), #0x00
 00121$:
 	ld	a, -2 (ix)
 	sub	a, #0x06
 	jp	NC, 00106$
-;boot_rom.c:124: signed char jx = analog[(j * 16)];
+;boot_rom.c:125: signed char jx = analog[(j * 16)];
 	ld	l, -2 (ix)
 	ld	h, #0x00
 	add	hl, hl
@@ -662,7 +662,7 @@ _main::
 	ld	de, #_analog
 	add	hl, de
 	ld	c, (hl)
-;boot_rom.c:125: signed char jy = analog[(j * 16) + 8];
+;boot_rom.c:126: signed char jy = analog[(j * 16) + 8];
 	ld	a, -2 (ix)
 	rlca
 	rlca
@@ -678,13 +678,13 @@ _main::
 	add	hl, de
 	ld	a, (hl)
 	ld	-3 (ix), a
-;boot_rom.c:126: sprintf(str, "%d", jx);
+;boot_rom.c:128: sprintf(str1, "%4d", jx);
 	ld	a, c
 	rla
 	sbc	a, a
 	ld	b, a
-	ld	e, -12 (ix)
-	ld	d, -11 (ix)
+	ld	e, -14 (ix)
+	ld	d, -13 (ix)
 	push	bc
 	ld	hl, #___str_4
 	push	hl
@@ -693,7 +693,7 @@ _main::
 	ld	hl, #6
 	add	hl, sp
 	ld	sp, hl
-;boot_rom.c:127: write_string(str, 0xFF, 25, y + j);
+;boot_rom.c:129: write_string(str1, 0xFF, 23, y + j);
 	ld	c, -2 (ix)
 	ld	b, #0x00
 	inc	bc
@@ -704,7 +704,7 @@ _main::
 	ld	d, -7 (ix)
 	push	bc
 	push	bc
-	ld	hl, #0x0019
+	ld	hl, #0x0017
 	push	hl
 	ld	a, #0xff
 	push	af
@@ -715,7 +715,7 @@ _main::
 	add	hl, sp
 	ld	sp, hl
 	pop	bc
-;boot_rom.c:128: sprintf(str, "%d", jy);
+;boot_rom.c:130: sprintf(str2, "%-4d", jy);
 	ld	a, -3 (ix)
 	ld	e, a
 	rla
@@ -725,7 +725,7 @@ _main::
 	ld	h, -9 (ix)
 	push	bc
 	push	de
-	ld	de, #___str_4
+	ld	de, #___str_5
 	push	de
 	push	hl
 	call	_sprintf
@@ -733,11 +733,11 @@ _main::
 	add	hl, sp
 	ld	sp, hl
 	pop	bc
-;boot_rom.c:129: write_string(str, 0xFF, 29, y + j);
-	ld	e, -16 (ix)
-	ld	d, -15 (ix)
+;boot_rom.c:131: write_string(str2, 0xFF, 28, y + j);
+	ld	e, -12 (ix)
+	ld	d, -11 (ix)
 	push	bc
-	ld	hl, #0x001d
+	ld	hl, #0x001c
 	push	hl
 	ld	a, #0xff
 	push	af
@@ -747,27 +747,30 @@ _main::
 	ld	hl, #7
 	add	hl, sp
 	ld	sp, hl
-;boot_rom.c:130: m <<= 1;
-	ld	a, -14 (ix)
+;boot_rom.c:132: m <<= 1;
+	ld	a, -16 (ix)
 	add	a, a
-	ld	-14 (ix), a
-;boot_rom.c:122: for (char j = 0; j < 6; j++)
+	ld	-16 (ix), a
+;boot_rom.c:123: for (char j = 0; j < 6; j++)
 	inc	-2 (ix)
 	jp	00121$
 00106$:
-;boot_rom.c:133: hsync_last = hsync;
+;boot_rom.c:135: hsync_last = hsync;
 	ld	a,(#_hsync + 0)
 	ld	(#_hsync_last + 0),a
-;boot_rom.c:134: vsync_last = vsync;
+;boot_rom.c:136: vsync_last = vsync;
 	ld	a,(#_vsync + 0)
 	ld	(#_vsync_last + 0),a
-;boot_rom.c:136: }
+;boot_rom.c:138: }
 	jp	00109$
 ___str_3:
 	.ascii "--- MiSTer Input Tester ---"
 	.db 0x00
 ___str_4:
-	.ascii "%d"
+	.ascii "%4d"
+	.db 0x00
+___str_5:
+	.ascii "%-4d"
 	.db 0x00
 	.area _CODE
 	.area _INITIALIZER
