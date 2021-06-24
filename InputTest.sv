@@ -306,7 +306,7 @@ wire ce_pix;
 jtframe_cen24 divider
 (
 	.clk(clk_sys),
-	.cen4(ce_pix)
+	.cen6(ce_pix)
 );
 
 ///////////////////   VIDEO   ////////////////////

@@ -3,7 +3,6 @@ CPU=z80
 CODE=boot_rom
 OBJ=boot_rom.rel
 DATALOC=0xC000
-#DATALOC=0x8000
 
 all: $(CODE).bin
 
