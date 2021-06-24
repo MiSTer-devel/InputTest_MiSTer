@@ -17,8 +17,8 @@ module system (
 	// 6 devices, 8 bits each - paddle 0..255
 	input [47:0]	paddle,
 
-	// 6 devices, 9 bits eachspinner [7:0] -128..+127, [8] - toggle with every update
-	input [53:0]	spinner,
+	// 6 devices, 16 bits eachspinner [7:0] -128..+127, [8] - toggle with every update, [9-15] padding
+	input [95:0]	spinner,
 
 	output			VGA_HS,
 	output			VGA_VS,
@@ -45,8 +45,8 @@ wire vinit;
 
 // Display timing module from JTFRAME
 jtframe_vtimer #(
-	.HB_START(VGA_WIDTH),
-	.VB_START(VGA_HEIGHT)
+	.HB_START(VGA_WIDTH - 1'b1),
+	.VB_START(VGA_HEIGHT- 1'b1)
 ) vtimer 
 (
 	.clk(clk_sys),
@@ -62,7 +62,7 @@ jtframe_vtimer #(
 );
 
 // Character map
-wire [3:0] chpos_x = 4'd9 - hcnt[2:0];
+wire [3:0] chpos_x = 4'd7 - hcnt[2:0];
 wire [2:0] chpos_y = vcnt[2:0];
 wire [5:0] chram_x = hcnt[8:3];
 wire [5:0] chram_y = vcnt[8:3];
@@ -118,7 +118,7 @@ wire [7:0] in0_data_out = {VGA_HS, VGA_VS, 6'b101000};
 wire [7:0] joystick_data_out = joystick[cpu_addr[7:0] +: 8];
 wire [7:0] analog_data_out = analog[cpu_addr[6:0] +: 8];
 wire [7:0] paddle_data_out = paddle[cpu_addr[5:0] +: 8];
-wire [7:0] spinner_data_out = spinner[cpu_addr[5:0] +: 8];
+wire [7:0] spinner_data_out = spinner[cpu_addr[6:0] +: 8];
 
 // CPU address decodes
 wire pgrom_cs = cpu_addr[15:14] == 2'b00;
@@ -140,6 +140,7 @@ always @(posedge clk_sys) begin
 // 	if(in0_cs) $display("%x in0 i %x o %x", cpu_addr, cpu_dout, in0_data_out);
  	//if(joystick_cs) $display("joystick %b  %b", joystick_bit, joystick_data_out);
  	//if(analog_cs) $display("analog %b  %b", analog_bit, analog_data_out);
+	 //if(paddle_cs) $display("paddle %b", paddle_data_out);
 	// $display("%x", cpu_addr);
  end
 

@@ -37,7 +37,7 @@ module jtframe_cen24(
 );
 
 reg [3:0] cencnt =4'd0;
-reg [2:0] cencnt3=2'd0;
+reg [2:0] cencnt3=3'd0;
 reg [2:0] cencnt8=3'd1;
 
 assign cen8 = cencnt8[2];

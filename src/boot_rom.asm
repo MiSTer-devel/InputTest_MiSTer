@@ -25,6 +25,8 @@
 	.globl _chram_size
 	.globl _colram
 	.globl _chram
+	.globl _spinner
+	.globl _paddle
 	.globl _analog
 	.globl _joystick
 	.globl _input0
@@ -40,6 +42,8 @@
 _input0	=	0x6000
 _joystick	=	0x7000
 _analog	=	0x7100
+_paddle	=	0x7200
+_spinner	=	0x7300
 _chram	=	0x8000
 _colram	=	0x8800
 _chram_size::
@@ -80,12 +84,12 @@ _asc_1::
 ; code
 ;--------------------------------------------------------
 	.area _CODE
-;boot_rom.c:22: void clear_chars()
+;boot_rom.c:24: void clear_chars()
 ;	---------------------------------
 ; Function clear_chars
 ; ---------------------------------
 _clear_chars::
-;boot_rom.c:24: for (unsigned int p = 0; p < chram_size; p++)
+;boot_rom.c:26: for (unsigned int p = 0; p < chram_size; p++)
 	ld	bc, #0x0000
 00103$:
 	ld	hl, #_chram_size
@@ -95,19 +99,19 @@ _clear_chars::
 	inc	hl
 	sbc	a, (hl)
 	ret	NC
-;boot_rom.c:26: chram[p] = 0;
+;boot_rom.c:28: chram[p] = 0;
 	ld	hl, #_chram+0
 	add	hl, bc
 	ld	(hl), #0x00
-;boot_rom.c:24: for (unsigned int p = 0; p < chram_size; p++)
+;boot_rom.c:26: for (unsigned int p = 0; p < chram_size; p++)
 	inc	bc
-;boot_rom.c:28: }
+;boot_rom.c:30: }
 	jr	00103$
 _chram_cols:
 	.db #0x40	; 64
 _chram_rows:
 	.db #0x20	; 32
-;boot_rom.c:30: void write_string(const char *string, char color, unsigned int x, unsigned int y)
+;boot_rom.c:32: void write_string(const char *string, char color, unsigned int x, unsigned int y)
 ;	---------------------------------
 ; Function write_string
 ; ---------------------------------
@@ -116,7 +120,7 @@ _write_string::
 	ld	ix,#0
 	add	ix,sp
 	push	af
-;boot_rom.c:32: unsigned int p = (y * chram_cols) + x;
+;boot_rom.c:34: unsigned int p = (y * chram_cols) + x;
 	ld	hl,#_chram_cols + 0
 	ld	c, (hl)
 	ld	b, #0x00
@@ -133,20 +137,20 @@ _write_string::
 	ld	h, 8 (ix)
 	add	hl, bc
 	ex	de,hl
-;boot_rom.c:33: unsigned char l = strlen(string);
+;boot_rom.c:35: unsigned char l = strlen(string);
 	ld	l, 4 (ix)
 	ld	h, 5 (ix)
 	push	hl
 	call	_strlen
 	pop	af
 	ld	c, l
-;boot_rom.c:34: for (char c = 0; c < l; c++)
+;boot_rom.c:36: for (char c = 0; c < l; c++)
 	ld	b, #0x00
 00103$:
 	ld	a, b
 	sub	a, c
 	jr	NC,00105$
-;boot_rom.c:36: chram[p] = string[c];
+;boot_rom.c:38: chram[p] = string[c];
 	ld	hl, #_chram
 	add	hl, de
 	ex	(sp), hl
@@ -160,22 +164,22 @@ _write_string::
 	pop	hl
 	push	hl
 	ld	(hl), a
-;boot_rom.c:37: colram[p] = color;
+;boot_rom.c:39: colram[p] = color;
 	ld	hl, #_colram
 	add	hl, de
 	ld	a, 6 (ix)
 	ld	(hl), a
-;boot_rom.c:38: p++;
+;boot_rom.c:40: p++;
 	inc	de
-;boot_rom.c:34: for (char c = 0; c < l; c++)
+;boot_rom.c:36: for (char c = 0; c < l; c++)
 	inc	b
 	jr	00103$
 00105$:
-;boot_rom.c:40: }
+;boot_rom.c:42: }
 	ld	sp, ix
 	pop	ix
 	ret
-;boot_rom.c:42: void write_char(unsigned char c, char color, unsigned int x, unsigned int y)
+;boot_rom.c:44: void write_char(unsigned char c, char color, unsigned int x, unsigned int y)
 ;	---------------------------------
 ; Function write_char
 ; ---------------------------------
@@ -183,7 +187,7 @@ _write_char::
 	push	ix
 	ld	ix,#0
 	add	ix,sp
-;boot_rom.c:44: unsigned int p = (y * chram_cols) + x;
+;boot_rom.c:46: unsigned int p = (y * chram_cols) + x;
 	ld	hl,#_chram_cols + 0
 	ld	c, (hl)
 	ld	b, #0x00
@@ -201,20 +205,20 @@ _write_char::
 	add	hl, bc
 	ld	c, l
 	ld	b, h
-;boot_rom.c:45: chram[p] = c;
+;boot_rom.c:47: chram[p] = c;
 	ld	hl, #_chram+0
 	add	hl, bc
 	ld	a, 4 (ix)
 	ld	(hl), a
-;boot_rom.c:46: colram[p] = color;
+;boot_rom.c:48: colram[p] = color;
 	ld	hl, #_colram+0
 	add	hl, bc
 	ld	a, 5 (ix)
 	ld	(hl), a
-;boot_rom.c:47: }
+;boot_rom.c:49: }
 	pop	ix
 	ret
-;boot_rom.c:49: void page_border(char color)
+;boot_rom.c:51: void page_border(char color)
 ;	---------------------------------
 ; Function page_border
 ; ---------------------------------
@@ -222,7 +226,7 @@ _page_border::
 	push	ix
 	ld	ix,#0
 	add	ix,sp
-;boot_rom.c:51: write_char(128, color, 0, 0);
+;boot_rom.c:53: write_char(128, color, 0, 0);
 	ld	hl, #0x0000
 	push	hl
 	ld	l, #0x00
@@ -234,7 +238,7 @@ _page_border::
 	ld	hl, #6
 	add	hl, sp
 	ld	sp, hl
-;boot_rom.c:52: write_char(130, color, 39, 0);
+;boot_rom.c:54: write_char(130, color, 39, 0);
 	ld	hl, #0x0000
 	push	hl
 	ld	l, #0x27
@@ -246,7 +250,7 @@ _page_border::
 	ld	hl, #6
 	add	hl, sp
 	ld	sp, hl
-;boot_rom.c:53: write_char(133, color, 0, 29);
+;boot_rom.c:55: write_char(133, color, 0, 29);
 	ld	hl, #0x001d
 	push	hl
 	ld	l, #0x00
@@ -258,7 +262,7 @@ _page_border::
 	ld	hl, #6
 	add	hl, sp
 	ld	sp, hl
-;boot_rom.c:54: write_char(132, color, 39, 29);
+;boot_rom.c:56: write_char(132, color, 39, 29);
 	ld	hl, #0x001d
 	push	hl
 	ld	l, #0x27
@@ -270,13 +274,13 @@ _page_border::
 	ld	hl, #6
 	add	hl, sp
 	ld	sp, hl
-;boot_rom.c:55: for (char x = 1; x < 39; x++)
+;boot_rom.c:57: for (char x = 1; x < 39; x++)
 	ld	c, #0x01
 00104$:
 	ld	a, c
 	sub	a, #0x27
 	jr	NC,00101$
-;boot_rom.c:57: write_char(129, color, x, 0);
+;boot_rom.c:59: write_char(129, color, x, 0);
 	ld	e, c
 	ld	d, #0x00
 	push	bc
@@ -303,17 +307,17 @@ _page_border::
 	add	hl, sp
 	ld	sp, hl
 	pop	bc
-;boot_rom.c:55: for (char x = 1; x < 39; x++)
+;boot_rom.c:57: for (char x = 1; x < 39; x++)
 	inc	c
 	jr	00104$
 00101$:
-;boot_rom.c:60: for (char y = 1; y < 29; y++)
+;boot_rom.c:62: for (char y = 1; y < 29; y++)
 	ld	c, #0x01
 00107$:
 	ld	a, c
 	sub	a, #0x1d
 	jr	NC,00109$
-;boot_rom.c:62: write_char(131, color, 0, y);
+;boot_rom.c:64: write_char(131, color, 0, y);
 	ld	e, c
 	ld	d, #0x00
 	push	bc
@@ -338,14 +342,14 @@ _page_border::
 	add	hl, sp
 	ld	sp, hl
 	pop	bc
-;boot_rom.c:60: for (char y = 1; y < 29; y++)
+;boot_rom.c:62: for (char y = 1; y < 29; y++)
 	inc	c
 	jr	00107$
 00109$:
-;boot_rom.c:65: }
+;boot_rom.c:67: }
 	pop	ix
 	ret
-;boot_rom.c:67: void page_inputs()
+;boot_rom.c:69: void page_inputs()
 ;	---------------------------------
 ; Function page_inputs
 ; ---------------------------------
@@ -353,18 +357,18 @@ _page_inputs::
 	push	ix
 	ld	ix,#0
 	add	ix,sp
-	ld	hl, #-10
+	ld	hl, #-21
 	add	hl, sp
 	ld	sp, hl
-;boot_rom.c:69: clear_chars();
+;boot_rom.c:71: clear_chars();
 	call	_clear_chars
-;boot_rom.c:70: page_border(0b00000111);
+;boot_rom.c:72: page_border(0b00000111);
 	ld	a, #0x07
 	push	af
 	inc	sp
 	call	_page_border
 	inc	sp
-;boot_rom.c:71: write_string("UDLRABCXYZLRSs", 0xFF, 7, 3);
+;boot_rom.c:73: write_string("UDLRABCXYZLRSs", 0xFF, 7, 3);
 	ld	hl, #0x0003
 	push	hl
 	ld	l, #0x07
@@ -378,10 +382,10 @@ _page_inputs::
 	ld	hl, #7
 	add	hl, sp
 	ld	sp, hl
-;boot_rom.c:72: write_string("AX  AY", 0xFF, 25, 3);
+;boot_rom.c:74: write_string("AX", 0xFF, 26, 3);
 	ld	hl, #0x0003
 	push	hl
-	ld	l, #0x19
+	ld	l, #0x1a
 	push	hl
 	ld	a, #0xff
 	push	af
@@ -392,66 +396,170 @@ _page_inputs::
 	ld	hl, #7
 	add	hl, sp
 	ld	sp, hl
-;boot_rom.c:75: for (unsigned char j = 0; j < 6; j++)
-	ld	hl, #0x0000
-	add	hl, sp
-	ld	-3 (ix), l
-	ld	-2 (ix), h
-	ld	a, -3 (ix)
-	ld	-5 (ix), a
-	ld	a, -2 (ix)
-	ld	-4 (ix), a
-	ld	-1 (ix), #0x00
-00103$:
-	ld	a, -1 (ix)
-	sub	a, #0x06
-	jr	NC,00105$
-;boot_rom.c:77: sprintf(label, "JOY%d", j + 1);
-	ld	c, -1 (ix)
-	ld	b, #0x00
-	ld	e, c
-	ld	d, b
-	inc	de
-	ld	l, -3 (ix)
-	ld	h, -2 (ix)
-	push	bc
-	push	de
-	ld	de, #___str_2
-	push	de
+;boot_rom.c:75: write_string("AY", 0xFF, 31, 3);
+	ld	hl, #0x0003
 	push	hl
-	call	_sprintf
-	ld	hl, #6
-	add	hl, sp
-	ld	sp, hl
-	pop	bc
-;boot_rom.c:78: write_string(label, 0xFF - (j*2), 2, 4 + j);
-	inc	bc
-	inc	bc
-	inc	bc
-	inc	bc
-	ld	a, -1 (ix)
-	add	a, a
-	ld	e, a
+	ld	l, #0x1f
+	push	hl
 	ld	a, #0xff
-	sub	a, e
-	ld	h, a
-	ld	e, -5 (ix)
-	ld	d, -4 (ix)
-	push	bc
-	ld	bc, #0x0002
-	push	bc
-	push	hl
+	push	af
 	inc	sp
-	push	de
+	ld	hl, #___str_2
+	push	hl
 	call	_write_string
 	ld	hl, #7
 	add	hl, sp
 	ld	sp, hl
-;boot_rom.c:75: for (unsigned char j = 0; j < 6; j++)
+;boot_rom.c:78: for (unsigned char j = 0; j < 6; j++)
+	ld	hl, #0x0000
+	add	hl, sp
+	ex	de, hl
+	ld	-6 (ix), e
+	ld	-5 (ix), d
+	ld	-4 (ix), e
+	ld	-3 (ix), d
+	ld	-12 (ix), e
+	ld	-11 (ix), d
+	ld	-14 (ix), e
+	ld	-13 (ix), d
+	ld	-16 (ix), e
+	ld	-15 (ix), d
+	ld	-1 (ix), #0x00
+00103$:
+	ld	a, -1 (ix)
+	sub	a, #0x06
+	jp	NC, 00105$
+;boot_rom.c:80: sprintf(label, "JOY%d", j + 1);
+	ld	a, -1 (ix)
+	ld	-8 (ix), a
+	ld	-7 (ix), #0x00
+	ld	a, -8 (ix)
+	add	a, #0x01
+	ld	-10 (ix), a
+	ld	a, -7 (ix)
+	adc	a, #0x00
+	ld	-9 (ix), a
+	ld	c, e
+	ld	b, d
+	push	de
+	ld	l, -10 (ix)
+	ld	h, -9 (ix)
+	push	hl
+	ld	hl, #___str_3
+	push	hl
+	push	bc
+	call	_sprintf
+	ld	hl, #6
+	add	hl, sp
+	ld	sp, hl
+	pop	de
+;boot_rom.c:81: write_string(label, 0xFF - (j * 2), 2, 4 + j);
+	ld	a, -8 (ix)
+	add	a, #0x04
+	ld	l, a
+	ld	a, -7 (ix)
+	adc	a, #0x00
+	ld	h, a
+	ld	a, -1 (ix)
+	add	a, a
+	ld	c, a
+	ld	a, #0xff
+	sub	a, c
+	ld	-2 (ix), a
+	ld	c, -6 (ix)
+	ld	b, -5 (ix)
+	push	de
+	push	hl
+	ld	hl, #0x0002
+	push	hl
+	ld	a, -2 (ix)
+	push	af
+	inc	sp
+	push	bc
+	call	_write_string
+	ld	hl, #7
+	add	hl, sp
+	ld	sp, hl
+	pop	de
+;boot_rom.c:83: sprintf(label, "PAD%d", j + 1);
+	ld	c, -4 (ix)
+	ld	b, -3 (ix)
+	push	de
+	ld	l, -10 (ix)
+	ld	h, -9 (ix)
+	push	hl
+	ld	hl, #___str_4
+	push	hl
+	push	bc
+	call	_sprintf
+	ld	hl, #6
+	add	hl, sp
+	ld	sp, hl
+	pop	de
+;boot_rom.c:84: write_string(label, 0xFF - (j * 2), 2, 11 + j);
+	ld	a, -8 (ix)
+	add	a, #0x0b
+	ld	l, a
+	ld	a, -7 (ix)
+	adc	a, #0x00
+	ld	h, a
+	ld	c, -12 (ix)
+	ld	b, -11 (ix)
+	push	de
+	push	hl
+	ld	hl, #0x0002
+	push	hl
+	ld	a, -2 (ix)
+	push	af
+	inc	sp
+	push	bc
+	call	_write_string
+	ld	hl, #7
+	add	hl, sp
+	ld	sp, hl
+	pop	de
+;boot_rom.c:86: sprintf(label, "SPN%d", j + 1);
+	ld	c, -14 (ix)
+	ld	b, -13 (ix)
+	push	de
+	ld	l, -10 (ix)
+	ld	h, -9 (ix)
+	push	hl
+	ld	hl, #___str_5
+	push	hl
+	push	bc
+	call	_sprintf
+	ld	hl, #6
+	add	hl, sp
+	ld	sp, hl
+	pop	de
+;boot_rom.c:87: write_string(label, 0xFF - (j * 2), 2, 18 + j);
+	ld	a, -8 (ix)
+	add	a, #0x12
+	ld	l, a
+	ld	a, -7 (ix)
+	adc	a, #0x00
+	ld	h, a
+	ld	c, -16 (ix)
+	ld	b, -15 (ix)
+	push	de
+	push	hl
+	ld	hl, #0x0002
+	push	hl
+	ld	a, -2 (ix)
+	push	af
+	inc	sp
+	push	bc
+	call	_write_string
+	ld	hl, #7
+	add	hl, sp
+	ld	sp, hl
+	pop	de
+;boot_rom.c:78: for (unsigned char j = 0; j < 6; j++)
 	inc	-1 (ix)
-	jr	00103$
+	jp	00103$
 00105$:
-;boot_rom.c:80: }
+;boot_rom.c:89: }
 	ld	sp, ix
 	pop	ix
 	ret
@@ -459,12 +567,21 @@ ___str_0:
 	.ascii "UDLRABCXYZLRSs"
 	.db 0x00
 ___str_1:
-	.ascii "AX  AY"
+	.ascii "AX"
 	.db 0x00
 ___str_2:
+	.ascii "AY"
+	.db 0x00
+___str_3:
 	.ascii "JOY%d"
 	.db 0x00
-;boot_rom.c:85: void main()
+___str_4:
+	.ascii "PAD%d"
+	.db 0x00
+___str_5:
+	.ascii "SPN%d"
+	.db 0x00
+;boot_rom.c:94: void main()
 ;	---------------------------------
 ; Function main
 ; ---------------------------------
@@ -472,10 +589,10 @@ _main::
 	push	ix
 	ld	ix,#0
 	add	ix,sp
-	ld	hl, #-24
+	ld	hl, #-27
 	add	hl, sp
 	ld	sp, hl
-;boot_rom.c:87: chram_size = chram_cols * chram_rows;
+;boot_rom.c:96: chram_size = chram_cols * chram_rows;
 	ld	hl,#_chram_rows + 0
 	ld	e, (hl)
 	ld	hl,#_chram_cols + 0
@@ -483,130 +600,131 @@ _main::
 	ld	l, #0x00
 	ld	d, l
 	ld	b, #0x08
-00191$:
+00212$:
 	add	hl, hl
-	jr	NC,00192$
+	jr	NC,00213$
 	add	hl, de
-00192$:
-	djnz	00191$
+00213$:
+	djnz	00212$
 	ld	(_chram_size), hl
-;boot_rom.c:89: page_inputs();
+;boot_rom.c:98: page_inputs();
 	call	_page_inputs
-;boot_rom.c:91: while (1)
-	ld	-5 (ix), #0xab
-00109$:
-;boot_rom.c:93: hsync = input0 & 0x80;
+;boot_rom.c:100: while (1)
+	ld	c, #0xab
+00111$:
+;boot_rom.c:102: hsync = input0 & 0x80;
 	ld	a,(#_input0 + 0)
 	and	a, #0x80
 	ld	(#_hsync + 0),a
-;boot_rom.c:94: vsync = input0 & 0x40;
+;boot_rom.c:103: vsync = input0 & 0x40;
 	ld	a,(#_input0 + 0)
 	and	a, #0x40
 	ld	iy, #_vsync
 	ld	0 (iy), a
-;boot_rom.c:99: if (vsync && !vsync_last)
+;boot_rom.c:110: if (vsync && !vsync_last)
 	ld	a, 0 (iy)
 	or	a, a
-	jp	Z, 00106$
+	jp	Z, 00108$
 	ld	a,(#_vsync_last + 0)
 	or	a, a
-	jp	NZ, 00106$
-;boot_rom.c:101: color++;
-	inc	-5 (ix)
-;boot_rom.c:102: write_string("--- MiSTer Input Tester ---", color, 6, 1);
+	jp	NZ, 00108$
+;boot_rom.c:112: color++;
+	inc	c
+;boot_rom.c:113: write_string("--- MiSTer Input Tester ---", color, 6, 1);
+	push	bc
 	ld	hl, #0x0001
 	push	hl
 	ld	l, #0x06
 	push	hl
-	ld	a, -5 (ix)
+	ld	a, c
 	push	af
 	inc	sp
-	ld	hl, #___str_3
+	ld	hl, #___str_6
 	push	hl
 	call	_write_string
 	ld	hl, #7
 	add	hl, sp
 	ld	sp, hl
-;boot_rom.c:104: for (char b = 0; b < 2; b++)
-	ld	c, #0x00
-00118$:
-	ld	a, c
+	pop	bc
+;boot_rom.c:115: for (char b = 0; b < 2; b++)
+	ld	e, #0x00
+00119$:
+	ld	a, e
 	sub	a, #0x02
 	jp	NC, 00103$
-;boot_rom.c:106: char m = 0b00000001;
-	ld	b, #0x01
-;boot_rom.c:107: for (char i = 0; i < 8; i++)
-	ld	e, #0x00
-00115$:
-;boot_rom.c:109: char x = 7 + i + (b * 8);
-	ld	a,e
-	cp	a,#0x08
-	jp	NC,00119$
+;boot_rom.c:117: char m = 0b00000001;
+	ld	-2 (ix), #0x01
+;boot_rom.c:118: for (char i = 0; i < 8; i++)
+	ld	-3 (ix), #0x00
+00116$:
+	ld	a, -3 (ix)
+	sub	a, #0x08
+	jp	NC, 00120$
+;boot_rom.c:120: char x = 7 + i + (b * 8);
+	ld	a, -3 (ix)
 	add	a, #0x07
-	ld	d, a
-	ld	a, c
+	ld	b, a
+	ld	a, e
 	add	a, a
 	add	a, a
 	add	a, a
+	ld	-7 (ix), a
+	ld	a, b
+	add	a, -7 (ix)
 	ld	-6 (ix), a
-	ld	a, d
-	add	a, -6 (ix)
-	ld	-1 (ix), a
-;boot_rom.c:110: for (char j = 0; j < 6; j++)
-	ld	-4 (ix), #0x00
-00112$:
-	ld	a, -4 (ix)
-	sub	a, #0x06
-	jr	NC,00101$
-;boot_rom.c:112: write_char((joystick[(b * 8) + (j * 32)] & m) ? asc_1 : asc_0, 0xFF, x, 4 + j);
-	ld	a, -4 (ix)
-	ld	l, #0x00
-	add	a, #0x04
-	ld	-14 (ix), a
-	ld	a, l
-	adc	a, #0x00
-	ld	-13 (ix), a
+;boot_rom.c:121: for (j = 0; j < 6; j++)
+	ld	-1 (ix), #0x00
+00113$:
+;boot_rom.c:123: write_char((joystick[(b * 8) + (j * 32)] & m) ? asc_1 : asc_0, 0xFF, x, 4 + j);
 	ld	a, -1 (ix)
-	ld	-16 (ix), a
-	ld	-15 (ix), #0x00
-	ld	a, -4 (ix)
+	ld	d, #0x00
+	add	a, #0x04
+	ld	-11 (ix), a
+	ld	a, d
+	adc	a, #0x00
+	ld	-10 (ix), a
+	ld	a, -6 (ix)
+	ld	-9 (ix), a
+	ld	-8 (ix), #0x00
+	ld	a, -1 (ix)
 	rrca
 	rrca
 	rrca
 	and	a, #0xe0
-	add	a, -6 (ix)
-	ld	d, a
+	add	a, -7 (ix)
+	ld	b, a
 	rla
 	sbc	a, a
-	ld	h, a
+	ld	d, a
 	ld	a, #<(_joystick)
-	add	a, d
+	add	a, b
 	ld	l, a
 	ld	a, #>(_joystick)
-	adc	a, h
+	adc	a, d
 	ld	h, a
 	ld	a, (hl)
-	and	a,b
-	jr	Z,00125$
+	and	a, -2 (ix)
+	or	a, a
+	jr	Z,00129$
 	ld	hl,#_asc_1 + 0
-	ld	d, (hl)
-	jr	00126$
-00125$:
+	ld	b, (hl)
+	jr	00130$
+00129$:
 	ld	hl,#_asc_0 + 0
-	ld	d, (hl)
-00126$:
+	ld	b, (hl)
+00130$:
 	push	bc
 	push	de
-	ld	l, -14 (ix)
-	ld	h, -13 (ix)
+	ld	l, -11 (ix)
+	ld	h, -10 (ix)
 	push	hl
-	ld	l, -16 (ix)
-	ld	h, -15 (ix)
+	ld	l, -9 (ix)
+	ld	h, -8 (ix)
 	push	hl
 	ld	a, #0xff
 	push	af
 	inc	sp
-	push	de
+	push	bc
 	inc	sp
 	call	_write_char
 	ld	hl, #6
@@ -614,130 +732,103 @@ _main::
 	ld	sp, hl
 	pop	de
 	pop	bc
-;boot_rom.c:110: for (char j = 0; j < 6; j++)
-	inc	-4 (ix)
-	jr	00112$
-00101$:
-;boot_rom.c:114: m <<= 1;
-	sla	b
-;boot_rom.c:107: for (char i = 0; i < 8; i++)
+;boot_rom.c:121: for (j = 0; j < 6; j++)
+	inc	-1 (ix)
+	ld	a, -1 (ix)
+	sub	a, #0x06
+	jr	C,00113$
+;boot_rom.c:125: m <<= 1;
+	ld	a, -2 (ix)
+	add	a, a
+	ld	-2 (ix), a
+;boot_rom.c:118: for (char i = 0; i < 8; i++)
+	inc	-3 (ix)
+	jp	00116$
+00120$:
+;boot_rom.c:115: for (char b = 0; b < 2; b++)
 	inc	e
-	jp	00115$
-00119$:
-;boot_rom.c:104: for (char b = 0; b < 2; b++)
-	inc	c
-	jp	00118$
+	jp	00119$
 00103$:
-;boot_rom.c:120: char m = 0b00000001;
-	ld	-16 (ix), #0x01
-;boot_rom.c:123: for (char j = 0; j < 6; j++)
-	ld	hl, #0x0004
+;boot_rom.c:129: y = 4;
+	ld	-5 (ix), #0x04
+	ld	-4 (ix), #0x00
+;boot_rom.c:131: char m = 0b00000001;
+	ld	b, #0x01
+;boot_rom.c:134: for (j = 0; j < 6; j++)
+	ld	hl, #0x0006
 	add	hl, sp
-	ld	-14 (ix), l
-	ld	-13 (ix), h
-	ld	a, -14 (ix)
-	ld	-8 (ix), a
-	ld	a, -13 (ix)
-	ld	-7 (ix), a
-	ld	hl, #0x0000
-	add	hl, sp
-	ld	-10 (ix), l
-	ld	-9 (ix), h
-	ld	a, -10 (ix)
-	ld	-12 (ix), a
+	ld	-9 (ix), l
+	ld	-8 (ix), h
 	ld	a, -9 (ix)
 	ld	-11 (ix), a
-	ld	-2 (ix), #0x00
+	ld	a, -8 (ix)
+	ld	-10 (ix), a
+	ld	-1 (ix), #0x00
 00121$:
-	ld	a, -2 (ix)
-	sub	a, #0x06
-	jp	NC, 00106$
-;boot_rom.c:125: signed char jx = analog[(j * 16)];
-	ld	l, -2 (ix)
+;boot_rom.c:136: signed char jx = analog[(j * 16)];
+	ld	de, #_analog+0
+	ld	l, -1 (ix)
 	ld	h, #0x00
 	add	hl, hl
 	add	hl, hl
 	add	hl, hl
 	add	hl, hl
-	ld	de, #_analog
 	add	hl, de
-	ld	c, (hl)
-;boot_rom.c:126: signed char jy = analog[(j * 16) + 8];
-	ld	a, -2 (ix)
+	ld	e, (hl)
+;boot_rom.c:137: signed char jy = analog[(j * 16) + 8];
+	ld	a, -1 (ix)
 	rlca
 	rlca
 	rlca
 	rlca
 	and	a, #0xf0
 	add	a, #0x08
-	ld	e, a
+	ld	l, a
 	rla
 	sbc	a, a
-	ld	d, a
-	ld	hl, #_analog
+	ld	h, a
+	push	de
+	ld	de, #_analog
 	add	hl, de
+	pop	de
 	ld	a, (hl)
-	ld	-3 (ix), a
-;boot_rom.c:128: sprintf(str1, "%4d", jx);
-	ld	a, c
+;boot_rom.c:139: sprintf(stra, "%4d %4d", jx, jy);
+	ld	l, a
 	rla
 	sbc	a, a
-	ld	b, a
-	ld	e, -14 (ix)
-	ld	d, -13 (ix)
-	push	bc
-	ld	hl, #___str_4
-	push	hl
-	push	de
-	call	_sprintf
-	ld	hl, #6
-	add	hl, sp
-	ld	sp, hl
-;boot_rom.c:129: write_string(str1, 0xFF, 23, y + j);
-	ld	c, -2 (ix)
-	ld	b, #0x00
-	inc	bc
-	inc	bc
-	inc	bc
-	inc	bc
-	ld	e, -8 (ix)
-	ld	d, -7 (ix)
-	push	bc
-	push	bc
-	ld	hl, #0x0017
-	push	hl
-	ld	a, #0xff
-	push	af
-	inc	sp
-	push	de
-	call	_write_string
-	ld	hl, #7
-	add	hl, sp
-	ld	sp, hl
-	pop	bc
-;boot_rom.c:130: sprintf(str2, "%-4d", jy);
-	ld	a, -3 (ix)
-	ld	e, a
+	ld	h, a
+	ld	a, e
 	rla
 	sbc	a, a
 	ld	d, a
-	ld	l, -10 (ix)
-	ld	h, -9 (ix)
-	push	bc
-	push	de
-	ld	de, #___str_5
-	push	de
 	push	hl
+	ld	l, -9 (ix)
+	ld	h, -8 (ix)
+	push	hl
+	pop	iy
+	pop	hl
+	push	bc
+	push	hl
+	push	de
+	ld	hl, #___str_7
+	push	hl
+	push	iy
 	call	_sprintf
-	ld	hl, #6
+	ld	hl, #8
 	add	hl, sp
 	ld	sp, hl
 	pop	bc
-;boot_rom.c:131: write_string(str2, 0xFF, 28, y + j);
-	ld	e, -12 (ix)
-	ld	d, -11 (ix)
+;boot_rom.c:140: write_string(stra, 0xFF, 24, y + j);
+	ld	e, -1 (ix)
+	ld	d, #0x00
+	ld	l, -5 (ix)
+	ld	h, -4 (ix)
+	add	hl, de
+	ld	e, -11 (ix)
+	ld	d, -10 (ix)
 	push	bc
-	ld	hl, #0x001c
+	push	hl
+	ld	hl, #0x0018
 	push	hl
 	ld	a, #0xff
 	push	af
@@ -747,30 +838,181 @@ _main::
 	ld	hl, #7
 	add	hl, sp
 	ld	sp, hl
-;boot_rom.c:132: m <<= 1;
-	ld	a, -16 (ix)
-	add	a, a
-	ld	-16 (ix), a
-;boot_rom.c:123: for (char j = 0; j < 6; j++)
-	inc	-2 (ix)
-	jp	00121$
-00106$:
-;boot_rom.c:135: hsync_last = hsync;
+	pop	bc
+;boot_rom.c:143: m <<= 1;
+	sla	b
+;boot_rom.c:134: for (j = 0; j < 6; j++)
+	inc	-1 (ix)
+	ld	a, -1 (ix)
+	sub	a, #0x06
+	jr	C,00121$
+;boot_rom.c:148: m = 0b00000001;
+	ld	b, #0x01
+;boot_rom.c:150: for (j = 0; j < 6; j++)
+	ld	hl, #0x0003
+	add	hl, sp
+	ld	-9 (ix), l
+	ld	-8 (ix), h
+	ld	a, -9 (ix)
+	ld	-11 (ix), a
+	ld	a, -8 (ix)
+	ld	-10 (ix), a
+	ld	-1 (ix), #0x00
+00123$:
+;boot_rom.c:152: char px = paddle[(j * 8)];
+	ld	e, -1 (ix)
+	ld	d, #0x00
+	ld	l, e
+	ld	h, d
+	add	hl, hl
+	add	hl, hl
+	add	hl, hl
+	ld	a, #<(_paddle)
+	add	a, l
+	ld	l, a
+	ld	a, #>(_paddle)
+	adc	a, h
+	ld	h, a
+	ld	l, (hl)
+;boot_rom.c:153: sprintf(strp, "%4d", px);
+	ld	h, #0x00
+	push	hl
+	ld	l, -9 (ix)
+	ld	h, -8 (ix)
+	push	hl
+	pop	iy
+	pop	hl
+	push	bc
+	push	de
+	push	hl
+	ld	hl, #___str_8
+	push	hl
+	push	iy
+	call	_sprintf
+	ld	hl, #6
+	add	hl, sp
+	ld	sp, hl
+	pop	de
+	pop	bc
+;boot_rom.c:154: write_string(strp, 0xFF, 6, y + j);
+	ld	hl, #0x000b
+	add	hl, de
+	ld	e, -11 (ix)
+	ld	d, -10 (ix)
+	push	bc
+	push	hl
+	ld	hl, #0x0006
+	push	hl
+	ld	a, #0xff
+	push	af
+	inc	sp
+	push	de
+	call	_write_string
+	ld	hl, #7
+	add	hl, sp
+	ld	sp, hl
+	pop	bc
+;boot_rom.c:155: m <<= 1;
+	sla	b
+;boot_rom.c:150: for (j = 0; j < 6; j++)
+	inc	-1 (ix)
+	ld	a, -1 (ix)
+	sub	a, #0x06
+	jr	C,00123$
+;boot_rom.c:160: m = 0b00000001;
+	ld	b, #0x01
+;boot_rom.c:162: for (j = 0; j < 6; j++)
+	ld	hl, #0x0000
+	add	hl, sp
+	ld	-9 (ix), l
+	ld	-8 (ix), h
+	ld	a, -9 (ix)
+	ld	-11 (ix), a
+	ld	a, -8 (ix)
+	ld	-10 (ix), a
+	ld	-1 (ix), #0x00
+00125$:
+;boot_rom.c:164: signed char sx = spinner[(j * 16)];
+	ld	e, -1 (ix)
+	ld	d, #0x00
+	ld	l, e
+	ld	h, d
+	add	hl, hl
+	add	hl, hl
+	add	hl, hl
+	add	hl, hl
+	ld	a, #<(_spinner)
+	add	a, l
+	ld	l, a
+	ld	a, #>(_spinner)
+	adc	a, h
+	ld	h, a
+	ld	a, (hl)
+;boot_rom.c:165: sprintf(strs, "%4d", sx);
+	ld	l, a
+	rla
+	sbc	a, a
+	ld	h, a
+	push	hl
+	ld	l, -9 (ix)
+	ld	h, -8 (ix)
+	push	hl
+	pop	iy
+	pop	hl
+	push	bc
+	push	de
+	push	hl
+	ld	hl, #___str_8
+	push	hl
+	push	iy
+	call	_sprintf
+	ld	hl, #6
+	add	hl, sp
+	ld	sp, hl
+	pop	de
+	pop	bc
+;boot_rom.c:166: write_string(strs, 0xFF, 7, y + j);
+	ld	hl, #0x0012
+	add	hl, de
+	ld	e, -11 (ix)
+	ld	d, -10 (ix)
+	push	bc
+	push	hl
+	ld	hl, #0x0007
+	push	hl
+	ld	a, #0xff
+	push	af
+	inc	sp
+	push	de
+	call	_write_string
+	ld	hl, #7
+	add	hl, sp
+	ld	sp, hl
+	pop	bc
+;boot_rom.c:167: m <<= 1;
+	sla	b
+;boot_rom.c:162: for (j = 0; j < 6; j++)
+	inc	-1 (ix)
+	ld	a, -1 (ix)
+	sub	a, #0x06
+	jr	C,00125$
+00108$:
+;boot_rom.c:171: hsync_last = hsync;
 	ld	a,(#_hsync + 0)
 	ld	(#_hsync_last + 0),a
-;boot_rom.c:136: vsync_last = vsync;
+;boot_rom.c:172: vsync_last = vsync;
 	ld	a,(#_vsync + 0)
 	ld	(#_vsync_last + 0),a
-;boot_rom.c:138: }
-	jp	00109$
-___str_3:
+;boot_rom.c:174: }
+	jp	00111$
+___str_6:
 	.ascii "--- MiSTer Input Tester ---"
 	.db 0x00
-___str_4:
-	.ascii "%4d"
+___str_7:
+	.ascii "%4d %4d"
 	.db 0x00
-___str_5:
-	.ascii "%-4d"
+___str_8:
+	.ascii "%4d"
 	.db 0x00
 	.area _CODE
 	.area _INITIALIZER

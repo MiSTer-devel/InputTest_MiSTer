@@ -5,7 +5,9 @@
 // Memory maps
 unsigned char __at(0x6000) input0;
 unsigned char __at(0x7000) joystick[24];
-unsigned char __at(0x7100) analog[24];
+unsigned char __at(0x7100) analog[12];
+unsigned char __at(0x7200) paddle[6];
+unsigned char __at(0x7300) spinner[12];
 unsigned char __at(0x8000) chram[2048];
 unsigned char __at(0x8800) colram[2048];
 
@@ -69,13 +71,20 @@ void page_inputs()
 	clear_chars();
 	page_border(0b00000111);
 	write_string("UDLRABCXYZLRSs", 0xFF, 7, 3);
-	write_string("AX  AY", 0xFF, 25, 3);
+	write_string("AX", 0xFF, 26, 3);
+	write_string("AY", 0xFF, 31, 3);
 
 	char label[5];
 	for (unsigned char j = 0; j < 6; j++)
 	{
 		sprintf(label, "JOY%d", j + 1);
-		write_string(label, 0xFF - (j*2), 2, 4 + j);
+		write_string(label, 0xFF - (j * 2), 2, 4 + j);
+
+		sprintf(label, "PAD%d", j + 1);
+		write_string(label, 0xFF - (j * 2), 2, 11 + j);
+
+		sprintf(label, "SPN%d", j + 1);
+		write_string(label, 0xFF - (j * 2), 2, 18 + j);
 	}
 }
 
@@ -96,6 +105,8 @@ void main()
 		// if(hsync && !hsync_last){
 		// }
 
+		char j = 0;
+
 		if (vsync && !vsync_last)
 		{
 			color++;
@@ -107,7 +118,7 @@ void main()
 				for (char i = 0; i < 8; i++)
 				{
 					char x = 7 + i + (b * 8);
-					for (char j = 0; j < 6; j++)
+					for (j = 0; j < 6; j++)
 					{
 						write_char((joystick[(b * 8) + (j * 32)] & m) ? asc_1 : asc_0, 0xFF, x, 4 + j);
 					}
@@ -116,26 +127,47 @@ void main()
 			}
 
 			y = 4;
-
+			// ANALOG
 			char m = 0b00000001;
-			char str1[4];
-			char str2[4];
-			for (char j = 0; j < 6; j++)
+			char stra[10];
+			// char stra2[5];
+			for (j = 0; j < 6; j++)
 			{
 				signed char jx = analog[(j * 16)];
 				signed char jy = analog[(j * 16) + 8];
-				
-				sprintf(str1, "%4d", jx);
-				write_string(str1, 0xFF, 23, y + j);
-				sprintf(str2, "%-4d", jy);
-				write_string(str2, 0xFF, 28, y + j);
+
+				sprintf(stra, "%4d %4d", jx, jy);
+				write_string(stra, 0xFF, 24, y + j);
+				// sprintf(stra2, "%-4d", jy);
+				// write_string(stra2, 0xFF, 29, y + j);
 				m <<= 1;
 			}
 
+			// PADDLE
+			y = 11;
+			m = 0b00000001;
+			char strp[3];
+			for (j = 0; j < 6; j++)
+			{
+				char px = paddle[(j * 8)];
+				sprintf(strp, "%4d", px);
+				write_string(strp, 0xFF, 6, y + j);
+				m <<= 1;
+			}
 
-// ADD THE PADDLES AND SPINNERS HERE
-
+			// SPINNER
+			y = 18;
+			m = 0b00000001;
+			char strs[3];
+			for (j = 0; j < 6; j++)
+			{
+				signed char sx = spinner[(j * 16)];
+				sprintf(strs, "%4d", sx);
+				write_string(strs, 0xFF, 7, y + j);
+				m <<= 1;
+			}
 		}
+
 		hsync_last = hsync;
 		vsync_last = vsync;
 	}

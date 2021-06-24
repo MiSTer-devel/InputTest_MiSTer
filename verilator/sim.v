@@ -10,7 +10,6 @@
 module top(
 
 	input clk_sys/*verilator public_flat*/,
-	input clk_vid/*verilator public_flat*/,
 	input reset/*verilator public_flat*/,
 	
 	// 6 joysticks, 32 buttons each
@@ -60,9 +59,19 @@ module top(
 	output reg		ioctl_wait=1'b0
 );
 
+// Clock divider from JTFRAME
+wire ce_pix;
+/* verilator lint_off PINMISSING */
+jtframe_cen24 divider
+(
+	.clk(clk_sys),
+	.cen4(ce_pix)
+);
+/* verilator lint_on PINMISSING */
+
 system system(
 	.clk_sys(clk_sys),
-	.ce_pix(clk_sys),
+	.ce_pix(ce_pix),
 	.reset(reset | ioctl_download),
 	.VGA_HS(VGA_HS),
 	.VGA_VS(VGA_VS),
@@ -79,7 +88,7 @@ system system(
 	.joystick({joystick_5,joystick_4,joystick_3,joystick_2,joystick_1,joystick_0}),
 	.analog({joystick_analog_5,joystick_analog_4,joystick_analog_3,joystick_analog_2,joystick_analog_1,joystick_analog_0}),
 	.paddle({paddle_5,paddle_4,paddle_3,paddle_2,paddle_1,paddle_0}),
-	.spinner({spinner_5,spinner_4,spinner_3,spinner_2,spinner_1,spinner_0})
+	.spinner({7'b0,spinner_5,7'b0,spinner_4,7'b0,spinner_3,7'b0,spinner_2,7'b0,spinner_1,7'b0,spinner_0})
 );
 
 endmodule 

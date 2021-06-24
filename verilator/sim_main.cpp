@@ -73,15 +73,12 @@ double sc_time_stamp() {	// Called by $time in Verilog.
 	return main_time;
 }
 
-int clockSpeed = 24; // This is not used, just a reminder for the dividers below
-SimClock clk_sys(1); // 12mhz
-SimClock clk_pix(1); // 6mhz
+SimClock clk_sys(1);
 
 void resetSim() {
 	main_time = 0;
 	top->reset = 1;
 	clk_sys.Reset();
-	clk_pix.Reset();
 }
 
 int verilate() {
@@ -95,23 +92,21 @@ int verilate() {
 
 		// Clock dividers
 		clk_sys.Tick();
-		clk_pix.Tick(); 
 
 		// Set system clock in core
 		top->clk_sys = clk_sys.clk;
-		top->clk_vid = clk_pix.clk;
-
-		// Output pixels on rising edge of pixel clock
-		if (clk_pix.IsRising()) {
-			uint32_t colour = 0xFF000000 | top->VGA_B << 16 | top->VGA_G << 8 | top->VGA_R;
-			video.Clock(top->VGA_HB, top->VGA_VB, top->VGA_HS, top->VGA_VS, colour);
-		}
-
+		
 		// Simulate both edges of system clock
 		if (clk_sys.clk != clk_sys.old) {
 			if (clk_sys.clk) { bus.BeforeEval(); }
 			top->eval();
 			if (clk_sys.clk) { bus.AfterEval(); }
+		}
+
+		// Output pixels on rising edge of pixel clock
+		if (clk_sys.IsRising() && top->top__DOT__system__DOT__ce_pix) {
+			uint32_t colour = 0xFF000000 | top->VGA_B << 16 | top->VGA_G << 8 | top->VGA_R;
+			video.Clock(top->VGA_HB, top->VGA_VB, top->VGA_HS, top->VGA_VS, colour);
 		}
 
 		main_time++;
@@ -281,6 +276,11 @@ int main(int argc, char** argv, char** env) {
 		top->joystick_analog_1 -= 1;
 		top->joystick_analog_1 += 256;
 
+		top->paddle_0 += 1;
+		top->paddle_1 -= 1;
+
+		top->spinner_0 += 1;
+		top->spinner_1 -= 1;
 
 		// Run simulation
 		if (run_enable) {

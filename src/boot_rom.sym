@@ -7,12 +7,15 @@ Symbol Table
     .__.ABS.                                                    =  0000 G
     .__.CPU.                                                    =  0000 L
     .__.H$L.                                                    =  0000 L
-  0 ___str_0                                                       022A R
-  0 ___str_1                                                       0239 R
-  0 ___str_2                                                       0240 R
-  0 ___str_3                                                       0436 R
-  0 ___str_4                                                       0452 R
-  0 ___str_5                                                       0456 R
+  0 ___str_0                                                       02F9 R
+  0 ___str_1                                                       0308 R
+  0 ___str_2                                                       030B R
+  0 ___str_3                                                       030E R
+  0 ___str_4                                                       0314 R
+  0 ___str_5                                                       031A R
+  0 ___str_6                                                       05D3 R
+  0 ___str_7                                                       05EF R
+  0 ___str_8                                                       05F7 R
     __mulint                                                       **** GX
   7 __xinit__asc_0                                                 0000 R
   7 __xinit__asc_1                                                 0001 R
@@ -29,9 +32,11 @@ Symbol Table
   1 _hsync_last                                                    0003 GR
     _input0                                                     =  6000 G
     _joystick                                                   =  7000 G
-  0 _main                                                          0246 GR
+  0 _main                                                          0320 GR
+    _paddle                                                     =  7200 G
   0 _page_border                                                   00AD GR
   0 _page_inputs                                                   0178 GR
+    _spinner                                                    =  7300 G
     _sprintf                                                       **** GX
     _strlen                                                        **** GX
   1 _vsync                                                         0004 GR
@@ -45,7 +50,7 @@ Hexadecimal [16-Bits]
 
 Area Table
 
-   0 _CODE                                      size  45B   flags    0
+   0 _CODE                                      size  5FB   flags    0
    1 _DATA                                      size    6   flags    0
    2 _INITIALIZED                               size    2   flags    0
    3 _DABS                                      size    0   flags    8

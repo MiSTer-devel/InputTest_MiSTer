@@ -294,8 +294,6 @@ hps_io #(.CONF_STR(CONF_STR)) hps_io
 ////////////////////   CLOCKS   ///////////////////
 
 wire clk_sys;
-reg ce_pix;
-
 pll pll
 (
 	.refclk(CLK_50M),
@@ -303,15 +301,13 @@ pll pll
 	.outclk_0(clk_sys)
 );
 
-
 ///////////////////   CLOCK DIVIDER   ////////////////////
-
-always @(posedge clk_sys) begin
-	reg div;
-	div <= div + 1'd1;
-	ce_pix <= !div;
-end
-
+wire ce_pix;
+jtframe_cen24 divider
+(
+	.clk(clk_sys),
+	.cen4(ce_pix)
+);
 
 ///////////////////   VIDEO   ////////////////////
 wire hblank, vblank;
@@ -321,7 +317,7 @@ wire [7:0] r;
 wire [7:0] g;
 wire [7:0] b;
 wire [23:0] rgb = {r,g,b};
-arcade_video #(224,24) arcade_video
+arcade_video #(320,24) arcade_video
 (
 	.*,
 	.clk_video(clk_sys),
@@ -357,7 +353,7 @@ system system(
 	.joystick({joystick_5,joystick_4,joystick_3,joystick_2,joystick_1,joystick_0}),
 	.analog({joystick_analog_5,joystick_analog_4,joystick_analog_3,joystick_analog_2,joystick_analog_1,joystick_analog_0}),
 	.paddle({paddle_5,paddle_4,paddle_3,paddle_2,paddle_1,paddle_0}),
-	.spinner({spinner_5,spinner_4,spinner_3,spinner_2,spinner_1,spinner_0})
+	.spinner({7'b0,spinner_5,7'b0,spinner_4,7'b0,spinner_3,7'b0,spinner_2,7'b0,spinner_1,7'b0,spinner_0})
 );
 
 endmodule
