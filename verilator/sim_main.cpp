@@ -171,8 +171,9 @@ int main(int argc, char** argv, char** env) {
 	// Setup video output
 	if (video.Initialise(windowTitle) == 1) { return 1; }
 
-	bus.QueueDownload("../src/boot_rom.bin", 0);
-	bus.QueueDownload("../MiSTer.pf", 1);
+	//bus.QueueDownload("../src/os.bin", 0);
+	//bus.QueueDownload("../src/snek/snek.bin", 0);
+	//bus.QueueDownload("../MiSTer.pf", 1);
 
 
 #ifdef WIN32
@@ -238,20 +239,20 @@ int main(int argc, char** argv, char** env) {
 		ImGui::Image(video.texture_id, ImVec2(video.output_width * m, video.output_height * m));
 		ImGui::End();
 
-		//ImGui::Begin("PGROM Editor");
-		//mem_edit_1.DrawContents(top->top__DOT__soc__DOT__pgrom__DOT__mem, 16384, 0);
-		//ImGui::End();
-		//ImGui::Begin("CHROM Editor");
-		//mem_edit_1.DrawContents(top->top__DOT__soc__DOT__chrom__DOT__mem, 1024, 0);
-		//ImGui::End();
+		ImGui::Begin("PGROM Editor");
+		mem_edit_1.DrawContents(top->top__DOT__system__DOT__pgrom__DOT__mem, 16384, 0);
+		ImGui::End();
+		ImGui::Begin("CHROM Editor");
+		mem_edit_1.DrawContents(top->top__DOT__system__DOT__chrom__DOT__mem, 2048, 0);
+		ImGui::End();
 		//ImGui::Begin("WKRAM Editor");
-		//mem_edit_2.DrawContents(top->top__DOT__soc__DOT__wkram__DOT__mem, 16384, 0);
+		//mem_edit_2.DrawContents(top->top__DOT__system__DOT__wkram__DOT__mem, 16384, 0);
 		//ImGui::End();
 		//ImGui::Begin("CHRAM Editor");
-		//mem_edit_3.DrawContents(top->top__DOT__soc__DOT__chram__DOT__mem, 2048, 0);
+		//mem_edit_3.DrawContents(top->top__DOT__system__DOT__chram__DOT__mem, 2048, 0);
 		//ImGui::End();
 		//ImGui::Begin("COLRAM Editor");
-		//mem_edit_3.DrawContents(top->top__DOT__soc__DOT__colram__DOT__mem, 2048, 0);
+		//mem_edit_3.DrawContents(top->top__DOT__system__DOT__colram__DOT__mem, 2048, 0);
 		//ImGui::End();
 
 		ImGui::Begin("CPU Registers");

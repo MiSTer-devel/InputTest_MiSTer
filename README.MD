@@ -18,7 +18,7 @@ A simple bespoke (i.e. I made it up with no real plan) 8-bit system with a 40x30
  - 2Kb character ROM (port 1 cpu, port 2 download)
  - 2Kb character RAM (port 1 cpu, port 2 graphics)
  - 2Kb colour RAM (port 1 cpu, port 2 graphics)
- - 5 Memory-mapped IO regions (all read-only).  _Yes I know about MREQ but SFRs are annoying in sdcc so :)_
+ - 5 Memory-mapped IO regions (all read-only).  _Yes I know about MREQ but SFRs turned out to be annoying in sdcc so :)_
    - Hardware state (H/V Sync, H/V Blank etc) (8 bytes)
    - joystick_5->0 from HPS (192 bytes)
    - joystick_analog_5->0 from HPS (96 bytes)
@@ -43,4 +43,17 @@ Start|End|Length|Name
 
 ## Software
 
-/src contains a C program compiled to Z80 assembly using sdcc.
+/src contains a C program compiled to Z80 assembly using sdcc
+
+### Source files
+File|Description
+---|---
+/src/sys.c|Memory maps and global declarations
+/src/ui.c|Character map drawing functions 
+/src/os.c|Main program
+
+### ROMS
+All required ROMs (program and fonts) are hard-coded into this core
+
+## License
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.

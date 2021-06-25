@@ -12,7 +12,6 @@ module top(
 	input clk_sys/*verilator public_flat*/,
 	input reset/*verilator public_flat*/,
 	
-	// 6 joysticks, 32 buttons each
 	input [31:0] joystick_0,
 	input [31:0] joystick_1,
 	input [31:0] joystick_2,
@@ -20,7 +19,6 @@ module top(
 	input [31:0] joystick_4,
 	input [31:0] joystick_5,
 	
-	// analog -127..+127, Y: [15:8], X: [7:0]
 	input [15:0] joystick_analog_0,
 	input [15:0] joystick_analog_1,
 	input [15:0] joystick_analog_2,
@@ -65,7 +63,7 @@ wire ce_pix;
 jtframe_cen24 divider
 (
 	.clk(clk_sys),
-	.cen6(ce_pix)
+	.cen12(ce_pix)
 );
 /* verilator lint_on PINMISSING */
 

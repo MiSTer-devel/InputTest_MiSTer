@@ -292,7 +292,6 @@ hps_io #(.CONF_STR(CONF_STR)) hps_io
 
 
 ////////////////////   CLOCKS   ///////////////////
-
 wire clk_sys;
 pll pll
 (

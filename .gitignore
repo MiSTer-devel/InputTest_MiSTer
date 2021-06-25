@@ -41,3 +41,12 @@ verilator/.vs/*
 verilator/obj_dir/*
 verilator/x64/*
 verilator/roms/*
+verilator/*.hex
+rtl/*.hex
+src/os.asm
+src/os.bin
+src/os.lk
+src/os.lst
+src/os.map
+src/os.noi
+src/os.sym

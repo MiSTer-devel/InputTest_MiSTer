@@ -68,8 +68,7 @@ wire [5:0] chram_x = hcnt[8:3];
 wire [5:0] chram_y = vcnt[8:3];
 wire [11:0] chram_addr = {chram_y, chram_x};
 wire [11:0] colram_addr = chram_addr;
-wire [11:0] chrom_addr = {1'b0, chram_data_out[7:0], chpos_y};
-wire [5:0] chraindex = 6'd33;
+wire [11:0] chrom_addr = {1'b0, chmap_data_out[7:0], chpos_y};
 wire chpixel = chrom_data_out[chpos_x[2:0]];
 
 // RGB output
@@ -106,12 +105,15 @@ tv80s T80x  (
 	.busak_n   ()
   );
 
-// RAM bank data outs
+// RAM data to CPU
 wire [7:0] pgrom_data_out;
 wire [7:0] chrom_data_out;
 wire [7:0] wkram_data_out;
 wire [7:0] chram_data_out;
 wire [7:0] colram_data_out;
+
+// RAM data to GFX
+wire [7:0] chmap_data_out;
 
 // Hardware inputs
 wire [7:0] in0_data_out = {VGA_HS, VGA_VS, 6'b101000};
@@ -122,7 +124,7 @@ wire [7:0] spinner_data_out = spinner[cpu_addr[6:0] +: 8];
 
 // CPU address decodes
 wire pgrom_cs = cpu_addr[15:14] == 2'b00;
-wire chrom_cs = cpu_addr[15:12] == 4'b0100;
+//wire chrom_cs = cpu_addr[15:12] == 4'b0100;  // CPU never access the character ROM data directly
 wire chram_cs = cpu_addr[15:11] == 5'b10000;
 wire colram_cs = cpu_addr[15:11] == 5'b10001;
 wire wkram_cs = cpu_addr[15:14] == 2'b11;
@@ -132,17 +134,17 @@ wire analog_cs = cpu_addr[15:8] == 8'b01110001;
 wire paddle_cs = cpu_addr[15:8] == 8'b01110010;
 wire spinner_cs = cpu_addr[15:8] == 8'b01110011;
 
-always @(posedge clk_sys) begin
-// 	if(pgrom_cs) $display("%x pgrom o %x", cpu_addr, pgrom_data_out);
-// 	if(wkram_cs) $display("%x wkram i %x o %x w %b", cpu_addr, cpu_dout, wkram_data_out, wkram_wr);
-// 	if(chram_cs) $display("%x chram i %x o %x w %b", cpu_addr, cpu_dout, chram_data_out, chram_wr);
-// 	if(colram_cs) $display("%x colram i %x o %x w %b", cpu_addr, cpu_dout, colram_data_out, colram_wr);
-// 	if(in0_cs) $display("%x in0 i %x o %x", cpu_addr, cpu_dout, in0_data_out);
- 	//if(joystick_cs) $display("joystick %b  %b", joystick_bit, joystick_data_out);
- 	//if(analog_cs) $display("analog %b  %b", analog_bit, analog_data_out);
-	 //if(paddle_cs) $display("paddle %b", paddle_data_out);
-	// $display("%x", cpu_addr);
- end
+// always @(posedge clk_sys) begin
+// // 	if(pgrom_cs) $display("%x pgrom o %x", cpu_addr, pgrom_data_out);
+// // 	if(wkram_cs) $display("%x wkram i %x o %x w %b", cpu_addr, cpu_dout, wkram_data_out, wkram_wr);
+// // 	if(chram_cs) $display("%x chram i %x o %x w %b", cpu_addr, cpu_dout, chram_data_out, chram_wr);
+// // 	if(colram_cs) $display("%x colram i %x o %x w %b", cpu_addr, cpu_dout, colram_data_out, colram_wr);
+// // 	if(in0_cs) $display("%x in0 i %x o %x", cpu_addr, cpu_dout, in0_data_out);
+//  	//if(joystick_cs) $display("joystick %b  %b", joystick_bit, joystick_data_out);
+//  	//if(analog_cs) $display("analog %b  %b", analog_bit, analog_data_out);
+// 	 //if(paddle_cs) $display("paddle %b", paddle_data_out);
+// 	// $display("%x", cpu_addr);
+//  end
 
 // CPU data mux
 assign cpu_din = pgrom_cs ? pgrom_data_out :
@@ -170,7 +172,7 @@ wire colram_wr = !cpu_wr_n && colram_cs;
 // ------
 
 // Program ROM - 0x0000 - 0x3FFF (0x4000 / 16384 bytes)
-dpram #(14,8) pgrom
+dpram #(14,8, "rom.hex") pgrom
 (
 	.clock_a(clk_sys),
 	.address_a(cpu_addr[13:0]),
@@ -186,7 +188,7 @@ dpram #(14,8) pgrom
 );
 
 // Char ROM - 0x4000 - 0x47FF (0x0400 / 2048 bytes)
-dpram #(11,8) chrom
+dpram #(11,8, "font.hex") chrom
 (
 	.clock_a(clk_sys),
 	.address_a(chrom_addr[10:0]),
@@ -209,13 +211,13 @@ dpram #(11,8) chram
 	.address_a(cpu_addr[10:0]),
 	.wren_a(chram_wr),
 	.data_a(cpu_dout),
-	.q_a(),
+	.q_a(chram_data_out),
 
 	.clock_b(clk_sys),
 	.address_b(chram_addr[10:0]),
 	.wren_b(1'b0),
 	.data_b(),
-	.q_b(chram_data_out)
+	.q_b(chmap_data_out)
 );
 
 // Char color RAM - 0x8800 - 0x8FFF (0x0800 / 2048 bytes)

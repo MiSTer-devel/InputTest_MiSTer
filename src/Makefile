@@ -1,7 +1,7 @@
 SDCC=sdcc
 CPU=z80
-CODE=boot_rom
-OBJ=boot_rom.rel
+CODE=os
+OBJ=os.rel
 DATALOC=0xC000
 
 all: $(CODE).bin
