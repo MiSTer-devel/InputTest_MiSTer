@@ -4,11 +4,9 @@
 
 A custom mini-system running an input test utility.  Shows all standard HPS sourced inputs (joystick, analog, paddle, spinner) simultaneously.
 
----
-
 ## Hardware
 
-A simple bespoke (i.e. I made it up with no real plan) 8-bit system with a 40x30 character display, each character can be set to one of 256 colours
+A simple bespoke (i.e. I made it up with no real plan) 8-bit system with a 40x30 character display, each character can be set to one of 256 colours.  No sound capabilities.
 
 ### Components
  - Z80 CPU (tv80 by Guy Hutchison, based on VHDL T80 core by Daniel Wallner)
@@ -39,13 +37,11 @@ Start|End|Length|Name
 0x8800|0x8FFF|0x0800|Colour RAM
 0xC000|0xFFFF|0x4000|Work RAM
 
----
-
 ## Software
 
-/src contains a C program compiled to Z80 assembly using sdcc
+/src contains a C program compiled to Z80 assembly using sdcc.  It reads and displays all available input values once every vblank, and also does some other things ;)
 
-### Source files
+### C source files
 File|Description
 ---|---
 /src/sys.c|Memory maps and global declarations
@@ -53,7 +49,7 @@ File|Description
 /src/os.c|Main program
 
 ### ROMS
-All required ROMs (program and fonts) are hard-coded into this core
+All required ROMs (compiled program and default MiSTer font) are hard-coded into this core
 
 ## License
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
