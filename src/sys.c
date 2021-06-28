@@ -10,6 +10,8 @@ unsigned char __at(0x7000) joystick[24];
 unsigned char __at(0x7100) analog[12];
 unsigned char __at(0x7200) paddle[6];
 unsigned char __at(0x7300) spinner[12];
+unsigned char __at(0x7400) ps2_key[2];
+unsigned char __at(0x7500) ps2_mouse[6];
 unsigned char __at(0x8000) chram[2048];
 unsigned char __at(0x8800) colram[2048];
 
@@ -17,3 +19,6 @@ unsigned char __at(0x8800) colram[2048];
 const unsigned char chram_cols = 64;
 const unsigned char chram_rows = 32;
 unsigned int chram_size;
+
+// Macros
+#define CHECK_BIT(var, pos) ((var) & (1 << (pos)))

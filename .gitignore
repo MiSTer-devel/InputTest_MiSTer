@@ -50,3 +50,4 @@ src/os.lst
 src/os.map
 src/os.noi
 src/os.sym
+.vscode/settings.json

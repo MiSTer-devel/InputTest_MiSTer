@@ -3,6 +3,7 @@
 #include <string.h>
 #include "sys.c"
 #include "ui.c"
+#include "ps2.c"
 
 unsigned char hsync;
 unsigned char hsync_last;
@@ -27,12 +28,14 @@ void page_inputs()
 		write_string(label, 0xFF - (j * 2), 2, 11 + j);
 
 		sprintf(label, "SPN%d", j + 1);
-		write_string(label, 0xFF - (j * 2), 2, 18 + j);
+		write_string(label, 0xFF - (j * 2), 14, 11 + j);
 	}
+
+	// write_string("EXT PRS SHF SCN ASC CHR", 0xFF, 6, 18);
+	write_string("CON", 0xFF, 2, 18);
+
 }
 
-char asc_0 = 48;
-char asc_1 = 49;
 char color = 0xAB;
 
 char state = 0;
@@ -70,7 +73,8 @@ char fade = 0;
 char fadetimer = 0;
 char fadefreq = 4;
 
-void start_inputtester(){
+void start_inputtester()
+{
 	page_inputs();
 	state = 1;
 }
@@ -158,7 +162,6 @@ void fadein()
 	}
 }
 
-char bpressed_left = 0;
 char bdown_left = 0;
 char bdown_left_last = 0;
 char bdown_right = 0;
@@ -179,10 +182,22 @@ void pushhistory(char new)
 	history[3] = new;
 }
 
+char lastbufferlen = 0;
+char inputindex = 0;
+char fps;
+char con_x;		 // Console cursor X position
+char con_y;		 // Console cursor X position
+char con_l = 2;	 // Console left edge X
+char con_t = 21; // Console top edge Y
+char con_r = 37; // Console right edge X
+char con_b = 37; // Console bottom edge Y
+
 void inputtester()
 {
 	hsync = input0 & 0x80;
 	vsync = input0 & 0x40;
+
+	handle_ps2();
 
 	if (hsync && !hsync_last)
 	{
@@ -215,16 +230,20 @@ void inputtester()
 		}
 	}
 
-	char j = 0;
-
 	if (vsync && !vsync_last)
 	{
+		inputindex++;
+		if (inputindex == 6)
+		{
+			inputindex = 0;
+		}
 		color++;
-		write_string("--- MiSTer Input Tester ---", color, 6, 1);
+		fps++;
+		write_string("- MiSTer Input Tester -", color, 8, 1);
+		write_stringf("%d", 0xbb, 0, 1, fps);
 
-		char hstr[10];
-		sprintf(hstr, "%d %d %d %d", history[0], history[1], history[2], history[3]);
-
+		// char hstr[10];
+		// sprintf(hstr, "%d %d %d %d", history[0], history[1], history[2], history[3]);
 		if (history[0] == 4 && history[1] == 2 && history[2] == 3 && history[3] == 1)
 		{
 			nextstate = 6;
@@ -232,20 +251,22 @@ void inputtester()
 			start_fadeout();
 			return;
 		}
+		// write_string(hstr, 0xFF, 6, 2);
 
-		write_string(hstr, 0xFF, 6, 2);
-
-		int y = 4;
+		char x = 7;
+		char y = 4 + inputindex;
+		char inputoffset = (inputindex * 32);
 		for (char b = 0; b < 2; b++)
 		{
 			char m = 0b00000001;
 			for (char i = 0; i < 8; i++)
 			{
-				char x = 7 + i + (b * 8);
-				for (j = 0; j < 6; j++)
-				{
-					write_char((joystick[(b * 8) + (j * 32)] & m) ? asc_1 : asc_0, 0xFF, x, 4 + j);
-				}
+				//(b * 8);
+				x++;
+				//				for (inputindex = 0; inputindex < 6; inputindex++)
+				//				{
+				write_char((joystick[(b * 8) + inputoffset] & m) ? asc_1 : asc_0, 0xFF, x, y);
+				//				}
 				m <<= 1;
 			}
 		}
@@ -254,39 +275,72 @@ void inputtester()
 		// ANALOG
 		char m = 0b00000001;
 		char stra[10];
-		for (j = 0; j < 6; j++)
-		{
-			signed char jx = analog[(j * 16)];
-			signed char jy = analog[(j * 16) + 8];
+		//		for (inputindex = 0; inputindex < 6; inputindex++)
+		//		{
+		signed char jx = analog[(inputindex * 16)];
+		signed char jy = analog[(inputindex * 16) + 8];
 
-			sprintf(stra, "%4d %4d", jx, jy);
-			write_string(stra, 0xFF, 24, y + j);
-			m <<= 1;
-		}
+		sprintf(stra, "%4d %4d", jx, jy);
+		write_string(stra, 0xFF, 24, y + inputindex);
+		m <<= 1;
+		//		}
 
 		// PADDLE
 		y = 11;
 		m = 0b00000001;
 		char strp[3];
-		for (j = 0; j < 6; j++)
-		{
-			char px = paddle[(j * 8)];
-			sprintf(strp, "%4d", px);
-			write_string(strp, 0xFF, 6, y + j);
-			m <<= 1;
-		}
+		//		for (inputindex = 0; inputindex < 6; inputindex++)
+		//		{
+		char px = paddle[(inputindex * 8)];
+		sprintf(strp, "%4d", px);
+		write_string(strp, 0xFF, 6, y + inputindex);
+		m <<= 1;
+		//		}
 
 		// SPINNER
-		y = 18;
+		y = 11;
 		m = 0b00000001;
-		char strs[3];
-		for (j = 0; j < 6; j++)
+		//		for (j = 0; j < 6; j++)
+		//		{
+		signed char sx = spinner[(inputindex * 16)];
+		write_stringf("%4d", 0xFF, 17, y + inputindex, sx);
+		m <<= 1;
+		//		}
+
+		// KEYBOARD
+		// write_stringf("%3d", 0xFF, 6, 19, kbd_extend);
+		// write_stringf("%3d", 0xFF, 10, 19, kbd_pressed);
+		// write_stringf("%3d", 0xFF, 14, 19, kbd_shift);
+		// write_stringf("%3d", 0xFF, 18, 19, kbd_lastscan);
+		// write_stringf("%3d", 0xFF, 22, 19, kbd_lastascii);
+		// write_char(kbd_lastascii, 0xFF, 26, 19);
+
+		if (kbd_buffer_len > 0)
 		{
-			signed char sx = spinner[(j * 16)];
-			sprintf(strs, "%4d", sx);
-			write_string(strs, 0xFF, 7, y + j);
-			m <<= 1;
+			for (char k = 0; k < kbd_buffer_len; k++)
+			{
+				write_char(kbd_buffer[k], 0xFF, con_x, con_y);
+				con_x++;
+				if (con_x > con_r)
+				{
+					con_x = con_l;
+					con_y++;
+					if (con_y > con_b)
+					{
+						con_y = con_t;
+					}
+				}
+			}
+			kbd_buffer_len = 0;
 		}
+
+		// MOUSE
+		// write_stringf("%3d", 0xFF, 6, 23, mse_a1);
+		// write_stringf("%3d", 0xFF, 10, 23, mse_a2);
+		// write_stringf("%3d", 0xFF, 14, 23, mse_a3);
+
+		// write_bits(ps2_mouse, 8, 0, 3, 0xFF, 6, 25);
+		// write_bits(ps2_mouse, 8, 3, 3, 0xFF, 6, 27);
 	}
 
 	hsync_last = hsync;
@@ -392,7 +446,8 @@ void attract()
 void main()
 {
 	chram_size = chram_cols * chram_rows;
-
+	con_x = con_l;
+	con_y = con_t;
 
 	while (1)
 	{
