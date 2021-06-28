@@ -20,7 +20,7 @@ void page_inputs()
 	char label[5];
 	for (unsigned char j = 0; j < 6; j++)
 	{
-		sprintf(label, "JOY%d", j + 1);
+		sprintf(label, "AOY%d", j + 1);
 		write_string(label, 0xFF - (j * 2), 2, 4 + j);
 
 		sprintf(label, "PAD%d", j + 1);
