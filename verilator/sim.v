@@ -1,11 +1,4 @@
 `timescale 1ns / 1ps
-//
-// top end ff for verilator
-//
-
-//`define sdl_display
-`define USE_VGA
-//`define USE_CGA
 
 module top(
 
@@ -40,6 +33,14 @@ module top(
 	input [8:0] spinner_4,
 	input [8:0] spinner_5,
 
+	// ps2 alternative interface.
+	// [8] - extended, [9] - pressed, [10] - toggles with every press/release
+	input [10:0] ps2_key,
+
+	// [24] - toggles with every event
+	input [24:0] ps2_mouse,
+	input [15:0] ps2_mouse_ext, // 15:8 - reserved(additional buttons), 7:0 - wheel movements
+
 	output [7:0] VGA_R/*verilator public_flat*/,
 	output [7:0] VGA_G/*verilator public_flat*/,
 	output [7:0] VGA_B/*verilator public_flat*/,
@@ -63,7 +64,8 @@ wire ce_pix;
 jtframe_cen24 divider
 (
 	.clk(clk_sys),
-	.cen12(ce_pix)
+	//.cen12(ce_pix), // <-- dodgy video speed for faster simulation, will cause bearable char map corruption
+	.cen4(ce_pix) // <-- correct video speed
 );
 /* verilator lint_on PINMISSING */
 
@@ -86,7 +88,9 @@ system system(
 	.joystick({joystick_5,joystick_4,joystick_3,joystick_2,joystick_1,joystick_0}),
 	.analog({joystick_analog_5,joystick_analog_4,joystick_analog_3,joystick_analog_2,joystick_analog_1,joystick_analog_0}),
 	.paddle({paddle_5,paddle_4,paddle_3,paddle_2,paddle_1,paddle_0}),
-	.spinner({7'b0,spinner_5,7'b0,spinner_4,7'b0,spinner_3,7'b0,spinner_2,7'b0,spinner_1,7'b0,spinner_0})
+	.spinner({7'b0,spinner_5,7'b0,spinner_4,7'b0,spinner_3,7'b0,spinner_2,7'b0,spinner_1,7'b0,spinner_0}),
+	.ps2_key(ps2_key),
+	.ps2_mouse({ps2_mouse_ext,7'b0,ps2_mouse})
 );
 
 endmodule 

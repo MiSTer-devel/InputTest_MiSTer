@@ -20,6 +20,14 @@ module system (
 	// 6 devices, 16 bits eachspinner [7:0] -128..+127, [8] - toggle with every update, [9-15] padding
 	input [95:0]	spinner,
 
+	// ps2 alternative interface.
+	// [8] - extended, [9] - pressed, [10] - toggles with every press/release
+	input [10:0]	ps2_key,
+
+	// [0-23] mouse data, [24] - toggles with every event, [25-31] - padding,
+	// [32-39] - wheel movements, [40-47] - reserved(additional buttons)
+	input [47:0]	ps2_mouse,
+	
 	output			VGA_HS,
 	output			VGA_VS,
 	output [7:0]	VGA_R,
@@ -31,7 +39,6 @@ module system (
 
 localparam [8:0] VGA_WIDTH = 9'd320;
 localparam [8:0] VGA_HEIGHT = 9'd240;
-localparam [7:0] COLS = 8'd40;
 
 wire _hb;
 wire _vb;
@@ -40,8 +47,6 @@ assign VGA_VB = ~_vb;
 
 wire [8:0] hcnt;
 wire [8:0] vcnt;
-wire hinit;
-wire vinit;
 
 // Display timing module from JTFRAME
 jtframe_vtimer #(
@@ -53,8 +58,8 @@ jtframe_vtimer #(
 	.pxl_cen(ce_pix),
 	.V(vcnt),
 	.H(hcnt),
-	.Hinit(hinit),
-	.Vinit(vinit),
+	.Hinit(),
+	.Vinit(),
 	.LHBL(_hb),
 	.LVBL(_vb),
 	.HS(VGA_HS),
@@ -121,10 +126,12 @@ wire [7:0] joystick_data_out = joystick[cpu_addr[7:0] +: 8];
 wire [7:0] analog_data_out = analog[cpu_addr[6:0] +: 8];
 wire [7:0] paddle_data_out = paddle[cpu_addr[5:0] +: 8];
 wire [7:0] spinner_data_out = spinner[cpu_addr[6:0] +: 8];
+wire [7:0] ps2_key_data_out = ps2_key[cpu_addr[3:0] +: 8];
+wire [7:0] ps2_mouse_data_out = ps2_mouse[cpu_addr[5:0] +: 8];
 
 // CPU address decodes
 wire pgrom_cs = cpu_addr[15:14] == 2'b00;
-//wire chrom_cs = cpu_addr[15:12] == 4'b0100;  // CPU never access the character ROM data directly
+//wire chrom_cs = cpu_addr[15:12] == 4'b0100;  // CPU never accesses the character ROM data directly
 wire chram_cs = cpu_addr[15:11] == 5'b10000;
 wire colram_cs = cpu_addr[15:11] == 5'b10001;
 wire wkram_cs = cpu_addr[15:14] == 2'b11;
@@ -133,18 +140,21 @@ wire joystick_cs = cpu_addr[15:8] == 8'b01110000;
 wire analog_cs = cpu_addr[15:8] == 8'b01110001;
 wire paddle_cs = cpu_addr[15:8] == 8'b01110010;
 wire spinner_cs = cpu_addr[15:8] == 8'b01110011;
+wire ps2_key_cs = cpu_addr[15:8] == 8'b01110100;
+wire ps2_mouse_cs = cpu_addr[15:8] == 8'b01110101;
 
 // always @(posedge clk_sys) begin
-// // 	if(pgrom_cs) $display("%x pgrom o %x", cpu_addr, pgrom_data_out);
-// // 	if(wkram_cs) $display("%x wkram i %x o %x w %b", cpu_addr, cpu_dout, wkram_data_out, wkram_wr);
-// // 	if(chram_cs) $display("%x chram i %x o %x w %b", cpu_addr, cpu_dout, chram_data_out, chram_wr);
-// // 	if(colram_cs) $display("%x colram i %x o %x w %b", cpu_addr, cpu_dout, colram_data_out, colram_wr);
-// // 	if(in0_cs) $display("%x in0 i %x o %x", cpu_addr, cpu_dout, in0_data_out);
-//  	//if(joystick_cs) $display("joystick %b  %b", joystick_bit, joystick_data_out);
-//  	//if(analog_cs) $display("analog %b  %b", analog_bit, analog_data_out);
-// 	 //if(paddle_cs) $display("paddle %b", paddle_data_out);
-// 	// $display("%x", cpu_addr);
-//  end
+// 	if(pgrom_cs) $display("%x pgrom o %x", cpu_addr, pgrom_data_out);
+// 	if(wkram_cs) $display("%x wkram i %x o %x w %b", cpu_addr, cpu_dout, wkram_data_out, wkram_wr);
+// 	if(chram_cs) $display("%x chram i %x o %x w %b", cpu_addr, cpu_dout, chram_data_out, chram_wr);
+// 	if(colram_cs) $display("%x colram i %x o %x w %b", cpu_addr, cpu_dout, colram_data_out, colram_wr);
+// 	if(in0_cs) $display("%x in0 i %x o %x", cpu_addr, cpu_dout, in0_data_out);
+//  	if(joystick_cs) $display("joystick %b  %b", joystick_bit, joystick_data_out);
+//  	if(analog_cs) $display("analog %b  %b", analog_bit, analog_data_out);
+// 	 if(paddle_cs) $display("paddle %b", paddle_data_out);
+// 	if(ps2_key_cs) $display("ps2_key %b %x", ps2_key_data_out, cpu_addr[3:0]);
+// 	$display("%x", cpu_addr);
+// end
 
 // CPU data mux
 assign cpu_din = pgrom_cs ? pgrom_data_out :
@@ -156,6 +166,8 @@ assign cpu_din = pgrom_cs ? pgrom_data_out :
 				 analog_cs ? analog_data_out :
 				 paddle_cs ? paddle_data_out :
 				 spinner_cs ? spinner_data_out :
+				 ps2_key_cs ? ps2_key_data_out :
+				 ps2_mouse_cs ? ps2_mouse_data_out :
 				 8'b00000000;
 
 // Rom upload write enables

@@ -34,6 +34,10 @@ void SimBus::QueueDownload(std::string file, int index) {
 	downloadQueue.push(chunk);
 }
 
+bool SimBus::HasQueue() {
+	return downloadQueue.size() > 0;
+}
+
 int nextchar = 0;
 void SimBus::BeforeEval()
 {
@@ -62,7 +66,7 @@ void SimBus::BeforeEval()
 	}
 
 	if (ioctl_file) {
-		//console.AddLog("ioctl_download addr %x  ioctl_wait %x", *ioctl_addr, *ioctl_wait);
+		console.AddLog("ioctl_download addr %x  ioctl_wait %x", *ioctl_addr, *ioctl_wait);
 		if (*ioctl_wait == 0) {
 			*ioctl_download = 1;
 			*ioctl_wr = 1;
@@ -86,8 +90,6 @@ void SimBus::BeforeEval()
 	else {
 		*ioctl_download = 0;
 		*ioctl_wr = 0;
-		*ioctl_addr = 0;
-		ioctl_next_addr = -1;
 	}
 }
 

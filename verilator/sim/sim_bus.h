@@ -41,6 +41,7 @@ public:
 	void BeforeEval(void);
 	void AfterEval(void);
 	void QueueDownload(std::string file, int index);
+	bool HasQueue();
 
 	SimBus(DebugConsole c);
 	~SimBus();

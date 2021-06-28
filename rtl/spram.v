@@ -12,16 +12,16 @@ module spram #(
 localparam ramLength = (2**address_width);
 reg [data_width-1:0] mem [ramLength-1:0];
 
-`ifdef SIMULATION
-	integer j;
-	initial
-	begin
-		for (j = 0; j < ramLength; j = j + 1)
-		begin
-			mem[j] = 0;
-		end
-	end
-`endif
+// `ifdef SIMULATION
+// 	integer j;
+// 	initial
+// 	begin
+// 		for (j = 0; j < ramLength; j = j + 1)
+// 		begin
+// 			mem[j] = 0;
+// 		end
+// 	end
+// `endif
 
 always @(posedge clock) begin
 	q <= mem[address];

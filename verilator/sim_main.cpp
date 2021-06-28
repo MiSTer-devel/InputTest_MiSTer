@@ -96,7 +96,7 @@ int verilate() {
 
 		// Set system clock in core
 		top->clk_sys = clk_sys.clk;
-		
+
 		// Simulate both edges of system clock
 		if (clk_sys.clk != clk_sys.old) {
 			if (clk_sys.clk) { bus.BeforeEval(); }
@@ -120,6 +120,11 @@ int verilate() {
 	exit(0);
 	return 0;
 }
+
+char ps2_scancode = 0;
+char ps2_toggle = 0;
+char ps2_timer = 0;
+
 
 int main(int argc, char** argv, char** env) {
 
@@ -173,7 +178,6 @@ int main(int argc, char** argv, char** env) {
 	if (video.Initialise(windowTitle) == 1) { return 1; }
 
 	//bus.QueueDownload("../src/os.bin", 0);
-	//bus.QueueDownload("../src/snek/snek.bin", 0);
 	//bus.QueueDownload("../MiSTer.pf", 1);
 
 
@@ -242,15 +246,15 @@ int main(int argc, char** argv, char** env) {
 		ImGui::Image(video.texture_id, ImVec2(video.output_width * m, video.output_height * m));
 		ImGui::End();
 
-		ImGui::Begin("PGROM Editor");
+		/*ImGui::Begin("PGROM Editor");
 		mem_edit_1.DrawContents(top->top__DOT__system__DOT__pgrom__DOT__mem, 16384, 0);
 		ImGui::End();
 		ImGui::Begin("CHROM Editor");
 		mem_edit_1.DrawContents(top->top__DOT__system__DOT__chrom__DOT__mem, 2048, 0);
+		ImGui::End();*/
+		ImGui::Begin("WKRAM Editor");
+		mem_edit_2.DrawContents(top->top__DOT__system__DOT__wkram__DOT__mem, 16384, 0);
 		ImGui::End();
-		//ImGui::Begin("WKRAM Editor");
-		//mem_edit_2.DrawContents(top->top__DOT__system__DOT__wkram__DOT__mem, 16384, 0);
-		//ImGui::End();
 		//ImGui::Begin("CHRAM Editor");
 		//mem_edit_3.DrawContents(top->top__DOT__system__DOT__chram__DOT__mem, 2048, 0);
 		//ImGui::End();
@@ -302,6 +306,40 @@ int main(int argc, char** argv, char** env) {
 		top->spinner_0 += 1;
 		top->spinner_1 -= 1;
 
+
+		if (video.frameChanged) {
+			top->ps2_key = 0;
+
+			ps2_timer++;
+			if (ps2_timer == 2) {
+				ps2_scancode =0x16;
+				ps2_toggle = !ps2_toggle;
+
+				ps2_timer = 0;
+			}
+			if (ps2_toggle) {
+				top->ps2_key &= ~(1UL << 10);
+			}
+			else {
+				top->ps2_key |= (1UL << 10);
+			}
+
+			for (char b = 0; b < 8; b++) {
+				char bit = (ps2_scancode >> b) & 1U;
+				if (bit == 1) {
+					top->ps2_key |= (1UL << b);
+				}
+			}
+		}
+		video.frameChanged = 0;
+
+		if (!bus.HasQueue() && input.inputs[input_pause]) {
+			bus.QueueDownload("../src/os.bin", 0);
+		}
+
+		top->ps2_mouse += 1;
+		top->ps2_mouse_ext -= 1;
+
 		// Run simulation
 		if (run_enable) {
 			for (int step = 0; step < batchSize; step++) { verilate(); }
@@ -313,6 +351,7 @@ int main(int argc, char** argv, char** env) {
 			}
 		}
 	}
+
 
 	// Clean up before exit
 	// --------------------

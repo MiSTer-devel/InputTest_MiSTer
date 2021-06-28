@@ -33,6 +33,9 @@ Start|End|Length|Name
 0x7100|0x715F|0x0060|Analog inputs
 0x7200|0x722F|0x0030|Paddle inputs
 0x7300|0x735F|0x0060|Spinner inputs
+0x7400|0x740B|0x000C|PS2 key
+0x7500|0x7530|0x0031|PS2 mouse
+
 0x8000|0x87FF|0x0800|Char RAM
 0x8800|0x8FFF|0x0800|Colour RAM
 0xC000|0xFFFF|0x4000|Work RAM
@@ -49,7 +52,7 @@ File|Description
 /src/os.c|Main program
 
 ### ROMS
-All required ROMs (compiled program and default MiSTer font) are hard-coded into this core
+All required ROMs (compiled program and default MiSTer font) are built into this core.
 
 ## License
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
