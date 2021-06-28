@@ -271,7 +271,7 @@ int main(int argc, char** argv, char** env) {
 				std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
 				std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
 				// action
-     				bus.QueueDownload(filePathName, 0);
+     				bus.QueueDownload(filePathName, 0, true);
     			}
 
     		// close
