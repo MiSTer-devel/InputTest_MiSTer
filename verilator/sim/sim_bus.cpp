@@ -86,6 +86,8 @@ void SimBus::BeforeEval()
 	else {
 		*ioctl_download = 0;
 		*ioctl_wr = 0;
+		*ioctl_addr = 0;
+		ioctl_next_addr = -1;
 	}
 }
 
