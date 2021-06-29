@@ -10,8 +10,8 @@ A simple bespoke (i.e. I made it up with no real plan) 8-bit system with a 40x30
 
 ### Components
  - Z80 CPU (tv80 by Guy Hutchison, based on VHDL T80 core by Daniel Wallner)
- - jtframe_vtimer for VGA timing (from JTFRAME by Jotego)
- - jtframe_cen24 for clockenables (from JTFRAME by Jotego)
+ - jtframe_vtimer for VGA timing (from JTFRAME (https://github.com/jotego/jtframe) by Jotego)
+ - jtframe_cen24 for clock enables (from JTFRAME (https://github.com/jotego/jtframe) by Jotego)
  - 16Kb program ROM (port 1 cpu, port 2 download)
  - 16Kb work RAM (port 1 cpu)
  - 2Kb character ROM (port 1 cpu, port 2 download)
