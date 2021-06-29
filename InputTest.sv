@@ -1,7 +1,23 @@
-//============================================================================
-//  InputTest_MiSTer
-//  Copyright (c) 2021 jimmystones
-//============================================================================
+/*============================================================================
+	MiSTer test harness - emu module
+
+	Author: Jim Gregory - https://github.com/JimmyStones/
+	Version: 0.1
+	Date: 2021-06-29
+
+	This program is free software; you can redistribute it and/or modify it
+	under the terms of the GNU General Public License as published by the Free
+	Software Foundation; either version 3 of the License, or (at your option)
+	any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License along
+	with this program. If not, see <http://www.gnu.org/licenses/>.
+===========================================================================*/
 
 module emu
 (
@@ -194,7 +210,7 @@ localparam CONF_STR = {
 	"-;",
 	"F0,BIN,Load BIOS",
 	"-;",
-	"J1,A,B,C,X,Y,Z,L,R,Select,Start;",
+	"J1,A,B,X,Y,L,R,Select,Start,C,Z;",
 	"V,v",`BUILD_DATE
 };
 
@@ -204,13 +220,10 @@ wire        forced_scandoubler;
 wire        direct_video;
 
 wire        ioctl_download;
-wire        ioctl_upload;
 wire        ioctl_wr;
 wire [24:0] ioctl_addr;
 wire  [7:0] ioctl_dout;
-wire  [7:0] ioctl_din;
 wire  [7:0] ioctl_index;
-wire        ioctl_wait;
 
 wire [31:0] joystick_0;
 wire [31:0] joystick_1;
@@ -255,13 +268,10 @@ hps_io #(.CONF_STR(CONF_STR)) hps_io
 	.direct_video(direct_video),
 
 	.ioctl_download(ioctl_download),
-	.ioctl_upload(ioctl_upload),
 	.ioctl_wr(ioctl_wr),
 	.ioctl_addr(ioctl_addr),
 	.ioctl_dout(ioctl_dout),
-	.ioctl_din(ioctl_din),
 	.ioctl_index(ioctl_index),
-	.ioctl_wait(ioctl_wait),
 
 	.joystick_0(joystick_0),
 	.joystick_1(joystick_1),

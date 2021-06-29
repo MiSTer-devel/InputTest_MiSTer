@@ -1,9 +1,29 @@
 `timescale 1ns / 1ps
+/*============================================================================
+	MiSTer test harness - Verilator emu module
 
-module top(
+	Author: Jim Gregory - https://github.com/JimmyStones/
+	Version: 0.1
+	Date: 2021-06-29
 
-	input clk_sys/*verilator public_flat*/,
-	input reset/*verilator public_flat*/,
+	This program is free software; you can redistribute it and/or modify it
+	under the terms of the GNU General Public License as published by the Free
+	Software Foundation; either version 3 of the License, or (at your option)
+	any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License along
+	with this program. If not, see <http://www.gnu.org/licenses/>.
+===========================================================================*/
+
+module emu (
+
+	input clk_sys,
+	input reset,
 	
 	input [31:0] joystick_0,
 	input [31:0] joystick_1,
@@ -41,9 +61,9 @@ module top(
 	input [24:0] ps2_mouse,
 	input [15:0] ps2_mouse_ext, // 15:8 - reserved(additional buttons), 7:0 - wheel movements
 
-	output [7:0] VGA_R/*verilator public_flat*/,
-	output [7:0] VGA_G/*verilator public_flat*/,
-	output [7:0] VGA_B/*verilator public_flat*/,
+	output [7:0] VGA_R,
+	output [7:0] VGA_G,
+	output [7:0] VGA_B,
 	
 	output VGA_HS,
 	output VGA_VS,
