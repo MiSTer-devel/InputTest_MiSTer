@@ -57,8 +57,8 @@ V_SRC = \
         $(RTL)/system.v \
         $(RTL)/dpram.v  \
         $(RTL)/spram.v  \
-		$(RTL)/JTFRAME/jtframe_vtimer.v
-		$(RTL)/JTFRAME/jtframe_cen24.v
+		$(RTL)/JTFRAME/jtframe_vtimer.v \
+		$(RTL)/JTFRAME/jtframe_cen24.v \
 ../rtl/tv80/tv80_core.v \
 ../rtl/tv80/tv80_alu.v \
 ../rtl/tv80/tv80_mcode.v \
@@ -69,7 +69,7 @@ V_SRC = \
 C_SRC = \
 	sim_main.cpp  \
 sim/sim_bus.cpp		sim/sim_clock.cpp	sim/sim_console.cpp	sim/sim_video.cpp sim/sim_input.cpp \
- sim/imgui/imgui_impl_sdl.cpp sim/imgui/imgui_impl_opengl2.cpp sim/imgui/imgui_draw.cpp sim/imgui/imgui_widgets.cpp sim/imgui/imgui_tables.cpp sim/imgui/imgui.cpp
+ sim/imgui/imgui_impl_sdl.cpp sim/imgui/imgui_impl_opengl2.cpp sim/imgui/imgui_draw.cpp sim/imgui/imgui_widgets.cpp sim/imgui/imgui_tables.cpp sim/imgui/imgui.cpp sim/imgui/ImGuiFileDialog.cpp
 VOUT = obj_dir/Vtop.cpp
 
 all: $(EXE)

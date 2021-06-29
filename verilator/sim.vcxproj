@@ -60,6 +60,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="sim\imgui\imgui.cpp" />
+    <ClCompile Include="sim\imgui\ImGuiFileDialog.cpp" />
     <ClCompile Include="sim\imgui\imgui_draw.cpp" />
     <ClCompile Include="sim\imgui\imgui_impl_dx11.cpp" />
     <ClCompile Include="sim\imgui\imgui_impl_win32.cpp" />

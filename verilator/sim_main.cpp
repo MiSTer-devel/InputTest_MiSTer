@@ -18,6 +18,7 @@
 #include "sim_clock.h"
 
 #include "../imgui/imgui_memory_editor.h"
+#include "../imgui/ImGuiFileDialog.h"
 
 // Debug GUI 
 // ---------
@@ -104,7 +105,7 @@ int verilate() {
 		}
 
 		// Output pixels on rising edge of pixel clock
-		if (clk_sys.IsRising() && top->top__DOT__system__DOT__ce_pix) {
+		if (clk_sys.IsRising() && top->top__DOT__ce_pix ) {
 			uint32_t colour = 0xFF000000 | top->VGA_B << 16 | top->VGA_G << 8 | top->VGA_R;
 			video.Clock(top->VGA_HB, top->VGA_VB, top->VGA_HS, top->VGA_VS, colour);
 		}
@@ -220,6 +221,8 @@ int main(int argc, char** argv, char** env) {
 		if (ImGui::Button("RESET")) { resetSim(); } ImGui::SameLine();
 		if (ImGui::Button("START")) { run_enable = 1; } ImGui::SameLine();
 		if (ImGui::Button("STOP")) { run_enable = 0; } ImGui::SameLine();
+		if (ImGui::Button("LOAD"))
+    			ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".bin", ".");
 		ImGui::Checkbox("RUN", &run_enable);
 		ImGui::SliderInt("Batch size", &batchSize, 1, 250000);
 
@@ -258,6 +261,22 @@ int main(int argc, char** argv, char** env) {
 		//ImGui::Begin("COLRAM Editor");
 		//mem_edit_3.DrawContents(top->top__DOT__system__DOT__colram__DOT__mem, 2048, 0);
 		//ImGui::End();
+
+		// File Dialog to load rom 
+		if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
+		{
+			// action if OK
+			if (ImGuiFileDialog::Instance()->IsOk())
+			{
+				std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+				std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
+				// action
+     				bus.QueueDownload(filePathName, 0, true);
+    			}
+
+    		// close
+    		ImGuiFileDialog::Instance()->Close();
+  		}
 
 		ImGui::Begin("CPU Registers");
 		ImGui::Spacing();
