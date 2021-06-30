@@ -1,5 +1,5 @@
 #include <verilated.h>
-#include "Vtop.h"
+#include "Vemu.h"
 
 #include "imgui.h"
 #ifndef _MSC_VER
@@ -67,7 +67,7 @@ int multi_step_amount = 1024;
 
 // Verilog module
 // --------------
-Vtop* top = NULL;
+Vemu* top = NULL;
 
 vluint64_t main_time = 0;	// Current simulation time.
 double sc_time_stamp() {	// Called by $time in Verilog.
@@ -105,7 +105,7 @@ int verilate() {
 		}
 
 		// Output pixels on rising edge of pixel clock
-		if (clk_sys.IsRising() && top->top__DOT__ce_pix ) {
+		if (clk_sys.IsRising() && top->emu__DOT__ce_pix ) {
 			uint32_t colour = 0xFF000000 | top->VGA_B << 16 | top->VGA_G << 8 | top->VGA_R;
 			video.Clock(top->VGA_HB, top->VGA_VB, top->VGA_HS, top->VGA_VS, colour);
 		}
@@ -129,7 +129,7 @@ char ps2_timer = 0;
 int main(int argc, char** argv, char** env) {
 
 	// Create core and initialise
-	top = new Vtop();
+	top = new Vemu();
 	Verilated::commandArgs(argc, argv);
 
 #ifdef WIN32
@@ -247,19 +247,19 @@ int main(int argc, char** argv, char** env) {
 		ImGui::End();
 
 		/*ImGui::Begin("PGROM Editor");
-		mem_edit_1.DrawContents(top->top__DOT__system__DOT__pgrom__DOT__mem, 16384, 0);
+		mem_edit_1.DrawContents(top->emu__DOT__system__DOT__pgrom__DOT__mem, 16384, 0);
 		ImGui::End();
 		ImGui::Begin("CHROM Editor");
-		mem_edit_1.DrawContents(top->top__DOT__system__DOT__chrom__DOT__mem, 2048, 0);
+		mem_edit_1.DrawContents(top->emu__DOT__system__DOT__chrom__DOT__mem, 2048, 0);
 		ImGui::End();*/
 		ImGui::Begin("WKRAM Editor");
-		mem_edit_2.DrawContents(top->top__DOT__system__DOT__wkram__DOT__mem, 16384, 0);
+		mem_edit_2.DrawContents(top->emu__DOT__system__DOT__wkram__DOT__mem, 16384, 0);
 		ImGui::End();
 		//ImGui::Begin("CHRAM Editor");
-		//mem_edit_3.DrawContents(top->top__DOT__system__DOT__chram__DOT__mem, 2048, 0);
+		//mem_edit_3.DrawContents(top->emu__DOT__system__DOT__chram__DOT__mem, 2048, 0);
 		//ImGui::End();
 		//ImGui::Begin("COLRAM Editor");
-		//mem_edit_3.DrawContents(top->top__DOT__system__DOT__colram__DOT__mem, 2048, 0);
+		//mem_edit_3.DrawContents(top->emu__DOT__system__DOT__colram__DOT__mem, 2048, 0);
 		//ImGui::End();
 
 		// File Dialog to load rom 
@@ -280,8 +280,8 @@ int main(int argc, char** argv, char** env) {
 
 		ImGui::Begin("CPU Registers");
 		ImGui::Spacing();
-		ImGui::Text("PC      0x%04X", top->top__DOT__system__DOT__T80x__DOT__i_tv80_core__DOT__PC);
-		ImGui::Text("ACC     0x%04X", top->top__DOT__system__DOT__T80x__DOT__i_tv80_core__DOT__ACC);
+		ImGui::Text("PC      0x%04X", top->emu__DOT__system__DOT__T80x__DOT__i_tv80_core__DOT__PC);
+		ImGui::Text("ACC     0x%04X", top->emu__DOT__system__DOT__T80x__DOT__i_tv80_core__DOT__ACC);
 		ImGui::End();
 
 		video.UpdateTexture();

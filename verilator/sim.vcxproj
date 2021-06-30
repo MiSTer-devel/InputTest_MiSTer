@@ -73,9 +73,8 @@
     <ClCompile Include="sim\sim_console.cpp" />
     <ClCompile Include="sim\sim_input.cpp" />
     <ClCompile Include="sim\sim_video.cpp" />
-    <ClCompile Include="obj_dir\Vtop.cpp" />
-    <ClCompile Include="obj_dir\Vtop__Dpi.cpp" />
-    <ClCompile Include="obj_dir\Vtop__Syms.cpp" />
+    <ClCompile Include="obj_dir\Vemu.cpp" />
+    <ClCompile Include="obj_dir\Vemu__Syms.cpp" />
     <ClCompile Include="sim_main.cpp" />
   </ItemGroup>
   <ItemGroup>
