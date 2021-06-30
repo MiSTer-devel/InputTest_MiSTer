@@ -5,6 +5,7 @@
 #ifndef _MSC_VER
 #include <SDL2/SDL.h>
 const Uint8* m_keyboardState;
+const Uint8* m_keyboardState_last;
 #else
 #define WIN32
 #include <dinput.h>
@@ -72,9 +73,13 @@ void SimInput::Read() {
 #endif
 	}
 
+#ifdef WIN32
 	for (unsigned char k = 0; k < 256; k++) {
 		m_keyboardState_last[k] = m_keyboardState[k];
 	}
+#else
+		m_keyboardState_last = m_keyboardState;
+#endif
 
 }
 
