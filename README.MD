@@ -17,7 +17,7 @@ A simple bespoke (i.e. I made it up with no real plan) 8-bit system with a 40x30
  - 2Kb character ROM (port 1 cpu, port 2 download)
  - 2Kb character RAM (port 1 cpu, port 2 graphics)
  - 2Kb colour RAM (port 1 cpu, port 2 graphics)
- - 5 Memory-mapped IO regions (all read-only).  _Yes I know about MREQ but SFRs turned out to be annoying in sdcc so :)_
+ - 7 Memory-mapped IO regions (all read-only).  _Yes I know about MREQ but SFRs turned out to be annoying in sdcc so :)_
    - Hardware state (H/V Sync, H/V Blank etc) (8 bytes)
    - joystick_5->0 from HPS (192 bytes)
    - joystick_analog_5->0 from HPS (96 bytes)
