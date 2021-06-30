@@ -1,11 +1,6 @@
-if [[ $OSTYPE == 'darwin'* ]]; then
-	exit;
-fi
 
-if [[ $OSTYPE == 'linux'* ]]; then
-	exit;
-fi
-
+set -e
+if grep -qEi "(Microsoft|WSL)" /proc/version &> /dev/null ; then
 verilator -cc -exe --public --compiler msvc +define+SIMULATION=1 --converge-limit 2000 --top-module emu sim.v \
 ../rtl/dpram.v \
 ../rtl/spram.v \
@@ -18,3 +13,8 @@ verilator -cc -exe --public --compiler msvc +define+SIMULATION=1 --converge-limi
 ../rtl/tv80/tv80_reg.v \
 ../rtl/tv80/tv80n.v \
 ../rtl/tv80/tv80s.v
+    else
+	        echo "not running on windows"
+fi
+
+
