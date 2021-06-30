@@ -1,3 +1,24 @@
+/*============================================================================
+	MiSTer test harness OS - PS/2 interface functions
+
+	Author: Jim Gregory - https://github.com/JimmyStones/
+	Version: 0.1
+	Date: 2021-06-29
+
+	This program is free software; you can redistribute it and/or modify it
+	under the terms of the GNU General Public License as published by the Free
+	Software Foundation; either version 3 of the License, or (at your option)
+	any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License along
+	with this program. If not, see <http://www.gnu.org/licenses/>.
+===========================================================================*/
+
 #include "sys.c"
 
 // COMMAND KEYS
@@ -148,12 +169,19 @@ char kbd_UK[256] =
 		0, 0,	   // 0x57
 		'+', '=',  // 0x58
 		0, 0,	   // 0x59 (RSHIFT)
-		0, 0,	   // 0x5a (ENTER)
+		'\n', '\n',// 0x5a (ENTER)
 		'}', ']',  // 0x5b
 		0, 0,	   // 0x5c
 		'|', '\\', // 0x5d
 		0, 0,	   // 0x5e
 		0, 0,	   // 0x5f
+		0, 0,	   // 0x60
+		0, 0,	   // 0x61
+		0, 0,	   // 0x62
+		0, 0,	   // 0x63
+		0, 0,	   // 0x64
+		0, 0,	   // 0x65
+		'\b', '\b',// 0x66
 		0, 0};
 
 char kbd_in[2];

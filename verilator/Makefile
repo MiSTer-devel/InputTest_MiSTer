@@ -7,7 +7,7 @@ V = verilator
 #V = /usr/local/src/verilator-3.876/bin/verilator
 COSIM = n
 
-TOP = --top-module top
+TOP = --top-module emu
 RTL = ../rtl
 V_INC = +incdir+$(RTL) 
 
