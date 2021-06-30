@@ -1,3 +1,7 @@
+if [[ $OSTYPE == 'darwin'* ]]; then
+	exit;
+fi
+
 verilator -cc -exe --public --compiler msvc +define+SIMULATION=1 --converge-limit 2000 --top-module emu sim.v \
 ../rtl/dpram.v \
 ../rtl/spram.v \
