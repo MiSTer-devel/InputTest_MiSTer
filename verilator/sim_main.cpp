@@ -99,7 +99,10 @@ int verilate() {
 
 		// Simulate both edges of system clock
 		if (clk_sys.clk != clk_sys.old) {
-			if (clk_sys.clk) { bus.BeforeEval(); }
+			if (clk_sys.clk) { 
+				input.BeforeEval();
+				bus.BeforeEval(); 
+			}
 			top->eval();
 			if (clk_sys.clk) { bus.AfterEval(); }
 		}
@@ -146,6 +149,7 @@ int main(int argc, char** argv, char** env) {
 	bus.ioctl_wr = &top->ioctl_wr;
 	bus.ioctl_dout = &top->ioctl_dout;
 	//bus.ioctl_din = &top->ioctl_din;
+	input.ps2_key = &top->ps2_key;
 
 	// Set up input module
 	input.Initialise();
@@ -176,10 +180,6 @@ int main(int argc, char** argv, char** env) {
 #endif
 	// Setup video output
 	if (video.Initialise(windowTitle) == 1) { return 1; }
-
-	//bus.QueueDownload("../src/os.bin", 0);
-	//bus.QueueDownload("../MiSTer.pf", 1);
-
 
 #ifdef WIN32
 	MSG msg;
@@ -305,37 +305,6 @@ int main(int argc, char** argv, char** env) {
 
 		top->spinner_0 += 1;
 		top->spinner_1 -= 1;
-
-
-		if (video.frameChanged) {
-			top->ps2_key = 0;
-
-			ps2_timer++;
-			if (ps2_timer == 2) {
-				ps2_scancode =0x16;
-				ps2_toggle = !ps2_toggle;
-
-				ps2_timer = 0;
-			}
-			if (ps2_toggle) {
-				top->ps2_key &= ~(1UL << 10);
-			}
-			else {
-				top->ps2_key |= (1UL << 10);
-			}
-
-			for (char b = 0; b < 8; b++) {
-				char bit = (ps2_scancode >> b) & 1U;
-				if (bit == 1) {
-					top->ps2_key |= (1UL << b);
-				}
-			}
-		}
-		video.frameChanged = 0;
-
-		if (!bus.HasQueue() && input.inputs[input_pause]) {
-			bus.QueueDownload("../src/os.bin", 0);
-		}
 
 		top->ps2_mouse += 1;
 		top->ps2_mouse_ext -= 1;
