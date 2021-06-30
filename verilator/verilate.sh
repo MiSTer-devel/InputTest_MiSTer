@@ -16,5 +16,3 @@ verilator -cc -exe --public --compiler msvc +define+SIMULATION=1 --converge-limi
     else
 	        echo "not running on windows"
 fi
-
-

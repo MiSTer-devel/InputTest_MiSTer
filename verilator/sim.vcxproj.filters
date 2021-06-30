@@ -60,9 +60,6 @@
     <ClCompile Include="sim\sim_bus.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="obj_dir\Vemu__Dpi.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="sim\sim_clock.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
