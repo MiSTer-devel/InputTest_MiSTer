@@ -96,6 +96,11 @@ unsigned char attractstate = 0;
 
 // Input tester variables
 unsigned char inputindex = 0;
+signed char ax_last[6];
+signed char ay_last[6];
+unsigned char px_last[6];
+signed char sx_last[6];
+
 unsigned char con_x;	  // Console cursor X position
 unsigned char con_y;	  // Console cursor X position
 unsigned char con_l = 2;  // Console left edge X
@@ -106,7 +111,7 @@ bool con_cursor;
 unsigned char con_cursortimer = 1;
 unsigned char con_cursorfreq = 30;
 
-// DPAD tracker 
+// DPAD tracker
 bool bdown_left = 0;
 bool bdown_left_last = 0;
 bool bdown_right = 0;
@@ -124,6 +129,12 @@ void start_inputtester()
 	state = 1;
 	con_x = con_l;
 	con_y = con_t;
+	for(char i=0;i<6;i++){
+		ax_last[i] = 1;
+		ay_last[i] = 1;
+		px_last[i] = 1;
+		sx_last[i] = 1;
+	}
 }
 
 // Initialise fadeout state
@@ -278,12 +289,13 @@ void inputtester()
 		}
 
 		// Draw joystick inputs
+		char m = 0b00000001;
 		char x = 6;
 		char y = 4 + inputindex;
 		char inputoffset = (inputindex * 32);
 		for (char b = 0; b < 2; b++)
 		{
-			char m = 0b00000001;
+			m = 0b00000001;
 			for (char i = 0; i < 8; i++)
 			{
 				x++;
@@ -292,31 +304,36 @@ void inputtester()
 			}
 		}
 
-		y = 4;
 		// Draw analog inputs
-		char m = 0b00000001;
-		char stra[10];
-		signed char jx = analog[(inputindex * 16)];
-		signed char jy = analog[(inputindex * 16) + 8];
-		sprintf(stra, "%4d %4d", jx, jy);
-		write_string(stra, 0xFF, 24, y + inputindex);
-		m <<= 1;
+		y = 4;
+		signed char ax = analog[(inputindex * 16)];
+		signed char ay = analog[(inputindex * 16) + 8];
+		if (ax != ax_last[inputindex] || ay != ay_last[inputindex])
+		{
+			char stra[10];
+			sprintf(stra, "%4d %4d", ax, ay);
+			write_string(stra, 0xFF, 24, y + inputindex);
+		}
+		ax_last[inputindex] = ax;
+		ay_last[inputindex] = ay;
 
 		// Draw paddle inputs
 		y = 11;
-		m = 0b00000001;
-		char strp[3];
-		char px = paddle[(inputindex * 8)];
-		sprintf(strp, "%4d", px);
-		write_string(strp, 0xFF, 6, y + inputindex);
-		m <<= 1;
+		unsigned char px = paddle[(inputindex * 8)];
+		if (px != px_last[inputindex])
+		{
+			write_stringf("%4d", 0xFF, 6, y + inputindex, px);
+		}
+		px_last[inputindex] = px;
 
 		// Draw spinner inputs
 		y = 11;
-		m = 0b00000001;
 		signed char sx = spinner[(inputindex * 16)];
-		write_stringf("%4d", 0xFF, 17, y + inputindex, sx);
-		m <<= 1;
+		if (sx != sx_last[inputindex])
+		{
+			write_stringf("%4d", 0xFF, 17, y + inputindex, sx);
+		}
+		sx_last[inputindex] = sx;
 
 		// Keyboard test console
 		if (kbd_buffer_len > 0)
@@ -488,45 +505,39 @@ void attract()
 void main()
 {
 	chram_size = chram_cols * chram_rows;
-
 	while (1)
 	{
 		hsync = input0 & 0x80;
 		vsync = input0 & 0x40;
-
-		if (state == 0)
+		switch (state)
 		{
+		case 0:
 			start_inputtester();
-		}
-		if (state == 1)
-		{
+			break;
+		case 1:
 			inputtester();
-		}
-		if (state == 2)
-		{
+			break;
+		case 2:
 			fadeout();
-		}
-		if (state == 3)
-		{
+			break;
+		case 3:
 			fadein();
-		}
-		if (state == 4)
-		{
+			break;
+		case 4:
 			start_gameplay();
-		}
-		if (state == 5)
-		{
+			break;
+		case 5:
 			gameplay();
-		}
-		if (state == 6)
-		{
+			break;
+		case 6:
 			start_attract();
-		}
-		if (state == 7)
-		{
+			break;
+		case 7:
 			attract();
+			break;
+		default:
+			break;
 		}
-
 		hsync_last = hsync;
 		vsync_last = vsync;
 	}
