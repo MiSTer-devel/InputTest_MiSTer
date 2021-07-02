@@ -2,7 +2,7 @@
 
 ## Overview
 
-A custom mini-system running an input test utility.  Shows all standard HPS sourced inputs (joystick, analog, paddle, spinner) simultaneously.
+A custom mini-system running an input test utility.  Shows all standard HPS sourced inputs (joystick, analog, paddle, spinner) simultaneously as well as a ps2 keyboard console.
 
 ## Hardware
 
@@ -44,9 +44,14 @@ Start|End|Length|Name
 
 ## Software
 
-/src contains a C program compiled to Z80 assembly using sdcc.  It reads and displays all available input values once every vblank, and also does some other things ;)
+/src contains a C program compiled to Z80 assembly using sdcc.  It reads and displays all available input values once every vblank, and has a ps2 keyboard console.  It also does some other things ;)
 
-All required ROMs (compiled program and default MiSTer font) are built into this core.  It also supports hot loading of binary OS ROM files for easier development.
+*Currently there is no ps2 mouse support*
+
+All required ROMs (compiled program and default MiSTer font) are built into this core.  
+
+Selecting Load BIOS in the core allows hot loading of binary OS ROM files for easier development.
+Selecting Load Font in the core allows hot loading of MiSTer .pf font files (https://github.com/MiSTer-devel/Fonts_MiSTer).
 
 ### Building the OS
 
