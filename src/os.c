@@ -96,10 +96,11 @@ unsigned char attractstate = 0;
 
 // Input tester variables
 unsigned char inputindex = 0;
-signed char ax_last[6];
-signed char ay_last[6];
-unsigned char px_last[6];
-signed char sx_last[6];
+unsigned char __at(0xC200) joystick_last[12];
+signed char __at(0xC210) ax_last[6];
+signed char __at(0xC220) ay_last[6];
+unsigned char __at(0xC230) px_last[6];
+signed char __at(0xC240) sx_last[6];
 
 unsigned char con_x;	  // Console cursor X position
 unsigned char con_y;	  // Console cursor X position
@@ -129,7 +130,12 @@ void start_inputtester()
 	state = 1;
 	con_x = con_l;
 	con_y = con_t;
-	for(char i=0;i<6;i++){
+	for (char i = 0; i < 12; i++)
+	{
+		joystick_last[i] = 1;
+	}
+	for (char i = 0; i < 6; i++)
+	{
 		ax_last[i] = 1;
 		ay_last[i] = 1;
 		px_last[i] = 1;
@@ -234,6 +240,7 @@ void pushhistory(char new)
 	history[3] = new;
 }
 
+
 // Input tester state
 void inputtester()
 {
@@ -272,6 +279,7 @@ void inputtester()
 
 	if (vsync && !vsync_last)
 	{
+
 		// Rotate index of inputs to show this loop
 		inputindex++;
 		if (inputindex == 6)
@@ -289,51 +297,67 @@ void inputtester()
 		}
 
 		// Draw joystick inputs
-		char m = 0b00000001;
-		char x = 6;
-		char y = 4 + inputindex;
-		char inputoffset = (inputindex * 32);
-		for (char b = 0; b < 2; b++)
+		for (char inputindex = 0; inputindex < 6; inputindex++)
 		{
-			m = 0b00000001;
-			for (char i = 0; i < 8; i++)
+			char m = 0b00000001;
+			char x = 6;
+			char y = 4 + inputindex;
+			char inputoffset = (inputindex * 32);
+			char lastoffset = (inputindex * 2);
+			for (char b = 0; b < 2; b++)
 			{
-				x++;
-				write_char((joystick[(b * 8) + inputoffset] & m) ? asc_1 : asc_0, 0xFF, x, y);
-				m <<= 1;
+				char index = (b * 8) + inputoffset;
+				char lastindex = b + lastoffset;
+				char joy = joystick[index];
+				if (joy != joystick_last[lastindex])
+				{
+					m = 0b00000001;
+					for (char i = 0; i < 8; i++)
+					{
+						x++;
+						write_char((joy & m) ? asc_1 : asc_0, 0xFF, x, y);
+						m <<= 1;
+					}
+				}
+				else
+				{
+					x += 8;
+				}
+				joystick_last[lastindex] = joy;
 			}
-		}
 
-		// Draw analog inputs
-		y = 4;
-		signed char ax = analog[(inputindex * 16)];
-		signed char ay = analog[(inputindex * 16) + 8];
-		if (ax != ax_last[inputindex] || ay != ay_last[inputindex])
-		{
-			char stra[10];
-			sprintf(stra, "%4d %4d", ax, ay);
-			write_string(stra, 0xFF, 24, y + inputindex);
-		}
-		ax_last[inputindex] = ax;
-		ay_last[inputindex] = ay;
+			// Draw analog inputs
+			signed char ax = analog[(inputindex * 16)];
+			signed char ay = analog[(inputindex * 16) + 8];
+			if (ax != ax_last[inputindex] || ay != ay_last[inputindex])
+			{
+				char stra[10];
+				sprintf(stra, "%4d %4d", ax, ay);
+				write_string(stra, 0xFF, 24, 4 + inputindex);
+			}
+			ax_last[inputindex] = ax;
+			ay_last[inputindex] = ay;
 
-		// Draw paddle inputs
-		y = 11;
-		unsigned char px = paddle[(inputindex * 8)];
-		if (px != px_last[inputindex])
-		{
-			write_stringf("%4d", 0xFF, 6, y + inputindex, px);
-		}
-		px_last[inputindex] = px;
+			// Draw paddle inputs
+			unsigned char px = paddle[(inputindex * 8)];
+			if (px != px_last[inputindex])
+			{
+				char strp[5];
+				sprintf(strp, "%4d", px);
+				write_string(strp, 0xFF, 6, 11 + inputindex);
+			}
+			px_last[inputindex] = px;
 
-		// Draw spinner inputs
-		y = 11;
-		signed char sx = spinner[(inputindex * 16)];
-		if (sx != sx_last[inputindex])
-		{
-			write_stringf("%4d", 0xFF, 17, y + inputindex, sx);
+			// Draw spinner inputs
+			signed char sx = spinner[(inputindex * 16)];
+			if (sx != sx_last[inputindex])
+			{
+				char strs[5];
+				sprintf(strs, "%4d", sx);
+				write_string(strs, 0xFF, 17, 11 + inputindex);
+			}
+			sx_last[inputindex] = sx;
 		}
-		sx_last[inputindex] = sx;
 
 		// Keyboard test console
 		if (kbd_buffer_len > 0)
@@ -400,6 +424,7 @@ void inputtester()
 			con_cursortimer = con_cursorfreq;
 			write_char(con_cursor ? '|' : ' ', 0xFF, con_x, con_y);
 		}
+
 	}
 }
 

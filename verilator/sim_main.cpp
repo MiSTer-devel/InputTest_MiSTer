@@ -99,16 +99,16 @@ int verilate() {
 
 		// Simulate both edges of system clock
 		if (clk_sys.clk != clk_sys.old) {
-			if (clk_sys.clk) { 
+			if (clk_sys.clk) {
 				input.BeforeEval();
-				bus.BeforeEval(); 
+				bus.BeforeEval();
 			}
 			top->eval();
 			if (clk_sys.clk) { bus.AfterEval(); }
 		}
 
 		// Output pixels on rising edge of pixel clock
-		if (clk_sys.IsRising() && top->emu__DOT__ce_pix ) {
+		if (clk_sys.IsRising() && top->emu__DOT__ce_pix) {
 			uint32_t colour = 0xFF000000 | top->VGA_B << 16 | top->VGA_G << 8 | top->VGA_R;
 			video.Clock(top->VGA_HB, top->VGA_VB, top->VGA_HS, top->VGA_VS, colour);
 		}
@@ -222,7 +222,7 @@ int main(int argc, char** argv, char** env) {
 		if (ImGui::Button("START")) { run_enable = 1; } ImGui::SameLine();
 		if (ImGui::Button("STOP")) { run_enable = 0; } ImGui::SameLine();
 		if (ImGui::Button("LOAD"))
-    			ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".bin", ".");
+			ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".bin", ".");
 		ImGui::Checkbox("RUN", &run_enable);
 		ImGui::SliderInt("Batch size", &batchSize, 1, 250000);
 
@@ -271,12 +271,12 @@ int main(int argc, char** argv, char** env) {
 				std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
 				std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
 				// action
-     				bus.QueueDownload(filePathName, 0, true);
-    			}
+				bus.QueueDownload(filePathName, 0, true);
+			}
 
-    		// close
-    		ImGuiFileDialog::Instance()->Close();
-  		}
+			// close
+			ImGuiFileDialog::Instance()->Close();
+		}
 
 		ImGui::Begin("CPU Registers");
 		ImGui::Spacing();
@@ -293,18 +293,37 @@ int main(int argc, char** argv, char** env) {
 			if (input.inputs[i]) { top->joystick_0 |= (1 << i); }
 		}
 		top->joystick_1 = top->joystick_0;
-
+		//top->joystick_2 = top->joystick_0;
+		//top->joystick_3 = top->joystick_0;
+		//top->joystick_4 = top->joystick_0;
+		//top->joystick_5 = top->joystick_0;
+		
 		top->joystick_analog_0 += 1;
 		top->joystick_analog_0 -= 256;
-
-		top->joystick_analog_1 -= 1;
-		top->joystick_analog_1 += 256;
+		//top->joystick_analog_1 -= 1;
+		//top->joystick_analog_1 += 256;
+		//top->joystick_analog_2 += 1;
+		//top->joystick_analog_2 -= 256;
+		//top->joystick_analog_3 -= 1;
+		//top->joystick_analog_3 += 256;
+		//top->joystick_analog_4 += 1;
+		//top->joystick_analog_4 -= 256;
+		//top->joystick_analog_5 -= 1;
+		//top->joystick_analog_5 += 256;
 
 		top->paddle_0 += 1;
-		top->paddle_1 -= 1;
+		//top->paddle_1 -= 1;
+		//top->paddle_2 += 1;
+		//top->paddle_3 -= 1;
+		//top->paddle_4 += 1;
+		//top->paddle_5 -= 1;
 
 		top->spinner_0 += 1;
-		top->spinner_1 -= 1;
+		//top->spinner_1 -= 1;
+		//top->spinner_2 += 1;
+		//top->spinner_3 -= 1;
+		//top->spinner_4 += 1;
+		//top->spinner_5 -= 1;
 
 		top->ps2_mouse += 1;
 		top->ps2_mouse_ext -= 1;
