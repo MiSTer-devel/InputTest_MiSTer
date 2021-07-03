@@ -40,14 +40,14 @@ const int input_right = 0;
 const int input_left = 1;
 const int input_down = 2;
 const int input_up = 3;
-const int input_fire1 = 4;
-const int input_fire2 = 5;
-const int input_start_1 = 6;
-const int input_start_2 = 7;
-const int input_coin_1 = 8;
-const int input_coin_2 = 9;
-const int input_coin_3 = 10;
-const int input_pause = 11;
+const int input_a = 4;
+const int input_b = 5;
+const int input_x = 6;
+const int input_y = 7;
+const int input_l = 8;
+const int input_r= 9;
+const int input_select = 10;
+const int input_start = 11;
 
 // Video
 // -----
@@ -159,13 +159,15 @@ int main(int argc, char** argv, char** env) {
 	input.SetMapping(input_right, DIK_RIGHT);
 	input.SetMapping(input_down, DIK_DOWN);
 	input.SetMapping(input_left, DIK_LEFT);
-	input.SetMapping(input_fire1, DIK_SPACE);
-	input.SetMapping(input_start_1, DIK_1);
-	input.SetMapping(input_start_2, DIK_2);
-	input.SetMapping(input_coin_1, DIK_5);
-	input.SetMapping(input_coin_2, DIK_6);
-	input.SetMapping(input_coin_3, DIK_7);
-	input.SetMapping(input_pause, DIK_P);
+	input.SetMapping(input_a, DIK_Z); // A
+	input.SetMapping(input_b, DIK_X); // B
+	input.SetMapping(input_x, DIK_A); // X
+	input.SetMapping(input_y, DIK_S); // Y
+	input.SetMapping(input_l, DIK_Q); // L
+	input.SetMapping(input_r, DIK_W); // R
+	input.SetMapping(input_select, DIK_1); // Select
+	input.SetMapping(input_start, DIK_5); // Start
+	
 #else
 	input.SetMapping(input_up, SDL_SCANCODE_UP);
 	input.SetMapping(input_right, SDL_SCANCODE_RIGHT);
