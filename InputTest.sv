@@ -323,8 +323,7 @@ jtframe_cen24 divider
 );
 
 ///////////////////   VIDEO   ////////////////////
-wire hblank, vblank;
-wire hs, vs;
+wire hblank, vblank, hs, vs;
 wire [7:0] r, g, b;
 arcade_video #(320,24) arcade_video
 (

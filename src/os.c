@@ -108,7 +108,9 @@ bool bdown_up = 0;
 bool bdown_up_last = 0;
 bool bdown_down = 0;
 bool bdown_down_last = 0;
-char history[4];
+
+#define HISTORY_LENGTH 6
+char history[HISTORY_LENGTH];
 
 #define PAD_COUNT 2
 #define BUTTON_COUNT 12
@@ -180,9 +182,9 @@ void page_inputtester_advanced()
 	write_string("- MiSTer Input Tester -", 0b11100011, 8, 1);
 	write_string("Hold: Select=digital Start=analog", 0b11100011, 3, 29);
 
-	write_string("RLDUABXYLRsSCZ", 0xFF, 7, 3);
-	write_string("AX", 0xFF, 26, 3);
-	write_string("AY", 0xFF, 31, 3);
+	write_string("RLDUABXYLRsS", 0xFF, 7, 3);
+	write_string("AX", 0xFF, 22, 3);
+	write_string("AY", 0xFF, 27, 3);
 
 	write_string("POS", 0xFF, 7, 11);
 	write_string("SPD  POS", 0xFF, 18, 11);
@@ -351,11 +353,11 @@ void fadein()
 // Rotate DPAD direction history and push new entry
 void pushhistory(char new)
 {
-	for (char h = 1; h < 4; h++)
+	for (char h = 1; h < HISTORY_LENGTH; h++)
 	{
 		history[h - 1] = history[h];
 	}
-	history[3] = new;
+	history[HISTORY_LENGTH - 1] = new;
 }
 
 // Track input history of P1 DPAD for secret codes!
@@ -386,7 +388,7 @@ void handle_codes()
 		pushhistory(4);
 	}
 	// Check for SNEK code
-	if (history[0] == 4 && history[1] == 2 && history[2] == 3 && history[3] == 1)
+	if (history[0] == 1 && history[1] == 1 && history[2] == 2 && history[3] == 2 && history[4] == 3 && history[5] == 4)
 	{
 		nextstate = STATE_START_ATTRACT;
 		pushhistory(0);
@@ -567,7 +569,8 @@ void inputtester_advanced()
 				if (joy != joystick_last[lastindex])
 				{
 					m = 0b00000001;
-					for (char i = 0; i < 8; i++)
+					char bytes = (b == 0 ? 8 : 4);
+					for (char i = 0; i < bytes; i++)
 					{
 						x++;
 						write_char((joy & m) ? asc_1 : asc_0, 0xFF, x, y);
@@ -588,7 +591,7 @@ void inputtester_advanced()
 			{
 				char stra[10];
 				sprintf(stra, "%4d %4d", ax, ay);
-				write_string(stra, 0xFF, 24, 4 + inputindex);
+				write_string(stra, 0xFF, 20, 4 + inputindex);
 			}
 			ax_last[inputindex] = ax;
 			ay_last[inputindex] = ay;
@@ -609,11 +612,14 @@ void inputtester_advanced()
 			if (sx_toggle != sx_toggle_last[inputindex])
 			{
 				sx_pos[inputindex] += sx;
-				write_stringf("%4d", 0xFF, 22, 12 + inputindex, sx_pos[inputindex] / 16);
+				write_stringf("%4d", 0xFF, 22, 12 + inputindex, sx_pos[inputindex] / 8);
 			}
 			else
 			{
-				sx = 0;
+				if (sx == 1 || sx == -1)
+				{
+					sx = 0;
+				}
 			}
 			if (sx_last[inputindex] != sx)
 			{
