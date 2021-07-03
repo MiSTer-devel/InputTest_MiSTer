@@ -173,13 +173,14 @@ int main(int argc, char** argv, char** env) {
 	input.SetMapping(input_right, SDL_SCANCODE_RIGHT);
 	input.SetMapping(input_down, SDL_SCANCODE_DOWN);
 	input.SetMapping(input_left, SDL_SCANCODE_LEFT);
-	input.SetMapping(input_fire1, SDL_SCANCODE_SPACE);
-	input.SetMapping(input_start_1, SDL_SCANCODE_1);
-	input.SetMapping(input_start_2, SDL_SCANCODE_2);
-	input.SetMapping(input_coin_1, SDL_SCANCODE_3);
-	input.SetMapping(input_coin_2, SDL_SCANCODE_4);
-	input.SetMapping(input_coin_3, SDL_SCANCODE_5);
-	input.SetMapping(input_pause, SDL_SCANCODE_P);
+	input.SetMapping(input_a, SDL_SCANCODE_A);
+	input.SetMapping(input_b, SDL_SCANCODE_B);
+	input.SetMapping(input_x, SDL_SCANCODE_X);
+	input.SetMapping(input_y, SDL_SCANCODE_Y);
+	input.SetMapping(input_l, SDL_SCANCODE_L);
+	input.SetMapping(input_r, SDL_SCANCODE_R);
+	input.SetMapping(input_select, SDL_SCANCODE_1);
+	input.SetMapping(input_start, SDL_SCANCODE_2);
 #endif
 	// Setup video output
 	if (video.Initialise(windowTitle) == 1) { return 1; }
