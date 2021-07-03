@@ -25,6 +25,7 @@
 char asc_0 = 48;
 char asc_1 = 49;
 
+// Set all character RAM to specified character
 void clear_chars(char c)
 {
 	for (unsigned int p = 0; p < chram_size; p++)
@@ -33,6 +34,7 @@ void clear_chars(char c)
 	}
 }
 
+// Write string to character RAM
 void write_string(const char *string, char color, unsigned int x, unsigned int y)
 {
 	unsigned int p = (y * chram_cols) + x;
@@ -45,6 +47,23 @@ void write_string(const char *string, char color, unsigned int x, unsigned int y
 	}
 }
 
+// Write formatted string to character RAM (signed char data)
+void write_stringfs(const char *format, char color, unsigned int x, unsigned int y, signed char data)
+{
+	unsigned int p = (y * chram_cols) + x;
+	char temp[30];
+	sprintf(temp, format, data);
+	unsigned char l = strlen(temp);
+	for (char c = 0; c < l; c++)
+	{
+		if(temp[c]==0){return;}
+		chram[p] = temp[c];
+		colram[p] = color;
+		p++;
+	}
+}
+
+// Write formatted string to character RAM (unsigned char data)
 void write_stringf(const char *format, char color, unsigned int x, unsigned int y, char data)
 {
 	unsigned int p = (y * chram_cols) + x;
@@ -60,6 +79,7 @@ void write_stringf(const char *format, char color, unsigned int x, unsigned int 
 	}
 }
 
+// Write single char to character RAM
 void write_char(unsigned char c, char color, unsigned int x, unsigned int y)
 {
 	unsigned int p = (y * chram_cols) + x;
@@ -67,6 +87,7 @@ void write_char(unsigned char c, char color, unsigned int x, unsigned int y)
 	colram[p] = color;
 }
 
+// Write grouped bits to character RAM
 void write_bits(char bits[], char multi, unsigned char first, unsigned char length, char color, unsigned int x, unsigned int y)
 {
 	for (char b = first; b < first + length; b++)
@@ -83,6 +104,7 @@ void write_bits(char bits[], char multi, unsigned char first, unsigned char leng
 	}
 }
 
+// Draw box outline with specified character
 void box(unsigned int tx, unsigned int ty, unsigned int bx, unsigned int by, char c, char color)
 {
 	for (unsigned int x = tx; x <= bx; x++)
@@ -97,6 +119,8 @@ void box(unsigned int tx, unsigned int ty, unsigned int bx, unsigned int by, cha
 	}
 }
 
+
+// Draw page border
 void page_border(char color)
 {
 	write_char(128, color, 0, 0);

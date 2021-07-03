@@ -260,11 +260,9 @@ hps_io #(.CONF_STR(CONF_STR)) hps_io
 (
 	.clk_sys(clk_sys),
 	.HPS_BUS(HPS_BUS),
-
 	.buttons(buttons),
 	.status(status),
 	.status_menumask({direct_video}),
-
 	.forced_scandoubler(forced_scandoubler),
 	.direct_video(direct_video),
 
