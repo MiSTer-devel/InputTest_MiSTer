@@ -45,6 +45,20 @@ void write_string(const char *string, char color, unsigned int x, unsigned int y
 	}
 }
 
+void write_stringfs(const char *format, char color, unsigned int x, unsigned int y, signed char data)
+{
+	unsigned int p = (y * chram_cols) + x;
+	char temp[30];
+	sprintf(temp, format, data);
+	unsigned char l = strlen(temp);
+	for (char c = 0; c < l; c++)
+	{
+		if(temp[c]==0){return;}
+		chram[p] = temp[c];
+		colram[p] = color;
+		p++;
+	}
+}
 void write_stringf(const char *format, char color, unsigned int x, unsigned int y, char data)
 {
 	unsigned int p = (y * chram_cols) + x;

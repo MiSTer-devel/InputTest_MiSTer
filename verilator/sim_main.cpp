@@ -128,6 +128,7 @@ char ps2_scancode = 0;
 char ps2_toggle = 0;
 char ps2_timer = 0;
 
+char spinner_toggle = 0;
 
 int main(int argc, char** argv, char** env) {
 
@@ -297,7 +298,7 @@ int main(int argc, char** argv, char** env) {
 		//top->joystick_3 = top->joystick_0;
 		//top->joystick_4 = top->joystick_0;
 		//top->joystick_5 = top->joystick_0;
-		
+
 		top->joystick_analog_0 += 1;
 		top->joystick_analog_0 -= 256;
 		//top->joystick_analog_1 -= 1;
@@ -318,7 +319,13 @@ int main(int argc, char** argv, char** env) {
 		//top->paddle_4 += 1;
 		//top->paddle_5 -= 1;
 
-		top->spinner_0 += 1;
+		if (input.inputs[0] || input.inputs[1]) {
+			spinner_toggle = !spinner_toggle;
+			top->spinner_0 = (input.inputs[0]) ? 16 : -16;
+			for (char b = 8; b < 16; b++) {
+				top->spinner_0 &= ~(1UL << b);
+			}
+			if (spinner_toggle) { top->spinner_0 |= 1UL << 8; }		}
 		//top->spinner_1 -= 1;
 		//top->spinner_2 += 1;
 		//top->spinner_3 -= 1;

@@ -264,7 +264,6 @@ hps_io #(.CONF_STR(CONF_STR)) hps_io
 	.buttons(buttons),
 	.status(status),
 	.status_menumask({direct_video}),
-
 	.forced_scandoubler(forced_scandoubler),
 	.direct_video(direct_video),
 

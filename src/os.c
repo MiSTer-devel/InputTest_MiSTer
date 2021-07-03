@@ -42,6 +42,9 @@ void page_inputs()
 	write_string("AX", 0xFF, 26, 3);
 	write_string("AY", 0xFF, 31, 3);
 
+	write_string("POS", 0xFF, 7, 11);
+	write_string("SPD  POS", 0xFF, 18, 11);
+
 	char label[5];
 	for (unsigned char j = 0; j < 6; j++)
 	{
@@ -49,20 +52,18 @@ void page_inputs()
 		write_string(label, 0xFF - (j * 2), 2, 4 + j);
 
 		sprintf(label, "PAD%d", j + 1);
-		write_string(label, 0xFF - (j * 2), 2, 11 + j);
+		write_string(label, 0xFF - (j * 2), 2, 12 + j);
 
 		sprintf(label, "SPN%d", j + 1);
-		write_string(label, 0xFF - (j * 2), 14, 11 + j);
+		write_string(label, 0xFF - (j * 2), 14, 12 + j);
 	}
-
-	// write_string("EXT PRS SHF SCN ASC CHR", 0xFF, 6, 18);
-	write_string("CON", 0xFF, 2, 18);
+	write_string("CON", 0xFF, 2, 19);
 }
 
 // Application state
 char state = 0;
 char nextstate = 0;
-// state = 0 - inputtester
+// state = 0 - inputtester (advanced)
 // state = 1 - fadeout
 // state = 2 - fadein
 // state = 3 - startfadein
@@ -95,12 +96,13 @@ unsigned char fadefreq = 4;
 unsigned char attractstate = 0;
 
 // Input tester variables
-unsigned char inputindex = 0;
 unsigned char __at(0xC200) joystick_last[12];
 signed char __at(0xC210) ax_last[6];
 signed char __at(0xC220) ay_last[6];
 unsigned char __at(0xC230) px_last[6];
-signed char __at(0xC240) sx_last[6];
+signed char __at(0xC240) sx_toggle_last[6];
+signed char __at(0xC250) sx_last[6];
+unsigned long __at(0xC260) sx_pos[6];
 
 unsigned char con_x;	  // Console cursor X position
 unsigned char con_y;	  // Console cursor X position
@@ -139,7 +141,9 @@ void start_inputtester()
 		ax_last[i] = 1;
 		ay_last[i] = 1;
 		px_last[i] = 1;
+		sx_toggle_last[i] = 1;
 		sx_last[i] = 1;
+		sx_pos[i] = 0;
 	}
 }
 
@@ -240,6 +244,42 @@ void pushhistory(char new)
 	history[3] = new;
 }
 
+void handle_codes()
+{
+	// Track input history of P1 DPAD for secret codes!
+	bdown_up_last = bdown_up;
+	bdown_down_last = bdown_down;
+	bdown_left_last = bdown_left;
+	bdown_right_last = bdown_right;
+	bdown_up = CHECK_BIT(joystick[0], 3);
+	bdown_down = CHECK_BIT(joystick[0], 2);
+	bdown_left = CHECK_BIT(joystick[0], 1);
+	bdown_right = CHECK_BIT(joystick[0], 0);
+	if (!bdown_up && bdown_up_last)
+	{
+		pushhistory(1);
+	}
+	if (!bdown_down && bdown_down_last)
+	{
+		pushhistory(2);
+	}
+	if (!bdown_left && bdown_left_last)
+	{
+		pushhistory(3);
+	}
+	if (!bdown_right && bdown_right_last)
+	{
+		pushhistory(4);
+	}
+	// Check for SNEK code
+	if (history[0] == 4 && history[1] == 2 && history[2] == 3 && history[3] == 1)
+	{
+		nextstate = 6;
+		pushhistory(0);
+		start_fadeout();
+		return;
+	}
+}
 
 // Input tester state
 void inputtester()
@@ -248,55 +288,17 @@ void inputtester()
 	// Handle PS/2 inputs whenever possible to improve latency
 	handle_ps2();
 
+	// Handle secret code detection (joypad 1 directions)
 	if (hsync && !hsync_last)
 	{
-		// Track input history of P1 DPAD for secret codes!
-		bdown_up_last = bdown_up;
-		bdown_down_last = bdown_down;
-		bdown_left_last = bdown_left;
-		bdown_right_last = bdown_right;
-		bdown_up = CHECK_BIT(joystick[0], 3);
-		bdown_down = CHECK_BIT(joystick[0], 2);
-		bdown_left = CHECK_BIT(joystick[0], 1);
-		bdown_right = CHECK_BIT(joystick[0], 0);
-		if (!bdown_up && bdown_up_last)
-		{
-			pushhistory(1);
-		}
-		if (!bdown_down && bdown_down_last)
-		{
-			pushhistory(2);
-		}
-		if (!bdown_left && bdown_left_last)
-		{
-			pushhistory(3);
-		}
-		if (!bdown_right && bdown_right_last)
-		{
-			pushhistory(4);
-		}
+		handle_codes();
 	}
 
+	// As soon as vsync is detected start drawing screen updates
 	if (vsync && !vsync_last)
 	{
 
-		// Rotate index of inputs to show this loop
-		inputindex++;
-		if (inputindex == 6)
-		{
-			inputindex = 0;
-		}
-
-		// Check for SNEK code
-		if (history[0] == 4 && history[1] == 2 && history[2] == 3 && history[3] == 1)
-		{
-			nextstate = 6;
-			pushhistory(0);
-			start_fadeout();
-			return;
-		}
-
-		// Draw joystick inputs
+		// Draw joystick inputs (only update each byte if value has changed)
 		for (char inputindex = 0; inputindex < 6; inputindex++)
 		{
 			char m = 0b00000001;
@@ -326,7 +328,7 @@ void inputtester()
 				joystick_last[lastindex] = joy;
 			}
 
-			// Draw analog inputs
+			// Draw analog inputs (only update if value has changed)
 			signed char ax = analog[(inputindex * 16)];
 			signed char ay = analog[(inputindex * 16) + 8];
 			if (ax != ax_last[inputindex] || ay != ay_last[inputindex])
@@ -338,25 +340,34 @@ void inputtester()
 			ax_last[inputindex] = ax;
 			ay_last[inputindex] = ay;
 
-			// Draw paddle inputs
+			// Draw paddle inputs (only update if value has changed)
 			unsigned char px = paddle[(inputindex * 8)];
 			if (px != px_last[inputindex])
 			{
 				char strp[5];
 				sprintf(strp, "%4d", px);
-				write_string(strp, 0xFF, 6, 11 + inputindex);
+				write_string(strp, 0xFF, 6, 12 + inputindex);
 			}
 			px_last[inputindex] = px;
 
-			// Draw spinner inputs
+			// Draw spinner inputs (only update when update clock changes)
+			bool sx_toggle = CHECK_BIT(spinner[(inputindex * 16) + 8], 0);
 			signed char sx = spinner[(inputindex * 16)];
-			if (sx != sx_last[inputindex])
+			if (sx_toggle != sx_toggle_last[inputindex])
 			{
-				char strs[5];
-				sprintf(strs, "%4d", sx);
-				write_string(strs, 0xFF, 17, 11 + inputindex);
+				sx_pos[inputindex] += sx;
+				write_stringf("%4d", 0xFF, 22, 12 + inputindex, sx_pos[inputindex] / 16);
+			}
+			else
+			{
+				sx = 0;
+			}
+			if (sx_last[inputindex] != sx)
+			{
+				write_stringfs("%4d", 0xFF, 17, 12 + inputindex, sx);
 			}
 			sx_last[inputindex] = sx;
+			sx_toggle_last[inputindex] = sx_toggle;
 		}
 
 		// Keyboard test console
@@ -424,7 +435,6 @@ void inputtester()
 			con_cursortimer = con_cursorfreq;
 			write_char(con_cursor ? '|' : ' ', 0xFF, con_x, con_y);
 		}
-
 	}
 }
 
