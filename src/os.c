@@ -484,7 +484,7 @@ void gameplay()
 			nyd = 0;
 		}
 
-		if (joystick[0] & 0b00010000)
+		if (CHECK_BIT(joystick[8], 2)) // select to quit
 		{
 			start_inputtester_adv();
 			return;
@@ -537,7 +537,7 @@ void attract()
 
 	if (hsync && !hsync_last)
 	{
-		if (joystick[1] & 0b00100000) // start
+		if (CHECK_BIT(joystick[8], 3)) // start
 		{
 			start_gameplay();
 		}
