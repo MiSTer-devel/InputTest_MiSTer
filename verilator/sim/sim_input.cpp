@@ -372,6 +372,7 @@ bool ps2_clock = 0;
 void SimInput::BeforeEval()
 {
 	if (keyEventTimer == 0) {
+		
 		if (keyEvents.size() > 0) {
 			// Get chunk from queue
 			SimInput_PS2KeyEvent evt = keyEvents.front();

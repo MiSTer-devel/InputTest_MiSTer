@@ -166,7 +166,7 @@ int main(int argc, char** argv, char** env) {
 	input.SetMapping(input_l, DIK_Q); // L
 	input.SetMapping(input_r, DIK_W); // R
 	input.SetMapping(input_select, DIK_1); // Select
-	input.SetMapping(input_start, DIK_5); // Start
+	input.SetMapping(input_start, DIK_2); // Start
 	
 #else
 	input.SetMapping(input_up, SDL_SCANCODE_UP);

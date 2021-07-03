@@ -48,8 +48,8 @@ bool vsync_last;
 #define STATE_START_GAME 24
 #define STATE_GAME 25
 
-char state = STATE_START_INPUTTESTERADV;
-char nextstate = STATE_START_INPUTTESTERADV;
+char state = STATE_START_INPUTTESTER;
+char nextstate = STATE_START_INPUTTESTER;
 
 // SNEK variables
 unsigned char movefreqinit = 14;
@@ -75,13 +75,20 @@ unsigned char fadefreq = 4;
 unsigned char attractstate = 0;
 
 // Input tester variables
-unsigned char __at(0xC200) joystick_last[12];
-signed char __at(0xC210) ax_last[6];
-signed char __at(0xC220) ay_last[6];
-unsigned char __at(0xC230) px_last[6];
-signed char __at(0xC240) sx_toggle_last[6];
-signed char __at(0xC250) sx_last[6];
-unsigned long __at(0xC260) sx_pos[6];
+// unsigned char __at(0xC200) joystick_last[12];
+// signed char __at(0xC210) ax_last[6];
+// signed char __at(0xC220) ay_last[6];
+// unsigned char __at(0xC230) px_last[6];
+// signed char __at(0xC240) sx_toggle_last[6];
+// signed char __at(0xC250) sx_last[6];
+// unsigned long __at(0xC260) sx_pos[6];
+unsigned char joystick_last[12];
+signed char ax_last[6];
+signed char ay_last[6];
+unsigned char px_last[6];
+signed char sx_toggle_last[6];
+signed char sx_last[6];
+unsigned long sx_pos[6];
 
 unsigned char con_x;	  // Console cursor X position
 unsigned char con_y;	  // Console cursor X position
@@ -92,6 +99,7 @@ unsigned char con_b = 37; // Console bottom edge Y
 bool con_cursor;
 unsigned char con_cursortimer = 1;
 unsigned char con_cursorfreq = 30;
+char modeswitchtimer = 0;
 
 // DPAD tracker
 bool bdown_left = 0;
@@ -104,13 +112,95 @@ bool bdown_down = 0;
 bool bdown_down_last = 0;
 char history[4];
 
-// Draw static elements for input test page
+char color_pad_outline = 0xFE;
+
+#define PAD_COUNT 2
+#define BUTTON_COUNT 12
+
+char pad_offset_x[PAD_COUNT] = {6, 6};
+char pad_offset_y[PAD_COUNT] = {6, 18};
+char button_name[BUTTON_COUNT][6] = {
+	"R",
+	"L",
+	"D",
+	"U",
+	"A",
+	"B",
+	"X",
+	"Y",
+	"L",
+	"R",
+	"Sel",
+	"Start"};
+char button_x[BUTTON_COUNT] = {6, 2, 4, 4, 24, 22, 22, 20, 3, 23, 9, 13};
+char button_y[BUTTON_COUNT] = {3, 3, 4, 2, 3, 4, 2, 3, 0, 0, 3, 3};
+
+void draw_pad(char xo, char yo)
+{
+	// Outline
+	write_char(134, color_pad_outline, xo, yo + 1);
+	for (char x = 1; x < 26; x++)
+	{
+		write_char(135, color_pad_outline, xo + x, yo + 1);
+	}
+	write_char(136, color_pad_outline, xo + 26, yo + 1);
+	for (char y = 2; y < 5; y++)
+	{
+		write_char(137, color_pad_outline, xo, yo + y);
+		write_char(137, color_pad_outline, xo + 26, yo + y);
+	}
+	write_char(139, color_pad_outline, xo, yo + 5);
+	write_char(138, color_pad_outline, xo + 26, yo + 5);
+
+	write_char(138, color_pad_outline, xo + 8, yo + 5);
+	write_char(139, color_pad_outline, xo + 18, yo + 5);
+	write_char(134, color_pad_outline, xo + 8, yo + 4);
+	write_char(136, color_pad_outline, xo + 18, yo + 4);
+	for (char x = 1; x < 8; x++)
+	{
+		write_char(135, color_pad_outline, xo + x, yo + 5);
+	}
+	for (char x = 9; x < 18; x++)
+	{
+		write_char(135, color_pad_outline, xo + x, yo + 4);
+	}
+	for (char x = 19; x < 26; x++)
+	{
+		write_char(135, color_pad_outline, xo + x, yo + 5);
+	}
+	// Shoulders
+	write_char(134, color_pad_outline, xo + 1, yo);
+	write_char(136, color_pad_outline, xo + 5, yo);
+	write_char(134, color_pad_outline, xo + 21, yo);
+	write_char(136, color_pad_outline, xo + 25, yo);
+}
+
+// Draw static elements for basic input test page
+void page_inputtester()
+{
+	clear_chars(0);
+	page_border(0b00000111);
+
+	write_string("- MiSTer Input Tester -", 0b11100011, 8, 1);
+	write_string("Hold <Select> for advanced mode", 0b11100011, 4, 29);
+
+	// Draw pad 1
+	for (char j = 0; j < PAD_COUNT; j++)
+	{
+		write_stringf("JOY %d", 0xFF, pad_offset_x[j], pad_offset_y[j] - 1, j + 1);
+		draw_pad(pad_offset_x[j], pad_offset_y[j]);
+	}
+}
+
+// Draw static elements for advanced input test page
 void page_inputtester_adv()
 {
 	clear_chars(0);
 	page_border(0b00000111);
 
 	write_string("- MiSTer Input Tester -", 0b11100011, 8, 1);
+	write_string("Hold <Select> for basic mode", 0b11100011, 4, 29);
+
 	write_string("RLDUABXYLRsSCZ", 0xFF, 7, 3);
 	write_string("AX", 0xFF, 26, 3);
 	write_string("AY", 0xFF, 31, 3);
@@ -135,6 +225,7 @@ void page_inputtester_adv()
 
 void reset_inputstates()
 {
+	modeswitchtimer = 0;
 	for (char i = 0; i < 12; i++)
 	{
 		joystick_last[i] = 1;
@@ -148,6 +239,18 @@ void reset_inputstates()
 		sx_last[i] = 1;
 		sx_pos[i] = 0;
 	}
+}
+
+// Initialise basic inputtester state and draw static elements
+void start_inputtester()
+{
+	state = STATE_INPUTTESTER;
+
+	// Draw page
+	page_inputtester();
+
+	// Reset last states for inputs
+	reset_inputstates();
 }
 
 // Initialise advanced inputtester state and draw static elements
@@ -263,9 +366,9 @@ void pushhistory(char new)
 	history[3] = new;
 }
 
+// Track input history of P1 DPAD for secret codes!
 void handle_codes()
 {
-	// Track input history of P1 DPAD for secret codes!
 	bdown_up_last = bdown_up;
 	bdown_down_last = bdown_down;
 	bdown_left_last = bdown_left;
@@ -300,7 +403,47 @@ void handle_codes()
 	}
 }
 
-// Input tester state
+// Advanced input tester state
+void inputtester()
+{
+
+	// Handle PS/2 inputs whenever possible to improve latency
+	handle_ps2();
+
+	// Handle secret code detection (joypad 1 directions)
+	if (hsync && !hsync_last)
+	{
+		handle_codes();
+	}
+
+	// As soon as vsync is detected start drawing screen updates
+	if (vsync && !vsync_last)
+	{
+		// Switch to basic mode if select is held for 1 second
+		if (CHECK_BIT(joystick[8], 2))
+		{
+			modeswitchtimer++;
+			if (modeswitchtimer == 60)
+			{
+				start_inputtester_adv();
+				return;
+			}
+		}
+
+		// Draw control pad buttons
+		for (char joy = 0; joy < PAD_COUNT; joy++)
+		{
+			char index = joy * 32;
+			for (char button = 0; button < BUTTON_COUNT; button++)
+			{
+				char color = (button < 8 ? CHECK_BIT(joystick[index], button) : CHECK_BIT(joystick[index + 8], button - 8)) ? 0xFF : 0b10010010;
+				write_string(button_name[button], color, pad_offset_x[joy] + button_x[button], pad_offset_y[joy] + button_y[button]);
+			}
+		}
+	}
+}
+
+// Advanced input tester state
 void inputtester_adv()
 {
 
@@ -316,6 +459,16 @@ void inputtester_adv()
 	// As soon as vsync is detected start drawing screen updates
 	if (vsync && !vsync_last)
 	{
+		// Switch to basic mode if select is held for 1 second
+		if (CHECK_BIT(joystick[8], 2))
+		{
+			modeswitchtimer++;
+			if (modeswitchtimer == 60)
+			{
+				start_inputtester();
+				return;
+			}
+		}
 
 		// Draw joystick inputs (only update each byte if value has changed)
 		for (char inputindex = 0; inputindex < 6; inputindex++)
@@ -565,6 +718,13 @@ void main()
 		vsync = input0 & 0x40;
 		switch (state)
 		{
+		case STATE_START_INPUTTESTER:
+			start_inputtester();
+			break;
+		case STATE_INPUTTESTER:
+			inputtester();
+			break;
+
 		case STATE_START_INPUTTESTERADV:
 			start_inputtester_adv();
 			break;
