@@ -507,11 +507,11 @@ static const int ev2ps2[] =
 	NONE, //222 
 	NONE, //223 
 	NONE, //224 
-	0x2A,  //LSHIFT | 0x12, //225  KEY_LEFTSHIFT
+	LSHIFT | 0x12, //225  KEY_LEFTSHIFT
 	LALT   | 0x11, //226  KEY_LEFTALT
 	NONE,          //227
 	RCTRL | EXT | 0x14, //228  KEY_RIGHTCTRL
-	0x36, //RSHIFT | 0x59, //229  KEY_RIGHTSHIFT
+	RSHIFT | 0x59, //229  KEY_RIGHTSHIFT
 	RALT | EXT | 0x11, //230 KEY_RIGHTALT
 
 };
@@ -533,7 +533,7 @@ bool ReadKeyboard()
 #else
 	m_keyboardState = SDL_GetKeyboardState(&m_keyboardStateCount);
 	if (!m_keyboardState_last) m_keyboardState_last = (Uint8 *)calloc(m_keyboardStateCount,sizeof(Uint8));
-       //fprintf(stderr,"count: %d\n",m_keyboardStateCount);
+       ////fprintf(stderr,"count: %d\n",m_keyboardStateCount);
 #endif
 
 	return true;
@@ -615,7 +615,7 @@ void SimInput::CleanUp() {
 #endif
 }
 
-unsigned ps2_key_temp;
+unsigned int ps2_key_temp;
 bool ps2_clock = 0;
 
 void SimInput::BeforeEval()
@@ -625,7 +625,7 @@ void SimInput::BeforeEval()
 		if (keyEvents.size() > 0) {
 			// Get chunk from queue
 			SimInput_PS2KeyEvent evt = keyEvents.front();
-//fprintf(stderr,"evt = %x\n",evt);
+//fprintf(stderr,"evt = %x\n",evt.code);
 			keyEvents.pop();
 
 			ps2_key_temp = ev2ps2[evt.code];
