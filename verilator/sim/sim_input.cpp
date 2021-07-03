@@ -1,11 +1,13 @@
 #include "sim_input.h"
 
 #include <string>
+#include <stdlib.h>
 
 #ifndef _MSC_VER
 #include <SDL2/SDL.h>
+int m_keyboardStateCount;
 const Uint8* m_keyboardState;
-const Uint8* m_keyboardState_last;
+Uint8* m_keyboardState_last = NULL;
 #else
 #define WIN32
 #include <dinput.h>
@@ -17,7 +19,7 @@ unsigned char m_keyboardState_last[256];
 #endif
 
 #include <vector>
-
+#ifdef WIN32
 static const int ev2ps2[] =
 {
 	NONE, //0   KEY_RESERVED
@@ -246,29 +248,29 @@ static const int ev2ps2[] =
 	NONE, //223 KEY_CANCEL
 	NONE, //224 KEY_BRIGHT_DOWN
 	NONE, //225 KEY_BRIGHT_UP
-	NONE, //226 KEY_MEDIA
-	NONE, //227 KEY_SWITCHVIDEO
-	NONE, //228 KEY_DILLUMTOGGLE
-	NONE, //229 KEY_DILLUMDOWN
-	NONE, //230 KEY_DILLUMUP
-	NONE, //231 KEY_SEND
-	NONE, //232 KEY_REPLY
-	NONE, //233 KEY_FORWARDMAIL
-	NONE, //234 KEY_SAVE
-	NONE, //235 KEY_DOCUMENTS
-	NONE, //236 KEY_BATTERY
-	NONE, //237 KEY_BLUETOOTH
-	NONE, //238 KEY_WLAN
-	NONE, //239 KEY_UWB
-	NONE, //240 KEY_UNKNOWN
-	NONE, //241 KEY_VIDEO_NEXT
-	NONE, //242 KEY_VIDEO_PREV
-	NONE, //243 KEY_BRIGHT_CYCLE
-	NONE, //244 KEY_BRIGHT_AUTO
-	NONE, //245 KEY_DISPLAY_OFF
-	NONE, //246 KEY_WWAN
-	NONE, //247 KEY_RFKILL
-	NONE, //248 KEY_MICMUTE
+		NONE, //226 KEY_MEDIA
+		NONE, //227 KEY_SWITCHVIDEO
+		NONE, //228 KEY_DILLUMTOGGLE
+		NONE, //229 KEY_DILLUMDOWN
+		NONE, //230 KEY_DILLUMUP
+		NONE, //231 KEY_SEND
+		NONE, //232 KEY_REPLY
+		NONE, //233 KEY_FORWARDMAIL
+		NONE, //234 KEY_SAVE
+		NONE, //235 KEY_DOCUMENTS
+		NONE, //236 KEY_BATTERY
+		NONE, //237 KEY_BLUETOOTH
+		NONE, //238 KEY_WLAN
+		NONE, //239 KEY_UWB
+		NONE, //240 KEY_UNKNOWN
+		NONE, //241 KEY_VIDEO_NEXT
+		NONE, //242 KEY_VIDEO_PREV
+		NONE, //243 KEY_BRIGHT_CYCLE
+		NONE, //244 KEY_BRIGHT_AUTO
+		NONE, //245 KEY_DISPLAY_OFF
+		NONE, //246 KEY_WWAN
+		NONE, //247 KEY_RFKILL
+		NONE, //248 KEY_MICMUTE
 	NONE, //249 ???
 	NONE, //250 ???
 	NONE, //251 ???
@@ -277,7 +279,244 @@ static const int ev2ps2[] =
 	NONE, //254 ???
 	NONE  //255 ???
 };
+#else
+static const int ev2ps2[] =
+{
+	NONE, //0   KEY_RESERVED
+	NONE, //1   KEY_RESERVED
+	NONE, //2   KEY_RESERVED
+	NONE, //3   KEY_RESERVED
+	0x1c, //4  KEY_A
+	0x32, //5  KEY_B
+	0x21, //6  KEY_C
+	0x23, //7  KEY_D
+	0x24, //8  KEY_E
+	0x2b, //9  KEY_F
+	0x34, //10  KEY_G
+	0x33, //11  KEY_H
+	0x43, //12  KEY_I
+	0x3b, //13  KEY_J
+	0x42, //14  KEY_K
+	0x4b, //15  KEY_L
+	0x3a, //16  KEY_M
+	0x31, //17  KEY_N
+	0x44, //18  KEY_O
+	0x4d, //19  KEY_P
+	0x15, //20  KEY_Q
+	0x2d, //21  KEY_R
+	0x1b, //22  KEY_S
+	0x2c, //23  KEY_T
+	0x3c, //24  KEY_U
+	0x2a, //25  KEY_V
+	0x1d, //26  KEY_W
+	0x22, //27  KEY_X
+	0x35, //28  KEY_Y
+	0x1a, //29  KEY_Z
+	0x16, //30   KEY_1
+	0x1e, //31   KEY_2
+	0x26, //32  KEY_3
+	0x25, //33  KEY_4
+	0x2e, //34  KEY_5
+	0x36, //35  KEY_6
+	0x3d, //36  KEY_7
+	0x3e, //37  KEY_8
+	0x46, //38  KEY_9
+	0x45, //39  KEY_0
+	0x5a, //40  KEY_ENTER
+	0x76, //41  KEY_ESC
+	0x66, //42  KEY_BACKSPACE
+	0x0d, //43  KEY_TAB
+	0x29, //44  KEY_SPACE
+	0x4e, //45  KEY_MINUS
+	0x55, //46  KEY_EQUAL
+	0x54, //47  KEY_LEFTBRACE
+	0x5b, //48  KEY_RIGHTBRACE
+	0x5d, //49  KEY_BACKSLASH
+	NONE, //50  KEY_RESERVED
+	0x4c, //51  KEY_SEMICOLON
+	0x52, //52  KEY_APOSTROPHE
+	0x0e, //53  KEY_GRAVE
+	0x41, //54  KEY_COMMA
+	0x49, //55  KEY_DOT
+	0x4a, //56  KEY_SLASH
+	0x58, //57  KEY_CAPSLOCK
+	0x05, //58  KEY_F1
+	0x06, //59  KEY_F2
+	0x04, //60  KEY_F3
+	0x0c, //61  KEY_F4
+	0x03, //62  KEY_F5
+	0x0b, //63  KEY_F6
+	0x83, //64  KEY_F7
+	0x0a, //65  KEY_F8
+	0x01, //66  KEY_F9
+	0x09, //67  KEY_F10
+	0x78, //68  KEY_F11
+	0x07, //69  KEY_F12
+	NONE, //70  KEY_PRINT
+	EMU_SWITCH_1 | 0x7E, //71  KEY_SCROLLLOCK
+	0xE1, //72 KEY_PAUSE
+	EXT | 0x70, //73  KEY_INSERT
+	EXT | 0x6c, //74  KEY_HOME
+	EXT | 0x7d, //75  KEY_PAGEUP
+	EXT | 0x71, //76  KEY_DELETE
+	EXT | 0x69, //77  KEY_END
+	EXT | 0x7a, //78  KEY_PAGEDOWN
+	EXT | 0x74, //79  KEY_RIGHT
+	EXT | 0x6b, //80  KEY_LEFT
+	EXT | 0x72, //81  KEY_DOWN
+	EXT | 0x75, //82  KEY_UP
+	EMU_SWITCH_2 | 0x77, //83  KEY_NUMLOCK
+	EXT | 0x4a, //84  KEY_KPSLASH
+	0x7c, //85  KEY_KPASTERISK
+	0x7b, //86  KEY_KPMINUS
+	0x79, //87  KEY_KPPLUS
+	EXT | 0x5a, //88  KEY_KPENTER
+	0x69, //89  KEY_KP1
+	0x72, //90  KEY_KP2
+	0x7a, //91  KEY_KP3
+	0x6b, //92  KEY_KP4
+	0x73, //93  KEY_KP5
+	0x74, //94  KEY_KP6
+	0x6c, //95  KEY_KP7
+	0x75, //96  KEY_KP8
+	0x7d, //97  KEY_KP9
+	0x70, //98  KEY_KP0
+	0x71, //99  KEY_KPDOT
+	NONE, //100 ???
+	NONE, //101 ???
+	NONE, //102 ???
+	NONE, //103 KEY_KPEQUAL
+	NONE, //104 KEY_F13
+	NONE, //105 KEY_F14
+	NONE, //106 KEY_F15
+	NONE, //107 KEY_F16
+	EMU_SWITCH_1 | 1, //108 KEY_F17
+	EMU_SWITCH_1 | 2, //109 KEY_F18
+	EMU_SWITCH_1 | 3, //110 KEY_F19
+	EMU_SWITCH_1 | 4, //111 KEY_F20
+	NONE, //112 KEY_F21
+	NONE, //113 KEY_F22
+	NONE, //114 KEY_F23
+	NONE, //115 KEY_F24
+	NONE, //116 
+	NONE, //117 KEY_HELP
+	NONE, //118 
+	NONE, //119 
+	NONE, //120 
+	NONE, //121 
+	NONE, //122 
+	NONE, //123 
+	NONE, //124 
+	NONE, //125 
+	NONE, //126 
+	NONE, //127 
+	NONE, //128 
+	NONE, //129 
+	NONE, //130 
+	NONE, //131 
+	NONE, //132 
+	NONE, //133 
+	NONE, //134 
+	NONE, //135 
+	NONE, //136 
+	NONE, //137 
+	NONE, //138 
+	NONE, //139 
+	NONE, //140 
+	NONE, //141 
+	NONE, //142 
+	NONE, //143 
+	NONE, //144 
+	NONE, //145 
+	NONE, //146 
+	NONE, //147 
+	NONE, //148 
+	NONE, //149 
+	NONE, //150 
+	NONE, //151 
+	NONE, //152 
+	NONE, //153 
+	NONE, //154 
+	NONE, //155 
+	NONE, //156 
+	NONE, //157 
+	NONE, //158 
+	NONE, //159 
+	NONE, //160 
+	NONE, //161 
+	NONE, //162 
+	NONE, //163 
+	NONE, //164 
+	NONE, //165 
+	NONE, //166 
+	NONE, //167 
+	NONE, //168 
+	NONE, //169 
+	NONE, //170 
+	NONE, //171 
+	NONE, //172 
+	NONE, //173 
+	NONE, //174 
+	NONE, //175 
+	NONE, //176 
+	NONE, //177 
+	NONE, //178 
+	NONE, //179 
+	NONE, //180 
+	NONE, //181 
+	NONE, //182 
+	NONE, //183 
+	NONE, //184 
+	NONE, //185 
+	NONE, //186 
+	NONE, //187 
+	NONE, //188 
+	NONE, //189 
+	NONE, //180 
+	NONE, //191 
+	NONE, //192 
+	NONE, //193 
+	NONE, //194 
+	NONE, //195 
+	NONE, //196 
+	NONE, //197 
+	NONE, //198 
+	NONE, //109 
+	NONE, //200 
+	NONE, //201 
+	NONE, //202 
+	NONE, //203 
+	NONE, //204 
+	NONE, //205 
+	NONE, //206 
+	NONE, //207 
+	NONE, //208 
+	NONE, //209 
+	NONE, //210 
+	NONE, //211 
+	NONE, //212 
+	NONE, //213 
+	NONE, //214 
+	NONE, //215 
+	NONE, //216 
+	NONE, //217 
+	NONE, //218 
+	NONE, //219 
+	NONE, //220 
+	NONE, //221 
+	NONE, //222 
+	NONE, //223 
+	NONE, //224 
+	LSHIFT | 0x12, //225  KEY_LEFTSHIFT
+	LALT   | 0x11, //226  KEY_LEFTALT
+	NONE,          //227
+	RCTRL | EXT | 0x14, //228  KEY_RIGHTCTRL
+	RSHIFT | 0x59, //229  KEY_RIGHTSHIFT
+	RALT | EXT | 0x11, //230 KEY_RIGHTALT
 
+};
+/* http://www-personal.umich.edu/~bazald/l/api/_s_d_l__scancode_8h.html */
+#endif
 bool ReadKeyboard()
 {
 #ifdef WIN32
@@ -292,7 +531,9 @@ bool ReadKeyboard()
 		else { return false; }
 	}
 #else
-	m_keyboardState = SDL_GetKeyboardState(NULL);
+	m_keyboardState = SDL_GetKeyboardState(&m_keyboardStateCount);
+	if (!m_keyboardState_last) m_keyboardState_last = (Uint8 *)calloc(m_keyboardStateCount,sizeof(Uint8));
+       //fprintf(stderr,"count: %d\n",m_keyboardStateCount);
 #endif
 
 	return true;
@@ -335,6 +576,7 @@ void SimInput::Read() {
 
 #ifdef WIN32
 	for (unsigned char k = 0; k < 128; k++) {
+		
 		if (m_keyboardState_last[k] != m_keyboardState[k]) {
 			bool ext = 0;
 			SimInput_PS2KeyEvent evt = SimInput_PS2KeyEvent(k, m_keyboardState[k], ext);
@@ -343,7 +585,14 @@ void SimInput::Read() {
 		m_keyboardState_last[k] = m_keyboardState[k];
 	}
 #else
-	m_keyboardState_last = m_keyboardState;
+	for (int k = 0; k < m_keyboardStateCount; k++) {
+		if (m_keyboardState_last[k] != m_keyboardState[k]) {
+			bool ext = 0;
+			SimInput_PS2KeyEvent evt = SimInput_PS2KeyEvent(k, m_keyboardState[k], ext);
+			keyEvents.push(evt);
+		}
+		m_keyboardState_last[k] = m_keyboardState[k];
+	}
 #endif
 
 }
@@ -376,6 +625,7 @@ void SimInput::BeforeEval()
 		if (keyEvents.size() > 0) {
 			// Get chunk from queue
 			SimInput_PS2KeyEvent evt = keyEvents.front();
+//fprintf(stderr,"evt = %x\n",evt);
 			keyEvents.pop();
 
 			ps2_key_temp = ev2ps2[evt.code];
