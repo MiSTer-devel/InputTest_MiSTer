@@ -2,8 +2,8 @@
 	MiSTer test harness OS - Main application
 
 	Author: Jim Gregory - https://github.com/JimmyStones/
-	Version: 0.1
-	Date: 2021-06-29
+	Version: 1.0
+	Date: 2021-07-03
 
 	This program is free software; you can redistribute it and/or modify it
 	under the terms of the GNU General Public License as published by the Free
@@ -524,8 +524,6 @@ void inputtester_analog()
 
 			write_stringfs("%4d", 0xFF, analog_offset_x[j], analog_offset_y[j] + analog_size + 1, ax);
 			write_stringfs("%4d", 0xFF, analog_offset_x[j] + 5, analog_offset_y[j] + analog_size + 1, ay);
-			write_stringfs("%4d", 0xFF, analog_offset_x[j], analog_offset_y[j] + analog_size + 2, analog_x[j]);
-			write_stringfs("%4d", 0xFF, analog_offset_x[j] + 5, analog_offset_y[j] + analog_size + 2, analog_y[j]);
 		}
 	}
 }

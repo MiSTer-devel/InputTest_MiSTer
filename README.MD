@@ -2,7 +2,19 @@
 
 ## Overview
 
-A custom mini-system running an input test utility.  Shows all standard HPS sourced inputs (joystick, analog, paddle, spinner) simultaneously as well as a ps2 keyboard console.
+A custom mini-system running an input test utility.  3 test screens available:
+ - Digital - shows joypad buttons for first two input devices
+ - Analog - shows analog axes for first two input devices
+ - Advanced - shows all standard HPS sourced inputs (joystick, analog, paddle, spinner) simultaneously as well as a ps2 keyboard console
+
+Mode switching instructions are shown at the bottom of the screen.
+
+## Acknowledgements
+
+Thanks to:
+- alanswx (https://github.com/alanswx) for ideas, cross-platform support, and the tutorial this core was based on
+- Jotego (https://github.com/jotego) for his very tidy JTFRAME modules
+- Porkchop Express (https://misteraddons.com/) for testing a bunch of devices I couldn't
 
 ## Hardware
 
@@ -44,9 +56,7 @@ Start|End|Length|Name
 
 ## Software
 
-/src contains a C program compiled to Z80 assembly using sdcc.  It reads and displays all available input values once every vblank, and has a ps2 keyboard console.  It also does some other things ;)
-
-*Currently there is no ps2 mouse support*
+/src contains a C program compiled to Z80 assembly using sdcc.  
 
 All required ROMs (compiled program and default MiSTer font) are built into this core.  
 
