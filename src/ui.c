@@ -56,7 +56,10 @@ void write_stringfs(const char *format, char color, unsigned int x, unsigned int
 	unsigned char l = strlen(temp);
 	for (char c = 0; c < l; c++)
 	{
-		if(temp[c]==0){return;}
+		if (temp[c] == 0)
+		{
+			return;
+		}
 		chram[p] = temp[c];
 		colram[p] = color;
 		p++;
@@ -72,18 +75,28 @@ void write_stringf(const char *format, char color, unsigned int x, unsigned int 
 	unsigned char l = strlen(temp);
 	for (char c = 0; c < l; c++)
 	{
-		if(temp[c]==0){return;}
+		if (temp[c] == 0)
+		{
+			return;
+		}
 		chram[p] = temp[c];
 		colram[p] = color;
 		p++;
 	}
 }
 
-// Write single char to character RAM
+// Write single char to character RAM and colour RAM
 void write_char(unsigned char c, char color, unsigned int x, unsigned int y)
 {
 	unsigned int p = (y * chram_cols) + x;
 	chram[p] = c;
+	colram[p] = color;
+}
+
+// Set colour of single char
+void set_colour(char color, unsigned int x, unsigned int y)
+{
+	unsigned int p = (y * chram_cols) + x;
 	colram[p] = color;
 }
 
@@ -119,22 +132,101 @@ void box(unsigned int tx, unsigned int ty, unsigned int bx, unsigned int by, cha
 	}
 }
 
+// Draw UI panel
+void panel(char tx, char ty, char bx, char by, char color)
+{
+	write_char(128, color, tx, ty);
+	write_char(130, color, bx, ty);
+	write_char(133, color, tx, by);
+	write_char(132, color, bx, by);
+	for (char x = tx + 1; x < bx; x++)
+	{
+		write_char(129, color, x, ty);
+		write_char(129, color, x, by);
+	}
+	for (char y = ty + 1; y < by; y++)
+	{
+		write_char(131, color, tx, y);
+		write_char(131, color, bx, y);
+	}
+}
+
+void fill(char tx, char ty, char bx, char by, char c, char color)
+{
+	for (char x = tx; x <= bx; x++)
+	{
+		for (char y = ty; y <= by; y++)
+		{
+			write_char(c, color, x, y);
+		}
+	}
+}
 
 // Draw page border
 void page_border(char color)
 {
-	write_char(128, color, 0, 0);
-	write_char(130, color, 39, 0);
-	write_char(133, color, 0, 29);
-	write_char(132, color, 39, 29);
-	for (char x = 1; x < 39; x++)
+	panel(0, 0, 39, 29, color);
+}
+
+char color_pad_outline = 0xFE;
+
+// Draw game pad outline
+void draw_pad(char xo, char yo)
+{
+	// Outline
+	write_char(134, color_pad_outline, xo, yo + 1);
+	for (char x = 1; x < 26; x++)
 	{
-		write_char(129, color, x, 0);
-		write_char(129, color, x, 29);
+		write_char(135, color_pad_outline, xo + x, yo + 1);
 	}
-	for (char y = 1; y < 29; y++)
+	write_char(136, color_pad_outline, xo + 26, yo + 1);
+	for (char y = 2; y < 5; y++)
 	{
-		write_char(131, color, 0, y);
-		write_char(131, color, 39, y);
+		write_char(137, color_pad_outline, xo, yo + y);
+		write_char(137, color_pad_outline, xo + 26, yo + y);
 	}
+	write_char(139, color_pad_outline, xo, yo + 5);
+	write_char(138, color_pad_outline, xo + 26, yo + 5);
+
+	write_char(138, color_pad_outline, xo + 8, yo + 5);
+	write_char(139, color_pad_outline, xo + 18, yo + 5);
+	write_char(134, color_pad_outline, xo + 8, yo + 4);
+	write_char(136, color_pad_outline, xo + 18, yo + 4);
+	for (char x = 1; x < 8; x++)
+	{
+		write_char(135, color_pad_outline, xo + x, yo + 5);
+	}
+	for (char x = 9; x < 18; x++)
+	{
+		write_char(135, color_pad_outline, xo + x, yo + 4);
+	}
+	for (char x = 19; x < 26; x++)
+	{
+		write_char(135, color_pad_outline, xo + x, yo + 5);
+	}
+	// Shoulders
+	write_char(134, color_pad_outline, xo + 1, yo);
+	write_char(136, color_pad_outline, xo + 5, yo);
+	write_char(134, color_pad_outline, xo + 21, yo);
+	write_char(136, color_pad_outline, xo + 25, yo);
+}
+
+char color_analog_grid = 0x23;
+
+// Draw game pad outline
+void draw_analog(char xo, char yo, char xs, char ys)
+{
+	panel(xo, yo, xo + xs, yo + ys, 0xFF);
+	fill(xo + 1, yo + 1, xo + xs - 1, yo + ys - 1, 27, color_analog_grid);
+	char mx = xo + (xs / 2);
+	char my = yo + (ys / 2);
+	for (char x = xo + 1; x < xo + xs; x++)
+	{
+		write_char(129, color_analog_grid, x, my);
+	}
+	for (char y = yo + 1; y < yo + ys; y++)
+	{
+		write_char(131, color_analog_grid, mx, y);
+	}
+	write_char('+', color_analog_grid, mx, my);
 }

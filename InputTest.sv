@@ -219,6 +219,7 @@ wire [31:0] status;
 wire  [1:0] buttons;
 wire        forced_scandoubler;
 wire        direct_video;
+wire [21:0] gamma_bus;
 
 wire        ioctl_download;
 wire        ioctl_wr;
@@ -253,8 +254,6 @@ wire  [8:0] spinner_5;
 wire [10:0] ps2_key;
 wire [24:0] ps2_mouse;
 wire [15:0] ps2_mouse_ext;
-
-wire [21:0] gamma_bus;
 
 hps_io #(.CONF_STR(CONF_STR)) hps_io
 (
@@ -327,12 +326,11 @@ jtframe_cen24 divider
 wire hblank, vblank;
 wire hs, vs;
 wire [7:0] r, g, b;
-wire [23:0] rgb = {r,g,b};
 arcade_video #(320,24) arcade_video
 (
 	.*,
 	.clk_video(clk_sys),
-	.RGB_in(rgb),
+	.RGB_in({r,g,b}),
 	.HBlank(hblank),
 	.VBlank(vblank),
 	.HSync(hs),
@@ -340,7 +338,7 @@ arcade_video #(320,24) arcade_video
 	.fx(status[5:3])
 );
 
-///////////////////////////////////////////////////
+///////////////////   MAIN CORE   ////////////////////
 
 wire rom_download = ioctl_download && (ioctl_index < 8'd2);
 wire reset = (RESET | status[0] | buttons[1] | rom_download);

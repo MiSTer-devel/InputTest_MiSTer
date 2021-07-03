@@ -35,8 +35,11 @@ bool vsync_last;
 #define STATE_START_INPUTTESTER 0
 #define STATE_INPUTTESTER 1
 
-#define STATE_START_INPUTTESTERADV 2
-#define STATE_INPUTTESTERADV 3
+#define STATE_START_INPUTTESTERADVANCED 2
+#define STATE_INPUTTESTERADVANCED 3
+
+#define STATE_START_INPUTTESTERANALOG 4
+#define STATE_INPUTTESTERANALOG 5
 
 #define STATE_FADEOUT 8
 #define STATE_START_FADEIN 9
@@ -49,7 +52,7 @@ bool vsync_last;
 #define STATE_GAME 25
 
 char state = STATE_START_INPUTTESTER;
-char nextstate = STATE_START_INPUTTESTER;
+char nextstate = 0;
 
 // SNEK variables
 unsigned char movefreqinit = 14;
@@ -75,13 +78,6 @@ unsigned char fadefreq = 4;
 unsigned char attractstate = 0;
 
 // Input tester variables
-// unsigned char __at(0xC200) joystick_last[12];
-// signed char __at(0xC210) ax_last[6];
-// signed char __at(0xC220) ay_last[6];
-// unsigned char __at(0xC230) px_last[6];
-// signed char __at(0xC240) sx_toggle_last[6];
-// signed char __at(0xC250) sx_last[6];
-// unsigned long __at(0xC260) sx_pos[6];
 unsigned char joystick_last[12];
 signed char ax_last[6];
 signed char ay_last[6];
@@ -99,7 +95,9 @@ unsigned char con_b = 37; // Console bottom edge Y
 bool con_cursor;
 unsigned char con_cursortimer = 1;
 unsigned char con_cursorfreq = 30;
-char modeswitchtimer = 0;
+
+char modeswitchtimer_select = 0;
+char modeswitchtimer_start = 0;
 
 // DPAD tracker
 bool bdown_left = 0;
@@ -112,13 +110,11 @@ bool bdown_down = 0;
 bool bdown_down_last = 0;
 char history[4];
 
-char color_pad_outline = 0xFE;
-
 #define PAD_COUNT 2
 #define BUTTON_COUNT 12
 
-char pad_offset_x[PAD_COUNT] = {6, 6};
-char pad_offset_y[PAD_COUNT] = {6, 18};
+char pad_offset_x[PAD_COUNT] = {7, 7};
+char pad_offset_y[PAD_COUNT] = {7, 16};
 char button_name[BUTTON_COUNT][6] = {
 	"R",
 	"L",
@@ -135,71 +131,54 @@ char button_name[BUTTON_COUNT][6] = {
 char button_x[BUTTON_COUNT] = {6, 2, 4, 4, 24, 22, 22, 20, 3, 23, 9, 13};
 char button_y[BUTTON_COUNT] = {3, 3, 4, 2, 3, 4, 2, 3, 0, 0, 3, 3};
 
-void draw_pad(char xo, char yo)
-{
-	// Outline
-	write_char(134, color_pad_outline, xo, yo + 1);
-	for (char x = 1; x < 26; x++)
-	{
-		write_char(135, color_pad_outline, xo + x, yo + 1);
-	}
-	write_char(136, color_pad_outline, xo + 26, yo + 1);
-	for (char y = 2; y < 5; y++)
-	{
-		write_char(137, color_pad_outline, xo, yo + y);
-		write_char(137, color_pad_outline, xo + 26, yo + y);
-	}
-	write_char(139, color_pad_outline, xo, yo + 5);
-	write_char(138, color_pad_outline, xo + 26, yo + 5);
+char analog_offset_x[PAD_COUNT] = {1, 20};
+char analog_offset_y[PAD_COUNT] = {5, 5};
+char analog_size = 18;
+signed char analog_x[PAD_COUNT];
+signed char analog_y[PAD_COUNT];
+char analog_ratio = 256 / 17;
 
-	write_char(138, color_pad_outline, xo + 8, yo + 5);
-	write_char(139, color_pad_outline, xo + 18, yo + 5);
-	write_char(134, color_pad_outline, xo + 8, yo + 4);
-	write_char(136, color_pad_outline, xo + 18, yo + 4);
-	for (char x = 1; x < 8; x++)
-	{
-		write_char(135, color_pad_outline, xo + x, yo + 5);
-	}
-	for (char x = 9; x < 18; x++)
-	{
-		write_char(135, color_pad_outline, xo + x, yo + 4);
-	}
-	for (char x = 19; x < 26; x++)
-	{
-		write_char(135, color_pad_outline, xo + x, yo + 5);
-	}
-	// Shoulders
-	write_char(134, color_pad_outline, xo + 1, yo);
-	write_char(136, color_pad_outline, xo + 5, yo);
-	write_char(134, color_pad_outline, xo + 21, yo);
-	write_char(136, color_pad_outline, xo + 25, yo);
-}
-
-// Draw static elements for basic input test page
-void page_inputtester()
+// Draw static elements for digital input test page
+void page_inputtester_digital()
 {
 	clear_chars(0);
 	page_border(0b00000111);
 
 	write_string("- MiSTer Input Tester -", 0b11100011, 8, 1);
-	write_string("Hold <Select> for advanced mode", 0b11100011, 4, 29);
+	write_string("Hold: Select=analog Start=advanced", 0b11100011, 3, 29);
 
-	// Draw pad 1
+	// Draw pads
 	for (char j = 0; j < PAD_COUNT; j++)
 	{
-		write_stringf("JOY %d", 0xFF, pad_offset_x[j], pad_offset_y[j] - 1, j + 1);
+		write_stringf("JOY %d", 0xFF, pad_offset_x[j] - 5, pad_offset_y[j] + 3, j + 1);
 		draw_pad(pad_offset_x[j], pad_offset_y[j]);
 	}
 }
 
-// Draw static elements for advanced input test page
-void page_inputtester_adv()
+// Draw static elements for analog input test page
+void page_inputtester_analog()
 {
 	clear_chars(0);
 	page_border(0b00000111);
 
 	write_string("- MiSTer Input Tester -", 0b11100011, 8, 1);
-	write_string("Hold <Select> for basic mode", 0b11100011, 4, 29);
+	write_string("Hold: Select=digital Start=advanced", 0b11100011, 3, 29);
+
+	for (char j = 0; j < PAD_COUNT; j++)
+	{
+		write_stringf("ANALOG %d", 0xFF, analog_offset_x[j] + 5, analog_offset_y[j] - 1, j + 1);
+		draw_analog(analog_offset_x[j], analog_offset_y[j], analog_size, analog_size);
+	}
+}
+
+// Draw static elements for advanced input test page
+void page_inputtester_advanced()
+{
+	clear_chars(0);
+	page_border(0b00000111);
+
+	write_string("- MiSTer Input Tester -", 0b11100011, 8, 1);
+	write_string("Hold: Select=digital Start=analog", 0b11100011, 3, 29);
 
 	write_string("RLDUABXYLRsSCZ", 0xFF, 7, 3);
 	write_string("AX", 0xFF, 26, 3);
@@ -225,7 +204,8 @@ void page_inputtester_adv()
 
 void reset_inputstates()
 {
-	modeswitchtimer = 0;
+	modeswitchtimer_select = 0;
+	modeswitchtimer_start = 0;
 	for (char i = 0; i < 12; i++)
 	{
 		joystick_last[i] = 1;
@@ -241,25 +221,37 @@ void reset_inputstates()
 	}
 }
 
-// Initialise basic inputtester state and draw static elements
-void start_inputtester()
+// Initialise digital inputtester state and draw static elements
+void start_inputtester_digital()
 {
 	state = STATE_INPUTTESTER;
 
 	// Draw page
-	page_inputtester();
+	page_inputtester_digital();
+
+	// Reset last states for inputs
+	reset_inputstates();
+}
+
+// Initialise analog inputtester state and draw static elements
+void start_inputtester_analog()
+{
+	state = STATE_INPUTTESTERANALOG;
+
+	// Draw page
+	page_inputtester_analog();
 
 	// Reset last states for inputs
 	reset_inputstates();
 }
 
 // Initialise advanced inputtester state and draw static elements
-void start_inputtester_adv()
+void start_inputtester_advanced()
 {
-	state = STATE_INPUTTESTERADV;
+	state = STATE_INPUTTESTERADVANCED;
 
 	// Draw page
-	page_inputtester_adv();
+	page_inputtester_advanced();
 
 	// Reset console cursor
 	con_x = con_l;
@@ -403,8 +395,55 @@ void handle_codes()
 	}
 }
 
-// Advanced input tester state
-void inputtester()
+bool modeswitcher()
+{
+	// Switch to advanced mode if start is held for 1 second
+	if (CHECK_BIT(joystick[8], 3))
+	{
+		modeswitchtimer_start++;
+		if (modeswitchtimer_start == 60)
+		{
+			if (state == STATE_INPUTTESTERADVANCED)
+			{
+				start_inputtester_analog();
+			}
+			else
+			{
+				start_inputtester_advanced();
+			}
+			return 1;
+		}
+	}
+	else
+	{
+		modeswitchtimer_start = 0;
+	}
+	// Switch between digital/analog mode if select is held for 1 second
+	if (CHECK_BIT(joystick[8], 2))
+	{
+		modeswitchtimer_select++;
+		if (modeswitchtimer_select == 60)
+		{
+			if (state == STATE_INPUTTESTER)
+			{
+				start_inputtester_analog();
+			}
+			else
+			{
+				start_inputtester_digital();
+			}
+			return 1;
+		}
+	}
+	else
+	{
+		modeswitchtimer_select = 0;
+	}
+	return 0;
+}
+
+// Digital input tester state
+void inputtester_digital()
 {
 
 	// Handle PS/2 inputs whenever possible to improve latency
@@ -419,15 +458,11 @@ void inputtester()
 	// As soon as vsync is detected start drawing screen updates
 	if (vsync && !vsync_last)
 	{
-		// Switch to basic mode if select is held for 1 second
-		if (CHECK_BIT(joystick[8], 2))
+
+		// Handle test mode switch
+		if (modeswitcher())
 		{
-			modeswitchtimer++;
-			if (modeswitchtimer == 60)
-			{
-				start_inputtester_adv();
-				return;
-			}
+			return;
 		}
 
 		// Draw control pad buttons
@@ -443,8 +478,8 @@ void inputtester()
 	}
 }
 
-// Advanced input tester state
-void inputtester_adv()
+// Analog input tester state
+void inputtester_analog()
 {
 
 	// Handle PS/2 inputs whenever possible to improve latency
@@ -459,15 +494,61 @@ void inputtester_adv()
 	// As soon as vsync is detected start drawing screen updates
 	if (vsync && !vsync_last)
 	{
-		// Switch to basic mode if select is held for 1 second
-		if (CHECK_BIT(joystick[8], 2))
+
+		// Handle test mode switch
+		if (modeswitcher())
 		{
-			modeswitchtimer++;
-			if (modeswitchtimer == 60)
-			{
-				start_inputtester();
-				return;
-			}
+			return;
+		}
+
+		// Draw analog point
+		for (char j = 0; j < PAD_COUNT; j++)
+		{
+
+			char mx = analog_offset_x[j] + (analog_size / 2);
+			char my = analog_offset_y[j] + (analog_size / 2);
+
+			// Reset previous color
+			set_colour(color_analog_grid, analog_x[j] + mx, analog_y[j] + my);
+
+			signed char ax = analog[(j * 16)];
+			signed char ay = analog[(j * 16) + 8];
+
+			analog_x[j] = ax / analog_ratio;
+			analog_y[j] = ay / analog_ratio;
+
+			// Set new color
+			set_colour(0xFF, analog_x[j] + mx, analog_y[j] + my);
+
+			write_stringfs("%4d", 0xFF, analog_offset_x[j], analog_offset_y[j] + analog_size + 1, ax);
+			write_stringfs("%4d", 0xFF, analog_offset_x[j] + 5, analog_offset_y[j] + analog_size + 1, ay);
+			write_stringfs("%4d", 0xFF, analog_offset_x[j], analog_offset_y[j] + analog_size + 2, analog_x[j]);
+			write_stringfs("%4d", 0xFF, analog_offset_x[j] + 5, analog_offset_y[j] + analog_size + 2, analog_y[j]);
+		}
+	}
+}
+
+// Advanced input tester state
+void inputtester_advanced()
+{
+
+	// Handle PS/2 inputs whenever possible to improve latency
+	handle_ps2();
+
+	// Handle secret code detection (joypad 1 directions)
+	if (hsync && !hsync_last)
+	{
+		handle_codes();
+	}
+
+	// As soon as vsync is detected start drawing screen updates
+	if (vsync && !vsync_last)
+	{
+
+		// Handle test mode switch
+		if (modeswitcher())
+		{
+			return;
 		}
 
 		// Draw joystick inputs (only update each byte if value has changed)
@@ -639,7 +720,7 @@ void gameplay()
 
 		if (CHECK_BIT(joystick[8], 2)) // select to quit
 		{
-			start_inputtester_adv();
+			start_inputtester_advanced();
 			return;
 		}
 	}
@@ -657,7 +738,7 @@ void gameplay()
 			unsigned int p = (y * chram_cols) + x;
 			if (chram[p] > 0)
 			{
-				nextstate = 4;
+				nextstate = STATE_START_ATTRACT;
 				start_fadeout();
 				return;
 			}
@@ -690,9 +771,15 @@ void attract()
 
 	if (hsync && !hsync_last)
 	{
-		if (CHECK_BIT(joystick[8], 3)) // start
+		if (CHECK_BIT(joystick[8], 3)) // start to start
 		{
 			start_gameplay();
+			return;
+		}
+		if (CHECK_BIT(joystick[8], 2)) // select to quit
+		{
+			start_inputtester_advanced();
+			return;
 		}
 	}
 
@@ -719,17 +806,24 @@ void main()
 		switch (state)
 		{
 		case STATE_START_INPUTTESTER:
-			start_inputtester();
+			start_inputtester_digital();
 			break;
 		case STATE_INPUTTESTER:
-			inputtester();
+			inputtester_digital();
 			break;
 
-		case STATE_START_INPUTTESTERADV:
-			start_inputtester_adv();
+		case STATE_START_INPUTTESTERADVANCED:
+			start_inputtester_advanced();
 			break;
-		case STATE_INPUTTESTERADV:
-			inputtester_adv();
+		case STATE_INPUTTESTERADVANCED:
+			inputtester_advanced();
+			break;
+
+		case STATE_START_INPUTTESTERANALOG:
+			start_inputtester_analog();
+			break;
+		case STATE_INPUTTESTERANALOG:
+			inputtester_analog();
 			break;
 
 		case STATE_FADEOUT:
