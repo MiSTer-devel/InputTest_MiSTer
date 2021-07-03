@@ -31,46 +31,25 @@ bool hsync_last;
 bool vsync;
 bool vsync_last;
 
-// Draw static elements for input test page
-void page_inputs()
-{
-	clear_chars(0);
-	page_border(0b00000111);
-
-	write_string("- MiSTer Input Tester -", 0b11100011, 8, 1);
-	write_string("RLDUABXYLRsSCZ", 0xFF, 7, 3);
-	write_string("AX", 0xFF, 26, 3);
-	write_string("AY", 0xFF, 31, 3);
-
-	write_string("POS", 0xFF, 7, 11);
-	write_string("SPD  POS", 0xFF, 18, 11);
-
-	char label[5];
-	for (unsigned char j = 0; j < 6; j++)
-	{
-		sprintf(label, "JOY%d", j + 1);
-		write_string(label, 0xFF - (j * 2), 2, 4 + j);
-
-		sprintf(label, "PAD%d", j + 1);
-		write_string(label, 0xFF - (j * 2), 2, 12 + j);
-
-		sprintf(label, "SPN%d", j + 1);
-		write_string(label, 0xFF - (j * 2), 14, 12 + j);
-	}
-	write_string("CON", 0xFF, 2, 19);
-}
-
 // Application state
-char state = 0;
-char nextstate = 0;
-// state = 0 - inputtester (advanced)
-// state = 1 - fadeout
-// state = 2 - fadein
-// state = 3 - startfadein
-// state = 4 - startgame
-// state = 5 - gameplaying
-// state = 7 - startattract
-// state = 8 - attract
+#define STATE_START_INPUTTESTER 0
+#define STATE_INPUTTESTER 1
+
+#define STATE_START_INPUTTESTERADV 2
+#define STATE_INPUTTESTERADV 3
+
+#define STATE_FADEOUT 8
+#define STATE_START_FADEIN 9
+#define STATE_FADEIN 10
+
+#define STATE_START_ATTRACT 16
+#define STATE_ATTRACT 17
+
+#define STATE_START_GAME 24
+#define STATE_GAME 25
+
+char state = STATE_START_INPUTTESTERADV;
+char nextstate = STATE_START_INPUTTESTERADV;
 
 // SNEK variables
 unsigned char movefreqinit = 14;
@@ -125,13 +104,37 @@ bool bdown_down = 0;
 bool bdown_down_last = 0;
 char history[4];
 
-// Initialise inputtester state and draw static elements
-void start_inputtester()
+// Draw static elements for input test page
+void page_inputtester_adv()
 {
-	page_inputs();
-	state = 1;
-	con_x = con_l;
-	con_y = con_t;
+	clear_chars(0);
+	page_border(0b00000111);
+
+	write_string("- MiSTer Input Tester -", 0b11100011, 8, 1);
+	write_string("RLDUABXYLRsSCZ", 0xFF, 7, 3);
+	write_string("AX", 0xFF, 26, 3);
+	write_string("AY", 0xFF, 31, 3);
+
+	write_string("POS", 0xFF, 7, 11);
+	write_string("SPD  POS", 0xFF, 18, 11);
+
+	char label[5];
+	for (unsigned char j = 0; j < 6; j++)
+	{
+		sprintf(label, "JOY%d", j + 1);
+		write_string(label, 0xFF - (j * 2), 2, 4 + j);
+
+		sprintf(label, "PAD%d", j + 1);
+		write_string(label, 0xFF - (j * 2), 2, 12 + j);
+
+		sprintf(label, "SPN%d", j + 1);
+		write_string(label, 0xFF - (j * 2), 14, 12 + j);
+	}
+	write_string("CON", 0xFF, 2, 19);
+}
+
+void reset_inputstates()
+{
 	for (char i = 0; i < 12; i++)
 	{
 		joystick_last[i] = 1;
@@ -147,10 +150,26 @@ void start_inputtester()
 	}
 }
 
+// Initialise advanced inputtester state and draw static elements
+void start_inputtester_adv()
+{
+	state = STATE_INPUTTESTERADV;
+
+	// Draw page
+	page_inputtester_adv();
+
+	// Reset console cursor
+	con_x = con_l;
+	con_y = con_t;
+
+	// Reset last states for inputs
+	reset_inputstates();
+}
+
 // Initialise fadeout state
 void start_fadeout()
 {
-	state = 2;
+	state = STATE_FADEOUT;
 	fadetimer = fadefreq;
 	fade = 0;
 }
@@ -158,7 +177,7 @@ void start_fadeout()
 // Initialise fadein state
 void start_fadein()
 {
-	state = 3;
+	state = STATE_FADEIN;
 	fadetimer = fadefreq;
 	fade = 15;
 }
@@ -166,7 +185,7 @@ void start_fadein()
 // Initialise attract state and draw static elements
 void start_attract()
 {
-	state = 7;
+	state = STATE_ATTRACT;
 	attractstate = 0;
 	clear_chars(0);
 	page_border(0b00000111);
@@ -178,7 +197,7 @@ void start_attract()
 // Initialise attract state and draw static elements
 void start_gameplay()
 {
-	state = 5;
+	state = STATE_GAME;
 	length = 0;
 	x = 20;
 	y = 15;
@@ -274,7 +293,7 @@ void handle_codes()
 	// Check for SNEK code
 	if (history[0] == 4 && history[1] == 2 && history[2] == 3 && history[3] == 1)
 	{
-		nextstate = 6;
+		nextstate = STATE_START_ATTRACT;
 		pushhistory(0);
 		start_fadeout();
 		return;
@@ -282,7 +301,7 @@ void handle_codes()
 }
 
 // Input tester state
-void inputtester()
+void inputtester_adv()
 {
 
 	// Handle PS/2 inputs whenever possible to improve latency
@@ -467,7 +486,7 @@ void gameplay()
 
 		if (joystick[0] & 0b00010000)
 		{
-			start_inputtester();
+			start_inputtester_adv();
 			return;
 		}
 	}
@@ -546,30 +565,34 @@ void main()
 		vsync = input0 & 0x40;
 		switch (state)
 		{
-		case 0:
-			start_inputtester();
+		case STATE_START_INPUTTESTERADV:
+			start_inputtester_adv();
 			break;
-		case 1:
-			inputtester();
+		case STATE_INPUTTESTERADV:
+			inputtester_adv();
 			break;
-		case 2:
+
+		case STATE_FADEOUT:
 			fadeout();
 			break;
-		case 3:
+		case STATE_FADEIN:
 			fadein();
 			break;
-		case 4:
-			start_gameplay();
-			break;
-		case 5:
-			gameplay();
-			break;
-		case 6:
+
+		case STATE_START_ATTRACT:
 			start_attract();
 			break;
-		case 7:
+		case STATE_ATTRACT:
 			attract();
 			break;
+
+		case STATE_START_GAME:
+			start_gameplay();
+			break;
+		case STATE_GAME:
+			gameplay();
+			break;
+
 		default:
 			break;
 		}
