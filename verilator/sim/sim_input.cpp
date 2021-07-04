@@ -51,7 +51,7 @@ static const int ev2ps2[] =
 	0x54, //26  KEY_LEFTBRACE
 	0x5b, //27  KEY_RIGHTBRACE
 	0x5a, //28  KEY_ENTER
-	LCTRL | 0x14, //29  KEY_LEFTCTRL
+	 0x14, //29  KEY_LEFTCTRL
 	0x1c, //30  KEY_A
 	0x1b, //31  KEY_S
 	0x23, //32  KEY_D
@@ -64,7 +64,7 @@ static const int ev2ps2[] =
 	0x4c, //39  KEY_SEMICOLON
 	0x52, //40  KEY_APOSTROPHE
 	0x0e, //41  KEY_GRAVE
-	LSHIFT | 0x12, //42  KEY_LEFTSHIFT
+	 0x12, //42  KEY_LEFTSHIFT
 	0x5d, //43  KEY_BACKSLASH
 	0x1a, //44  KEY_Z
 	0x22, //45  KEY_X
@@ -76,9 +76,9 @@ static const int ev2ps2[] =
 	0x41, //51  KEY_COMMA
 	0x49, //52  KEY_DOT
 	0x4a, //53  KEY_SLASH
-	RSHIFT | 0x59, //54  KEY_RIGHTSHIFT
+	 0x59, //54  KEY_RIGHTSHIFT
 	0x7c, //55  KEY_KPASTERISK
-	LALT | 0x11, //56  KEY_LEFTALT
+	 0x11, //56  KEY_LEFTALT
 	0x29, //57  KEY_SPACE
 	0x58, //58  KEY_CAPSLOCK
 	0x05, //59  KEY_F1
@@ -119,10 +119,10 @@ static const int ev2ps2[] =
 	NONE, //94  KEY_MUHENKAN
 	NONE, //95  KEY_KPJPCOMMA
 	EXT | 0x5a, //96  KEY_KPENTER
-	RCTRL | EXT | 0x14, //97  KEY_RIGHTCTRL
+	 EXT | 0x14, //97  KEY_RIGHTCTRL
 	EXT | 0x4a, //98  KEY_KPSLASH
 	0xE2, //99  KEY_SYSRQ
-	RALT | EXT | 0x11, //100 KEY_RIGHTALT
+	 EXT | 0x11, //100 KEY_RIGHTALT
 	NONE, //101 KEY_LINEFEED
 	EXT | 0x6c, //102 KEY_HOME
 	EXT | 0x75, //103 KEY_UP
@@ -147,8 +147,8 @@ static const int ev2ps2[] =
 	NONE, //122 KEY_HANGEUL
 	NONE, //123 KEY_HANJA
 	NONE, //124 KEY_YEN
-	LGUI | EXT | 0x1f, //125 KEY_LEFTMETA
-	RGUI | EXT | 0x27, //126 KEY_RIGHTMETA
+	 EXT | 0x1f, //125 KEY_LEFTMETA
+	 EXT | 0x27, //126 KEY_RIGHTMETA
 	NONE, //127 KEY_COMPOSE
 	NONE, //128 KEY_STOP
 	NONE, //129 KEY_AGAIN
@@ -616,7 +616,7 @@ void SimInput::CleanUp() {
 }
 
 unsigned ps2_key_temp;
-bool ps2_clock = 0;
+bool ps2_clock = 1;
 
 void SimInput::BeforeEval()
 {
