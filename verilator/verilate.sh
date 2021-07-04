@@ -1,7 +1,14 @@
 
 set -e
 if grep -qEi "(Microsoft|WSL)" /proc/version &> /dev/null ; then
-verilator -cc -exe --public --compiler msvc +define+SIMULATION=1 --converge-limit 2000 --top-module emu sim.v \
+$VERILATOR_ROOT/bin/verilator \
+-cc \
+-exe \
+--public \
+--compiler msvc +define+SIMULATION=1 \
+-O3 --x-assign fast --x-initial fast --noassert \
+--converge-limit 6000 \
+--top-module emu sim.v \
 ../rtl/dpram.v \
 ../rtl/spram.v \
 ../rtl/JTFRAME/jtframe_vtimer.v \
