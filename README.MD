@@ -11,8 +11,8 @@ Mode switching instructions are shown at the bottom of the screen.
 
 ## Acknowledgements
 
-Created by JimmyStones (http://github.com.jimmystones), with thanks to:
-- alanswx (https://github.com/alanswx) for ideas, cross-platform support, and the tutorial this core was based on
+Created by JimmyStones (http://github.com/jimmystones), with thanks to:
+- alanswx (https://github.com/alanswx) for ideas, cross-platform simulation support, and the tutorial this core was based on
 - Jotego (https://github.com/jotego) for his very tidy JTFRAME modules
 - Porkchop Express (https://misteraddons.com/) for testing a bunch of devices I couldn't
 
