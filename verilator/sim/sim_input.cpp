@@ -507,12 +507,12 @@ static const int ev2ps2[] =
 	NONE, //222 
 	NONE, //223 
 	NONE, //224 
-	LSHIFT | 0x12, //225  KEY_LEFTSHIFT
-	LALT   | 0x11, //226  KEY_LEFTALT
+	 0x12, //225  KEY_LEFTSHIFT
+	 0x11, //226  KEY_LEFTALT
 	NONE,          //227
-	RCTRL | EXT | 0x14, //228  KEY_RIGHTCTRL
-	RSHIFT | 0x59, //229  KEY_RIGHTSHIFT
-	RALT | EXT | 0x11, //230 KEY_RIGHTALT
+	 EXT | 0x14, //228  KEY_RIGHTCTRL
+	 0x59, //229  KEY_RIGHTSHIFT
+	 EXT | 0x11, //230 KEY_RIGHTALT
 
 };
 /* http://www-personal.umich.edu/~bazald/l/api/_s_d_l__scancode_8h.html */
