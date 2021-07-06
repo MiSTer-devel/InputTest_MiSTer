@@ -1,4 +1,4 @@
-#	MiSTer test harness
+#	MiSTer Input Tester
 
 ## Overview
 
@@ -11,7 +11,7 @@ Mode switching instructions are shown at the bottom of the screen.
 
 ## Acknowledgements
 
-Thanks to:
+Created by JimmyStones (http://github.com.jimmystones), with thanks to:
 - alanswx (https://github.com/alanswx) for ideas, cross-platform support, and the tutorial this core was based on
 - Jotego (https://github.com/jotego) for his very tidy JTFRAME modules
 - Porkchop Express (https://misteraddons.com/) for testing a bunch of devices I couldn't
@@ -36,7 +36,7 @@ A simple bespoke (i.e. I made it up with no real plan) 8-bit system with a 40x30
    - paddle_5->0 from HPS (48 bytes)
    - spinner_5->0 from HPS (96 bytes)
    - ps2_key from HPS (11 bytes)
-   - ps2_mouse from HPS (48 bytes, combination of ps2_mouse and ps2_mouseext with some padding to align bytes)
+   - ps2_mouse from HPS (48 bytes, combination of ps2_mouse and ps2_mouseext with some padding to align bytes) - currently unused
 
 ### Memory Map
 Start|End|Length|Name
