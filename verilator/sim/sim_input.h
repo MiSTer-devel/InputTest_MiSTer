@@ -12,11 +12,11 @@
 
 struct SimInput_PS2KeyEvent {
 public:
-	char code;
+	unsigned char code;
 	bool pressed;
 	bool extended;
 
-	SimInput_PS2KeyEvent(char code, bool pressed, bool extended) {
+	SimInput_PS2KeyEvent(unsigned char code, bool pressed, bool extended) {
 		this->code = code;
 		this->pressed = pressed;
 		this->extended = extended;

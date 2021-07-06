@@ -533,7 +533,7 @@ bool ReadKeyboard()
 #else
 	m_keyboardState = SDL_GetKeyboardState(&m_keyboardStateCount);
 	if (!m_keyboardState_last) m_keyboardState_last = (Uint8 *)calloc(m_keyboardStateCount,sizeof(Uint8));
-       //fprintf(stderr,"count: %d\n",m_keyboardStateCount);
+       ////fprintf(stderr,"count: %d\n",m_keyboardStateCount);
 #endif
 
 	return true;
@@ -618,6 +618,7 @@ void SimInput::CleanUp() {
 unsigned ps2_key_temp;
 bool ps2_clock = 1;
 
+
 void SimInput::BeforeEval()
 {
 	if (keyEventTimer == 0) {
@@ -625,7 +626,7 @@ void SimInput::BeforeEval()
 		if (keyEvents.size() > 0) {
 			// Get chunk from queue
 			SimInput_PS2KeyEvent evt = keyEvents.front();
-//fprintf(stderr,"evt = %x\n",evt);
+//fprintf(stderr,"evt = %x\n",evt.code);
 			keyEvents.pop();
 
 			ps2_key_temp = ev2ps2[evt.code];
