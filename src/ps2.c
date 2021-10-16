@@ -1,5 +1,5 @@
 /*============================================================================
-	MiSTer test harness OS - PS/2 interface functions
+	Aznable OS - PS/2 interface functions
 
 	Author: Jim Gregory - https://github.com/JimmyStones/
 	Version: 1.0

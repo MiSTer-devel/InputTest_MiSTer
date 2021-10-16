@@ -10,6 +10,7 @@
 #define WIN32
 #include <dinput.h>
 #endif
+#include <chrono>
 
 #include "sim_console.h"
 #include "sim_bus.h"
@@ -45,7 +46,7 @@ const int input_b = 5;
 const int input_x = 6;
 const int input_y = 7;
 const int input_l = 8;
-const int input_r= 9;
+const int input_r = 9;
 const int input_select = 10;
 const int input_start = 11;
 
@@ -69,15 +70,30 @@ int multi_step_amount = 1024;
 // --------------
 Vemu* top = NULL;
 
-vluint64_t main_time = 0;	// Current simulation time.
-double sc_time_stamp() {	// Called by $time in Verilog.
+vluint64_t main_time = 0;		// Current simulation time.
+vluint32_t timestamp = 0;	    // Simulated Unix timestamp.
+vluint16_t timestamp_ticksperms = 24000; // Number of simulation ticks per simulated millisecond
+vluint16_t timestamp_ticks = 0; // Ticks left until next ms
+unsigned short timestamp_updatefreq = 5000; // Only update sim every 5 seconds 
+unsigned short timestamp_update = 0;	    // Ms to next update.
+bool timestamp_clock = 1;		// Timestamp update clock
+
+double sc_time_stamp() {	    // Called by $time in Verilog.
 	return main_time;
 }
 
 SimClock clk_sys(1);
 
+
+
+
+long GetTime() {
+	return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+}
+
 void resetSim() {
 	main_time = 0;
+	timestamp = GetTime();
 	top->reset = 1;
 	clk_sys.Reset();
 }
@@ -93,6 +109,24 @@ int verilate() {
 
 		// Clock dividers
 		clk_sys.Tick();
+
+		// Increment timestamp
+		timestamp_ticks ++;
+		if (timestamp_ticks >= timestamp_ticksperms) {
+			timestamp_ticks -= timestamp_ticksperms;
+			timestamp++;
+
+			top->timestamp = timestamp;
+			timestamp_clock = !timestamp_clock;
+
+			if (timestamp_clock) {
+				timestamp_update--;
+				if (timestamp_update <= 0) {
+					top->timestamp |= ((uint64_t)1) << 32;
+					timestamp_update = timestamp_updatefreq;
+				}
+			}
+		}
 
 		// Set system clock in core
 		top->clk_sys = clk_sys.clk;
@@ -167,7 +201,7 @@ int main(int argc, char** argv, char** env) {
 	input.SetMapping(input_r, DIK_W); // R
 	input.SetMapping(input_select, DIK_1); // Select
 	input.SetMapping(input_start, DIK_2); // Start
-	
+
 #else
 	input.SetMapping(input_up, SDL_SCANCODE_UP);
 	input.SetMapping(input_right, SDL_SCANCODE_RIGHT);
@@ -184,6 +218,9 @@ int main(int argc, char** argv, char** env) {
 #endif
 	// Setup video output
 	if (video.Initialise(windowTitle) == 1) { return 1; }
+
+	// Initial reset
+	resetSim();
 
 #ifdef WIN32
 	MSG msg;
@@ -243,6 +280,7 @@ int main(int argc, char** argv, char** env) {
 		ImGui::Checkbox("Flip V", &video.output_vflip);
 
 		ImGui::Text("main_time: %d frame_count: %d sim FPS: %f", main_time, video.count_frame, video.stats_fps);
+		ImGui::Text("timestamp: %d actual ms: %d frame_ms: %d ", timestamp, timestamp/1000, video.count_frame * 1000);
 		ImGui::Text("minx: %d maxx: %d miny: %d maxy: %d", video.stats_xMin, video.stats_xMax, video.stats_yMin, video.stats_yMax);
 
 		// Draw VGA output
@@ -328,7 +366,8 @@ int main(int argc, char** argv, char** env) {
 			for (char b = 8; b < 16; b++) {
 				top->spinner_0 &= ~(1UL << b);
 			}
-			if (spinner_toggle) { top->spinner_0 |= 1UL << 8; }		}
+			if (spinner_toggle) { top->spinner_0 |= 1UL << 8; }
+		}
 		//top->spinner_1 -= 1;
 		//top->spinner_2 += 1;
 		//top->spinner_3 -= 1;

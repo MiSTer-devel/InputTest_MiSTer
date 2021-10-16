@@ -53,3 +53,4 @@ src/os.sym
 .vscode/settings.json
 verilator/imgui.ini
 verilator/imgui.ini
+docs/*
