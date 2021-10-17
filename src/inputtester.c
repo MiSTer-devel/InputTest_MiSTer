@@ -116,6 +116,9 @@ bool last_timestamp_clock = 0;
 #define btntest_highlight_start 2
 #define btntest_highlight_end 35
 
+// Analog tester variables
+char analog_pad = 0;
+
 // Button test variables
 char btntest_mode = 0;
 char btntest_buttonbank = 0;
@@ -131,7 +134,6 @@ bool btntest_results_refresh = 0;
 char btntest_results_offset = 0;
 char btntest_highlight = 0;
 char btntest_aftertimer = 0;
-
 
 // Draw static elements for digital input test page
 void page_inputtester_digital()
@@ -150,20 +152,21 @@ void page_inputtester_analog()
 {
     page_frame(true, false);
     // Draw analog grids
-    char pad =0;
     char j = 0;
     write_string("ANALOG LEFT", 0xFF, analog_offset_x[j], analog_offset_y[j] - 1);
     draw_analog(analog_offset_x[j], analog_offset_y[j], analog_size, analog_size);
-    write_char('X', 0xFF, analog_offset_x[j] + 5, analog_offset_y[j] + analog_size + 1);
-    write_char('Y', 0xFF, analog_offset_x[j] + 13, analog_offset_y[j] + analog_size + 1);
+    write_string("X:", 0xFF, analog_offset_x[j] + 1, analog_offset_y[j] + analog_size + 1);
+    write_string("Y:", 0xFF, analog_offset_x[j] + 10, analog_offset_y[j] + analog_size + 1);
 
-    write_stringf("PAD %d", 0xFF, 18, analog_offset_y[j] - 1, pad + 1);
+    write_stringf("PAD %d", 0xFF, 18, analog_offset_y[j] - 1, analog_pad + 1);
 
     j = 1;
     write_string("ANALOG RIGHT", 0xFF, analog_offset_x[j] + analog_size - 11, analog_offset_y[j] - 1);
     draw_analog(analog_offset_x[j], analog_offset_y[j], analog_size, analog_size);
-    write_char('X', 0xFF, analog_offset_x[j] + 5, analog_offset_y[j] + analog_size + 1);
-    write_char('Y', 0xFF, analog_offset_x[j] + 13, analog_offset_y[j] + analog_size + 1);
+    write_string("X:", 0xFF, analog_offset_x[j] + 1, analog_offset_y[j] + analog_size + 1);
+    write_string("Y:", 0xFF, analog_offset_x[j] + 10, analog_offset_y[j] + analog_size + 1);
+
+    write_string("Cycle selected pad with A / B", 0x3F, 5, analog_offset_y[j] + analog_size + 2);
 }
 
 // Draw static elements for advanced input test page
@@ -384,11 +387,36 @@ void inputtester_analog()
     // Handle PS/2 inputs whenever possible to improve latency
     handle_ps2();
 
-    // Handle secret code detection (joypad 1 directions)
     if (HBLANK_RISING)
     {
         basic_input();
         handle_codes();
+        
+        // Pad selection
+        if (!input_a && input_a_last)
+        {
+            if (analog_pad == 5)
+            {
+                analog_pad = 0;
+            }
+            else
+            {
+                analog_pad += 1;
+            }
+            page_inputtester_analog();
+        }
+        if (!input_b && input_b_last)
+        {
+            if (analog_pad == 0)
+            {
+                analog_pad = 5;
+            }
+            else
+            {
+                analog_pad -= 1;
+            }
+            page_inputtester_analog();
+        }
     }
 
     // As soon as vsync is detected start drawing screen updates
@@ -400,8 +428,6 @@ void inputtester_analog()
             return;
         }
 
-        char pad = 0;
-        
         // Draw analog left point
         char side = 0;
         char mx = analog_offset_x[side] + (analog_size / 2);
@@ -410,17 +436,17 @@ void inputtester_analog()
         // Reset previous color
         set_fgcolour(color_analog_grid, analog_x[side] + mx, analog_y[side] + my);
 
-        signed char ax = analog_l[(pad * 16)];
-        signed char ay = analog_l[(pad * 16) + 8];
+        signed char ax = analog_l[(analog_pad * 16)];
+        signed char ay = analog_l[(analog_pad * 16) + 8];
 
-        analog_x[pad] = ax / analog_ratio;
-        analog_y[pad] = ay / analog_ratio;
+        analog_x[analog_pad] = ax / analog_ratio;
+        analog_y[analog_pad] = ay / analog_ratio;
 
         // Set new color
         set_fgcolour(0xFF, analog_x[side] + mx, analog_y[side] + my);
 
-        write_stringfs("%4d", 0xFF, analog_offset_x[side] + 2, analog_offset_y[side] + analog_size + 2, ax);
-        write_stringfs("%4d", 0xFF, analog_offset_x[side] + 10, analog_offset_y[side] + analog_size + 2, ay);
+        write_stringfs("%4d", 0xFF, analog_offset_x[side] + 3, analog_offset_y[side] + analog_size + 1, ax);
+        write_stringfs("%4d", 0xFF, analog_offset_x[side] + 12, analog_offset_y[side] + analog_size + 1, ay);
 
         // Draw analog right point
         side = 1;
@@ -430,8 +456,8 @@ void inputtester_analog()
         // Reset previous color
         set_fgcolour(color_analog_grid, analog_x[side] + mx, analog_y[side] + my);
 
-        ax = analog_r[(pad * 16)];
-        ay = analog_r[(pad * 16) + 8];
+        ax = analog_r[(analog_pad * 16)];
+        ay = analog_r[(analog_pad * 16) + 8];
 
         analog_x[side] = ax / analog_ratio;
         analog_y[side] = ay / analog_ratio;
@@ -439,10 +465,8 @@ void inputtester_analog()
         // Set new color
         set_fgcolour(0xFF, analog_x[side] + mx, analog_y[side] + my);
 
-        write_stringfs("%4d", 0xFF, analog_offset_x[side] + 2, analog_offset_y[side] + analog_size + 2, ax);
-        write_stringfs("%4d", 0xFF, analog_offset_x[side] + 10, analog_offset_y[side] + analog_size + 2, ay);
-
-
+        write_stringfs("%4d", 0xFF, analog_offset_x[side] + 3, analog_offset_y[side] + analog_size + 1, ax);
+        write_stringfs("%4d", 0xFF, analog_offset_x[side] + 12, analog_offset_y[side] + analog_size + 1, ay);
     }
 }
 
@@ -787,9 +811,9 @@ void btntest_results()
     if (btntest_results_refresh)
     {
         write_string("Prompts", 0xFF, 2, 6);
-//        write_string("-------", 0xFF, 2, 7);
+        //        write_string("-------", 0xFF, 2, 7);
         write_string("Presses", 0xFF, 11, 6);
-//        write_string("-------", 0xFF, 11, 7);
+        //        write_string("-------", 0xFF, 11, 7);
 
         char y = 7;
         char press = 0;

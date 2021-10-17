@@ -4,7 +4,7 @@
 
 A custom mini-system running an input test utility.  There are 4 test screens available:
  - Digital - shows joypad buttons for first two input devices
- - Analog - shows analog axes for first two input devices
+ - Analog - shows analog axes for selected input device (cycle with a/b)
  - Advanced - shows all standard HPS sourced inputs (joystick, analog, paddle, spinner) simultaneously as well as a ps2 keyboard console
  - Button test - guided button test to help detect bounce / missed inputs and test man+machine lag
  
@@ -19,7 +19,8 @@ Created by JimmyStones (http://github.com/jimmystones), with thanks to:
 
 ## History
 - v1.0 - 2021-07-03 - First release with digital, analog and advanced tests
-- v1.1 - 2021-07-18 - PETSCII UI update, add button test mode
+- v1.1 - 2021-07-18 - PETSCII UI update, add button test mode (unreleased!)
+- v1.2 - 2021-10-17 - Add support for 2nd analog stick
 
 ## Hardware
 

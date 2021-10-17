@@ -63,6 +63,10 @@ bool input_start;
 bool input_start_last = 0;
 bool input_select;
 bool input_select_last = 0;
+bool input_a;
+bool input_a_last = 0;
+bool input_b;
+bool input_b_last = 0;
 
 // Track joypad 1 directions and start for menu control
 void basic_input()
@@ -73,11 +77,15 @@ void basic_input()
 	input_right_last = input_right;
 	input_start_last = input_start;
 	input_select_last = input_select;
+	input_a_last = input_a;
+	input_b_last = input_b;
 	input_up = CHECK_BIT(joystick[0], 3);
 	input_down = CHECK_BIT(joystick[0], 2);
 	input_left = CHECK_BIT(joystick[0], 1);
 	input_right = CHECK_BIT(joystick[0], 0);
 	input_start = CHECK_BIT(joystick[8], 3);
 	input_select = CHECK_BIT(joystick[8], 2);
+	input_a = CHECK_BIT(joystick[0], 4);
+	input_b = CHECK_BIT(joystick[0], 5);
 }
 
