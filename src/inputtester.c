@@ -52,7 +52,7 @@ unsigned char con_cursortimer = 1;
 char modeswitchtimer_select = 0;
 char modeswitchtimer_start = 0;
 
-#define HISTORY_LENGTH 6
+#define HISTORY_LENGTH 7
 char history[HISTORY_LENGTH];
 
 #define PAD_COUNT 2
@@ -313,8 +313,12 @@ void handle_codes()
     {
         pushhistory(4);
     }
+    if (!input_a && input_a_last)
+    {
+        pushhistory(5);
+    }
     // Check for SNEK code
-    if (history[0] == 1 && history[1] == 1 && history[2] == 2 && history[3] == 2 && history[4] == 3 && history[5] == 4)
+    if (history[0] == 1 && history[1] == 1 && history[2] == 2 && history[3] == 2 && history[4] == 3 && history[5] == 4 && history[6] == 5)
     {
         nextstate = STATE_START_ATTRACT;
         pushhistory(0);
