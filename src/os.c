@@ -33,30 +33,6 @@
 #include "snek.c"
 #include "fader.c"
 
-bool hsync;
-bool hsync_last;
-bool vsync;
-bool vsync_last;
-
-// Input tester variables
-unsigned char joystick_last[12];
-signed char ax_last[6];
-signed char ay_last[6];
-unsigned char px_last[6];
-signed char sx_toggle_last[6];
-signed char sx_last[6];
-unsigned long sx_pos[6];
-
-// DPAD tracker
-bool bdown_left = 0;
-bool bdown_left_last = 0;
-bool bdown_right = 0;
-bool bdown_right_last = 0;
-bool bdown_up = 0;
-bool bdown_up_last = 0;
-bool bdown_down = 0;
-bool bdown_down_last = 0;
-
 // Main entry and state machine
 void main()
 {
