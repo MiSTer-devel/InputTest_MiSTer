@@ -1,9 +1,9 @@
 /*============================================================================
-	MiSTer test harness OS - User interface functions
+	Aznable OS - User interface functions
 
 	Author: Jim Gregory - https://github.com/JimmyStones/
-	Version: 1.0
-	Date: 2021-07-03
+	Version: 1.1
+	Date: 2021-07-15
 
 	This program is free software; you can redistribute it and/or modify it
 	under the terms of the GNU General Public License as published by the Free
@@ -25,30 +25,51 @@
 char asc_0 = 48;
 char asc_1 = 49;
 
+#define char_corner_round_tl 149
+#define char_corner_round_tr 137
+#define char_corner_round_bl 138
+#define char_corner_round_br 139
+#define char_line_h 131
+#define char_line_v 130
+#define char_t_up 177
+#define char_dot 27
+#define char_cross 155
+
 // Set all character RAM to specified character
 void clear_chars(char c)
 {
 	for (unsigned int p = 0; p < chram_size; p++)
 	{
 		chram[p] = c;
+		fgcolram[p] = c;
+		bgcolram[p] = c;
+	}
+}
+
+// Set all character background colours to specified
+void clear_bgcolor(char color)
+{
+	for (unsigned int p = 0; p < chram_size; p++)
+	{
+		bgcolram[p] = color;
 	}
 }
 
 // Write string to character RAM
-void write_string(const char *string, char color, unsigned int x, unsigned int y)
+void write_string(const char *string, char color, unsigned char x, unsigned char y)
 {
 	unsigned int p = (y * chram_cols) + x;
 	unsigned char l = strlen(string);
 	for (char c = 0; c < l; c++)
 	{
 		chram[p] = string[c];
-		colram[p] = color;
+		fgcolram[p] = color;
 		p++;
 	}
 }
 
 // Write formatted string to character RAM (signed char data)
-void write_stringfs(const char *format, char color, unsigned int x, unsigned int y, signed char data)
+void write_stringfs(const char *format, char color, unsigned char x, unsigned char y, signed char data)
 {
 	unsigned int p = (y * chram_cols) + x;
 	char temp[30];
@@ -61,13 +82,13 @@ void write_stringfs(const char *format, char color, unsigned int x, unsigned int
 			return;
 		}
 		chram[p] = temp[c];
-		colram[p] = color;
+		fgcolram[p] = color;
 		p++;
 	}
 }
 
 // Write formatted string to character RAM (unsigned char data)
-void write_stringf(const char *format, char color, unsigned int x, unsigned int y, char data)
+void write_stringf(const char *format, char color, unsigned char x, unsigned char y, char data)
 {
 	unsigned int p = (y * chram_cols) + x;
 	char temp[30];
@@ -80,28 +101,115 @@ void write_stringf(const char *format, char color, unsigned int x, unsigned int 
 			return;
 		}
 		chram[p] = temp[c];
-		colram[p] = color;
+		fgcolram[p] = color;
+		p++;
+	}
+}
+
+// Write formatted string to character RAM (unsigned short data)
+void write_stringf_ushort(const char *format, char color, unsigned char x, unsigned char y, unsigned short data)
+{
+	unsigned int p = (y * chram_cols) + x;
+	char temp[40];
+	sprintf(temp, format, data);
+	unsigned char l = strlen(temp);
+	for (char c = 0; c < l; c++)
+	{
+		if (temp[c] == 0)
+		{
+			return;
+		}
+		chram[p] = temp[c];
+		fgcolram[p] = color;
+		p++;
+	}
+}
+
+// Write formatted string to character RAM (signed short data)
+void write_stringf_short(const char *format, char color, unsigned char x, unsigned char y, short data)
+{
+	unsigned int p = (y * chram_cols) + x;
+	char temp[40];
+	sprintf(temp, format, data);
+	unsigned char l = strlen(temp);
+	for (char c = 0; c < l; c++)
+	{
+		if (temp[c] == 0)
+		{
+			return;
+		}
+		chram[p] = temp[c];
+		fgcolram[p] = color;
+		p++;
+	}
+}
+
+// Write formatted string to character RAM (unsigned long data)
+void write_stringf_ulong(const char *format, char color, unsigned char x, unsigned char y, unsigned long data)
+{
+	unsigned int p = (y * chram_cols) + x;
+	char temp[40];
+	sprintf(temp, format, data);
+	unsigned char l = strlen(temp);
+	for (char c = 0; c < l; c++)
+	{
+		if (temp[c] == 0)
+		{
+			return;
+		}
+		chram[p] = temp[c];
+		fgcolram[p] = color;
 		p++;
 	}
 }
 
 // Write single char to character RAM and colour RAM
-void write_char(unsigned char c, char color, unsigned int x, unsigned int y)
+void write_char(unsigned char c, char color, unsigned char x, unsigned char y)
 {
 	unsigned int p = (y * chram_cols) + x;
 	chram[p] = c;
-	colram[p] = color;
+	fgcolram[p] = color;
+}
+
+// Write row of consecutive chars to character RAM and colour RAM
+void write_char_row(unsigned char c, char color, unsigned char x, unsigned char y, unsigned char count)
+{
+	unsigned int p = (y * chram_cols) + x;
+	for (char b = 0; b < count; b++)
+	{
+		chram[p] = c;
+		fgcolram[p] = color;
+		p++;
+	}
 }
 
 // Set colour of single char
-void set_colour(char color, unsigned int x, unsigned int y)
+void set_fgcolour(char color, char x, char y)
 {
 	unsigned int p = (y * chram_cols) + x;
-	colram[p] = color;
+	fgcolram[p] = color;
+}
+
+// Set background colour of single char
+void set_bgcolour(char color, char x, char y)
+{
+	unsigned int p = (y * chram_cols) + x;
+	bgcolram[p] = color;
+}
+
+// Write row of consecutive chars to character RAM and colour RAM
+void write_bgcol_row(char color, unsigned char x, unsigned char y, unsigned char count)
+{
+	unsigned int p = (y * chram_cols) + x;
+	for (char b = 0; b < count; b++)
+	{
+		bgcolram[p] = color;
+		p++;
+	}
 }
 
 // Write grouped bits to character RAM
-void write_bits(char bits[], char multi, unsigned char first, unsigned char length, char color, unsigned int x, unsigned int y)
+void write_bits(char bits[], char multi, unsigned char first, unsigned char length, char color, unsigned char x, unsigned char y)
 {
 	for (char b = first; b < first + length; b++)
 	{
@@ -118,14 +226,14 @@ void write_bits(char bits[], char multi, unsigned char first, unsigned char leng
 }
 
 // Draw box outline with specified character
-void box(unsigned int tx, unsigned int ty, unsigned int bx, unsigned int by, char c, char color)
+void box(unsigned char tx, unsigned char ty, unsigned char bx, unsigned char by, char c, char color)
 {
-	for (unsigned int x = tx; x <= bx; x++)
+	for (unsigned char x = tx; x <= bx; x++)
 	{
 		write_char(c, color, x, ty);
 		write_char(c, color, x, by);
 	}
-	for (unsigned int y = ty + 1; y < by; y++)
+	for (unsigned char y = ty + 1; y < by; y++)
 	{
 		write_char(c, color, tx, y);
 		write_char(c, color, bx, y);
@@ -135,30 +243,60 @@ void box(unsigned int tx, unsigned int ty, unsigned int bx, unsigned int by, cha
 // Draw UI panel
 void panel(char tx, char ty, char bx, char by, char color)
 {
-	write_char(128, color, tx, ty);
-	write_char(130, color, bx, ty);
-	write_char(133, color, tx, by);
-	write_char(132, color, bx, by);
+	write_char(char_corner_round_tl, color, tx, ty);
+	write_char(char_corner_round_tr, color, bx, ty);
+	write_char(char_corner_round_bl, color, tx, by);
+	write_char(char_corner_round_br, color, bx, by);
 	for (char x = tx + 1; x < bx; x++)
 	{
-		write_char(129, color, x, ty);
-		write_char(129, color, x, by);
+		write_char(char_line_h, color, x, ty);
+		write_char(char_line_h, color, x, by);
 	}
 	for (char y = ty + 1; y < by; y++)
 	{
-		write_char(131, color, tx, y);
-		write_char(131, color, bx, y);
+		write_char(char_line_v, color, tx, y);
+		write_char(char_line_v, color, bx, y);
+	}
+}
+
+// Shaded panel
+void panel_shaded(char tx, char ty, char bx, char by, char color_high, char color1, char color2)
+{
+	write_char(char_corner_round_tl, color_high, tx, ty);
+	write_char(char_corner_round_tr, color1, bx, ty);
+	write_char(char_corner_round_bl, color1, tx, by);
+	write_char(char_corner_round_br, color2, bx, by);
+	for (char x = tx + 1; x < bx; x++)
+	{
+		write_char(char_line_h, color1, x, ty);
+		write_char(char_line_h, color2, x, by);
+	}
+	for (char y = ty + 1; y < by; y++)
+	{
+		write_char(char_line_v, color1, tx, y);
+		write_char(char_line_v, color2, bx, y);
 	}
 }
 
 void fill(char tx, char ty, char bx, char by, char c, char color)
 {
-	for (char x = tx; x <= bx; x++)
+	for (char y = ty; y <= by; y++)
 	{
-		for (char y = ty; y <= by; y++)
-		{
-			write_char(c, color, x, y);
-		}
+		write_char_row(c, color, tx, y, (bx - tx) + 1);
+	}
+}
+void fill_bgcolor(char tx, char ty, char bx, char by, char bgcolor)
+{
+	for (char y = ty; y <= by; y++)
+	{
+		write_bgcol_row(bgcolor, tx, y, (bx - tx) + 1);
+	}
+}
+void fill_bgcol(char tx, char ty, char bx, char by, char color)
+{
+	for (char y = ty; y <= by; y++)
+	{
+		write_bgcol_row(color, tx, y, bx - tx);
 	}
 }
 
@@ -168,65 +306,16 @@ void page_border(char color)
 	panel(0, 0, 39, 29, color);
 }
 
-char color_pad_outline = 0xFE;
-
-// Draw game pad outline
-void draw_pad(char xo, char yo)
+void draw_charactermap()
 {
-	// Outline
-	write_char(134, color_pad_outline, xo, yo + 1);
-	for (char x = 1; x < 26; x++)
+	char c = 94;
+	for (char y = 0; y < 29; y += 2)
 	{
-		write_char(135, color_pad_outline, xo + x, yo + 1);
+		for (char x = 0; x < 39; x += 4)
+		{
+			write_stringf("%d", 0xFF, x, y, c);
+			write_char(c, 0, x, y + 1);
+			c++;
+		}
 	}
-	write_char(136, color_pad_outline, xo + 26, yo + 1);
-	for (char y = 2; y < 5; y++)
-	{
-		write_char(137, color_pad_outline, xo, yo + y);
-		write_char(137, color_pad_outline, xo + 26, yo + y);
-	}
-	write_char(139, color_pad_outline, xo, yo + 5);
-	write_char(138, color_pad_outline, xo + 26, yo + 5);
-
-	write_char(138, color_pad_outline, xo + 8, yo + 5);
-	write_char(139, color_pad_outline, xo + 18, yo + 5);
-	write_char(134, color_pad_outline, xo + 8, yo + 4);
-	write_char(136, color_pad_outline, xo + 18, yo + 4);
-	for (char x = 1; x < 8; x++)
-	{
-		write_char(135, color_pad_outline, xo + x, yo + 5);
-	}
-	for (char x = 9; x < 18; x++)
-	{
-		write_char(135, color_pad_outline, xo + x, yo + 4);
-	}
-	for (char x = 19; x < 26; x++)
-	{
-		write_char(135, color_pad_outline, xo + x, yo + 5);
-	}
-	// Shoulders
-	write_char(134, color_pad_outline, xo + 1, yo);
-	write_char(136, color_pad_outline, xo + 5, yo);
-	write_char(134, color_pad_outline, xo + 21, yo);
-	write_char(136, color_pad_outline, xo + 25, yo);
-}
-
-char color_analog_grid = 0x23;
-
-// Draw game pad outline
-void draw_analog(char xo, char yo, char xs, char ys)
-{
-	panel(xo, yo, xo + xs, yo + ys, 0xFF);
-	fill(xo + 1, yo + 1, xo + xs - 1, yo + ys - 1, 27, color_analog_grid);
-	char mx = xo + (xs / 2);
-	char my = yo + (ys / 2);
-	for (char x = xo + 1; x < xo + xs; x++)
-	{
-		write_char(129, color_analog_grid, x, my);
-	}
-	for (char y = yo + 1; y < yo + ys; y++)
-	{
-		write_char(131, color_analog_grid, mx, y);
-	}
-	write_char('+', color_analog_grid, mx, my);
 }

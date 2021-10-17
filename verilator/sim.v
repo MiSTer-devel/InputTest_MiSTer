@@ -1,10 +1,10 @@
 `timescale 1ns / 1ps
 /*============================================================================
-	MiSTer test harness - Verilator emu module
+	Input Test - Verilator emu module
 
 	Author: Jim Gregory - https://github.com/JimmyStones/
-	Version: 0.1
-	Date: 2021-06-29
+	Version: 1.0
+	Date: 2021-07-12
 
 	This program is free software; you can redistribute it and/or modify it
 	under the terms of the GNU General Public License as published by the Free
@@ -32,12 +32,19 @@ module emu (
 	input [31:0] joystick_4,
 	input [31:0] joystick_5,
 	
-	input [15:0] joystick_analog_0,
-	input [15:0] joystick_analog_1,
-	input [15:0] joystick_analog_2,
-	input [15:0] joystick_analog_3,
-	input [15:0] joystick_analog_4,
-	input [15:0] joystick_analog_5,
+	input [15:0] joystick_l_analog_0,
+	input [15:0] joystick_l_analog_1,
+	input [15:0] joystick_l_analog_2,
+	input [15:0] joystick_l_analog_3,
+	input [15:0] joystick_l_analog_4,
+	input [15:0] joystick_l_analog_5,
+	
+	input [15:0] joystick_r_analog_0,
+	input [15:0] joystick_r_analog_1,
+	input [15:0] joystick_r_analog_2,
+	input [15:0] joystick_r_analog_3,
+	input [15:0] joystick_r_analog_4,
+	input [15:0] joystick_r_analog_5,
 
 	input [7:0] paddle_0,
 	input [7:0] paddle_1,
@@ -60,6 +67,9 @@ module emu (
 	// [24] - toggles with every event
 	input [24:0] ps2_mouse,
 	input [15:0] ps2_mouse_ext, // 15:8 - reserved(additional buttons), 7:0 - wheel movements
+
+	// [31:0] - seconds since 1970-01-01 00:00:00, [32] - toggle with every change
+	input [32:0] timestamp,
 
 	output [7:0] VGA_R,
 	output [7:0] VGA_G,
@@ -84,8 +94,8 @@ wire ce_pix;
 jtframe_cen24 divider
 (
 	.clk(clk_sys),
-	//.cen12(ce_pix), // <-- dodgy video speed for faster simulation, will cause bearable char map corruption
-	.cen4(ce_pix) // <-- correct video speed
+	.cen12(ce_pix), // <-- dodgy video speed for faster simulation, will cause bearable char map corruption
+	//.cen4(ce_pix) // <-- correct video speed
 );
 /* verilator lint_on PINMISSING */
 
@@ -106,11 +116,13 @@ system system(
 	.dn_index(ioctl_index),
 	
 	.joystick({joystick_5,joystick_4,joystick_3,joystick_2,joystick_1,joystick_0}),
-	.analog({joystick_analog_5,joystick_analog_4,joystick_analog_3,joystick_analog_2,joystick_analog_1,joystick_analog_0}),
+	.analog_l({joystick_l_analog_5,joystick_l_analog_4,joystick_l_analog_3,joystick_l_analog_2,joystick_l_analog_1,joystick_l_analog_0}),
+	.analog_r({joystick_r_analog_5,joystick_r_analog_4,joystick_r_analog_3,joystick_r_analog_2,joystick_r_analog_1,joystick_r_analog_0}),
 	.paddle({paddle_5,paddle_4,paddle_3,paddle_2,paddle_1,paddle_0}),
 	.spinner({7'b0,spinner_5,7'b0,spinner_4,7'b0,spinner_3,7'b0,spinner_2,7'b0,spinner_1,7'b0,spinner_0}),
 	.ps2_key(ps2_key),
-	.ps2_mouse({ps2_mouse_ext,7'b0,ps2_mouse})
+	.ps2_mouse({ps2_mouse_ext,7'b0,ps2_mouse}),
+	.timestamp(timestamp)
 );
 
 endmodule 

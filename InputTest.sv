@@ -1,9 +1,9 @@
 /*============================================================================
-	MiSTer test harness - emu module
+	Input Test - emu module
 
 	Author: Jim Gregory - https://github.com/JimmyStones/
 	Version: 1.0
-	Date: 2021-07-03
+	Date: 2021-07-12
 
 	This program is free software; you can redistribute it and/or modify it
 	under the terms of the GNU General Public License as published by the Free
@@ -181,16 +181,13 @@ assign {UART_RTS, UART_TXD, UART_DTR} = 0;
 assign {SD_SCK, SD_MOSI, SD_CS} = 'Z;
 assign {SDRAM_DQ, SDRAM_A, SDRAM_BA, SDRAM_CLK, SDRAM_CKE, SDRAM_DQML, SDRAM_DQMH, SDRAM_nWE, SDRAM_nCAS, SDRAM_nRAS, SDRAM_nCS} = 'Z;
 assign {DDRAM_CLK, DDRAM_BURSTCNT, DDRAM_ADDR, DDRAM_DIN, DDRAM_BE, DDRAM_RD, DDRAM_WE} = '0;  
-
 assign VGA_F1 = 0;
 assign VGA_SCALER = 0;
 assign HDMI_FREEZE = 0;
-
 assign AUDIO_S = 0;
 assign AUDIO_L = 0;
 assign AUDIO_R = 0;
 assign AUDIO_MIX = 0;
-
 assign LED_DISK = 0;
 assign LED_POWER = 0;
 assign BUTTONS = 0;
@@ -209,9 +206,8 @@ localparam CONF_STR = {
 	"O89,Aspect ratio,Original,Full Screen,[ARC1],[ARC2];",
 	"-;",
 	"F0,BIN,Load BIOS;",
-	"F1,PF,Load Font;",
 	"-;",
-	"J1,A,B,X,Y,L,R,Select,Start,C,Z;",
+	"J1,A,B,X,Y,L,R,Select,Start;",
 	"V,v",`BUILD_DATE
 };
 
@@ -233,12 +229,18 @@ wire [31:0] joystick_2;
 wire [31:0] joystick_3;
 wire [31:0] joystick_4;
 wire [31:0] joystick_5;
-wire [15:0] joystick_analog_0;
-wire [15:0] joystick_analog_1;
-wire [15:0] joystick_analog_2;
-wire [15:0] joystick_analog_3;
-wire [15:0] joystick_analog_4;
-wire [15:0] joystick_analog_5;
+wire [15:0] joystick_l_analog_0;
+wire [15:0] joystick_l_analog_1;
+wire [15:0] joystick_l_analog_2;
+wire [15:0] joystick_l_analog_3;
+wire [15:0] joystick_l_analog_4;
+wire [15:0] joystick_l_analog_5;
+wire [15:0] joystick_r_analog_0;
+wire [15:0] joystick_r_analog_1;
+wire [15:0] joystick_r_analog_2;
+wire [15:0] joystick_r_analog_3;
+wire [15:0] joystick_r_analog_4;
+wire [15:0] joystick_r_analog_5;
 wire  [7:0] paddle_0;
 wire  [7:0] paddle_1;
 wire  [7:0] paddle_2;
@@ -254,6 +256,7 @@ wire  [8:0] spinner_5;
 wire [10:0] ps2_key;
 wire [24:0] ps2_mouse;
 wire [15:0] ps2_mouse_ext;
+wire [32:0] timestamp;
 
 hps_io #(.CONF_STR(CONF_STR)) hps_io
 (
@@ -278,12 +281,18 @@ hps_io #(.CONF_STR(CONF_STR)) hps_io
 	.joystick_4(joystick_4),
 	.joystick_5(joystick_5),
 
-	.joystick_analog_0(joystick_analog_0),
-	.joystick_analog_1(joystick_analog_1),
-	.joystick_analog_2(joystick_analog_2),
-	.joystick_analog_3(joystick_analog_3),
-	.joystick_analog_4(joystick_analog_4),
-	.joystick_analog_5(joystick_analog_5),
+	.joystick_l_analog_0(joystick_l_analog_0),
+	.joystick_l_analog_1(joystick_l_analog_1),
+	.joystick_l_analog_2(joystick_l_analog_2),
+	.joystick_l_analog_3(joystick_l_analog_3),
+	.joystick_l_analog_4(joystick_l_analog_4),
+	.joystick_l_analog_5(joystick_l_analog_5),
+	.joystick_r_analog_0(joystick_r_analog_0),
+	.joystick_r_analog_1(joystick_r_analog_1),
+	.joystick_r_analog_2(joystick_r_analog_2),
+	.joystick_r_analog_3(joystick_r_analog_3),
+	.joystick_r_analog_4(joystick_r_analog_4),
+	.joystick_r_analog_5(joystick_r_analog_5),
 
 	.paddle_0(paddle_0),
 	.paddle_1(paddle_1),
@@ -301,7 +310,9 @@ hps_io #(.CONF_STR(CONF_STR)) hps_io
 
 	.ps2_key(ps2_key),
 	.ps2_mouse(ps2_mouse),
-	.ps2_mouse_ext(ps2_mouse_ext)
+	.ps2_mouse_ext(ps2_mouse_ext),
+
+	.TIMESTAMP(timestamp)
 );
 
 
@@ -359,11 +370,13 @@ system system(
 	.dn_wr(ioctl_wr),
 	.dn_index(ioctl_index),
 	.joystick({joystick_5,joystick_4,joystick_3,joystick_2,joystick_1,joystick_0}),
-	.analog({joystick_analog_5,joystick_analog_4,joystick_analog_3,joystick_analog_2,joystick_analog_1,joystick_analog_0}),
+	.analog_l({joystick_l_analog_5,joystick_l_analog_4,joystick_l_analog_3,joystick_l_analog_2,joystick_l_analog_1,joystick_l_analog_0}),
+	.analog_r({joystick_r_analog_5,joystick_r_analog_4,joystick_r_analog_3,joystick_r_analog_2,joystick_r_analog_1,joystick_r_analog_0}),
 	.paddle({paddle_5,paddle_4,paddle_3,paddle_2,paddle_1,paddle_0}),
 	.spinner({7'b0,spinner_5,7'b0,spinner_4,7'b0,spinner_3,7'b0,spinner_2,7'b0,spinner_1,7'b0,spinner_0}),
 	.ps2_key(ps2_key),
-	.ps2_mouse({ps2_mouse_ext,7'b0,ps2_mouse})
+	.ps2_mouse({ps2_mouse_ext,7'b0,ps2_mouse}),
+	.timestamp(timestamp)
 );
 
 endmodule
