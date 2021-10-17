@@ -33,7 +33,10 @@ module system (
 	input [191:0]	joystick,
 
 	// 6 devices, 16 bits each - -127..+127, Y: [15:8], X: [7:0]
-	input [95:0]	analog,
+	input [95:0]	analog_l,
+
+	// 6 devices, 16 bits each - -127..+127, Y: [15:8], X: [7:0]
+	input [95:0]	analog_r,
 	
 	// 6 devices, 8 bits each - paddle 0..255
 	input [47:0]	paddle,
@@ -177,7 +180,8 @@ wire [7:0] chmap_data_out;
 // Hardware inputs
 wire [7:0] in0_data_out = {VGA_HS, VGA_VS,VGA_HB, VGA_VB, 4'b1000};
 wire [7:0] joystick_data_out = joystick[cpu_addr[7:0] +: 8];
-wire [7:0] analog_data_out = analog[cpu_addr[6:0] +: 8];
+wire [7:0] analog_l_data_out = analog_l[cpu_addr[6:0] +: 8];
+wire [7:0] analog_r_data_out = analog_r[cpu_addr[6:0] +: 8];
 wire [7:0] paddle_data_out = paddle[cpu_addr[5:0] +: 8];
 wire [7:0] spinner_data_out = spinner[cpu_addr[6:0] +: 8];
 wire [7:0] ps2_key_data_out = ps2_key[cpu_addr[3:0] +: 8];
@@ -194,13 +198,14 @@ wire bgcolram_cs = cpu_addr[15:11] == 5'b10010;
 wire wkram_cs = cpu_addr[15:14] == 2'b11;
 wire in0_cs = cpu_addr == 16'h6000;
 wire joystick_cs = cpu_addr[15:8] == 8'b01110000;
-wire analog_cs = cpu_addr[15:8] == 8'b01110001;
-wire paddle_cs = cpu_addr[15:8] == 8'b01110010;
-wire spinner_cs = cpu_addr[15:8] == 8'b01110011;
-wire ps2_key_cs = cpu_addr[15:8] == 8'b01110100;
-wire ps2_mouse_cs = cpu_addr[15:8] == 8'b01110101;
-wire timestamp_cs = cpu_addr[15:8] == 8'b01110110;
-wire timer_cs = cpu_addr[15:8] == 8'b01110111;
+wire analog_l_cs = cpu_addr[15:8] == 8'b01110001;
+wire analog_r_cs = cpu_addr[15:8] == 8'b01110010;
+wire paddle_cs = cpu_addr[15:8] == 8'b01110011;
+wire spinner_cs = cpu_addr[15:8] == 8'b01110100;
+wire ps2_key_cs = cpu_addr[15:8] == 8'b01110101;
+wire ps2_mouse_cs = cpu_addr[15:8] == 8'b01110110;
+wire timestamp_cs = cpu_addr[15:8] == 8'b01110111;
+wire timer_cs = cpu_addr[15:8] == 8'b01111000;
 
 // always @(posedge timestamp[32]) begin
 // 	$display("%b", timestamp);
@@ -212,7 +217,8 @@ wire timer_cs = cpu_addr[15:8] == 8'b01110111;
 // 	if(fgcolram_cs) $display("%x fgcolram i %x o %x w %b", cpu_addr, cpu_dout, fgcolram_data_out, fgcolram_wr);
 // 	if(in0_cs) $display("%x in0 i %x o %x", cpu_addr, cpu_dout, in0_data_out);
 //  	if(joystick_cs) $display("joystick %b  %b", joystick_bit, joystick_data_out);
-//  	if(analog_cs) $display("analog %b  %b", analog_bit, analog_data_out);
+//  	if(analog_l_cs) $display("analog_l %b  %b", analog_l_bit, analog_l_data_out);
+//  	if(analog_r_cs) $display("analog_r %b  %b", analog_r_bit, analog_r_data_out);
 // 	 if(paddle_cs) $display("paddle %b", paddle_data_out);
 // 	if(ps2_key_cs) $display("ps2_key %b %x", ps2_key_data_out, cpu_addr[3:0]);
 // 	$display("%x", cpu_addr);
@@ -226,7 +232,8 @@ assign cpu_din = pgrom_cs ? pgrom_data_out :
 				 bgcolram_cs ? bgcolram_data_out :
 				 in0_cs ? in0_data_out :
 				 joystick_cs ? joystick_data_out :
-				 analog_cs ? analog_data_out :
+				 analog_l_cs ? analog_l_data_out :
+				 analog_r_cs ? analog_r_data_out :
 				 paddle_cs ? paddle_data_out :
 				 spinner_cs ? spinner_data_out :
 				 ps2_key_cs ? ps2_key_data_out :

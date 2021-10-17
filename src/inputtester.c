@@ -27,8 +27,10 @@
 
 // Input tester variables
 unsigned char joystick_last[12];
-signed char ax_last[6];
-signed char ay_last[6];
+signed char ax_l_last[6];
+signed char ay_l_last[6];
+signed char ax_r_last[6];
+signed char ay_r_last[6];
 unsigned char px_last[6];
 signed char sx_toggle_last[6];
 signed char sx_last[6];
@@ -148,13 +150,20 @@ void page_inputtester_analog()
 {
     page_frame(true, false);
     // Draw analog grids
-    for (char j = 0; j < PAD_COUNT; j++)
-    {
-        write_stringf("ANALOG %d", 0xFF, analog_offset_x[j] + 5, analog_offset_y[j] - 1, j + 1);
-        draw_analog(analog_offset_x[j], analog_offset_y[j], analog_size, analog_size);
-        write_char('X', 0xFF, analog_offset_x[j] + 5, analog_offset_y[j] + analog_size + 1);
-        write_char('Y', 0xFF, analog_offset_x[j] + 13, analog_offset_y[j] + analog_size + 1);
-    }
+    char pad =0;
+    char j = 0;
+    write_string("ANALOG LEFT", 0xFF, analog_offset_x[j], analog_offset_y[j] - 1);
+    draw_analog(analog_offset_x[j], analog_offset_y[j], analog_size, analog_size);
+    write_char('X', 0xFF, analog_offset_x[j] + 5, analog_offset_y[j] + analog_size + 1);
+    write_char('Y', 0xFF, analog_offset_x[j] + 13, analog_offset_y[j] + analog_size + 1);
+
+    write_stringf("PAD %d", 0xFF, 18, analog_offset_y[j] - 1, pad + 1);
+
+    j = 1;
+    write_string("ANALOG RIGHT", 0xFF, analog_offset_x[j] + analog_size - 11, analog_offset_y[j] - 1);
+    draw_analog(analog_offset_x[j], analog_offset_y[j], analog_size, analog_size);
+    write_char('X', 0xFF, analog_offset_x[j] + 5, analog_offset_y[j] + analog_size + 1);
+    write_char('Y', 0xFF, analog_offset_x[j] + 13, analog_offset_y[j] + analog_size + 1);
 }
 
 // Draw static elements for advanced input test page
@@ -163,8 +172,10 @@ void page_inputtester_advanced()
     page_frame(true, false);
 
     write_string("RLDUABXYLRsS", 0xFF, 7, 5);
-    write_string("AX", 0xFF, 22, 5);
-    write_string("AY", 0xFF, 27, 5);
+    write_string("ALX", 0xFF, 21, 5);
+    write_string("ALY", 0xFF, 25, 5);
+    write_string("ARX", 0xFF, 30, 5);
+    write_string("ARY", 0xFF, 34, 5);
 
     write_string("POS", 0xFF, 7, 13);
     write_string("SPD  POS", 0xFF, 18, 13);
@@ -201,8 +212,10 @@ void reset_inputstates()
     }
     for (char i = 0; i < 6; i++)
     {
-        ax_last[i] = 1;
-        ay_last[i] = 1;
+        ax_l_last[i] = 1;
+        ay_l_last[i] = -1;
+        ax_r_last[i] = 1;
+        ay_r_last[i] = -1;
         px_last[i] = 1;
         sx_toggle_last[i] = 1;
         sx_last[i] = 1;
@@ -387,28 +400,49 @@ void inputtester_analog()
             return;
         }
 
-        // Draw analog point
-        for (char j = 0; j < PAD_COUNT; j++)
-        {
+        char pad = 0;
+        
+        // Draw analog left point
+        char side = 0;
+        char mx = analog_offset_x[side] + (analog_size / 2);
+        char my = analog_offset_y[side] + (analog_size / 2);
 
-            char mx = analog_offset_x[j] + (analog_size / 2);
-            char my = analog_offset_y[j] + (analog_size / 2);
+        // Reset previous color
+        set_fgcolour(color_analog_grid, analog_x[side] + mx, analog_y[side] + my);
 
-            // Reset previous color
-            set_fgcolour(color_analog_grid, analog_x[j] + mx, analog_y[j] + my);
+        signed char ax = analog_l[(pad * 16)];
+        signed char ay = analog_l[(pad * 16) + 8];
 
-            signed char ax = analog[(j * 16)];
-            signed char ay = analog[(j * 16) + 8];
+        analog_x[pad] = ax / analog_ratio;
+        analog_y[pad] = ay / analog_ratio;
 
-            analog_x[j] = ax / analog_ratio;
-            analog_y[j] = ay / analog_ratio;
+        // Set new color
+        set_fgcolour(0xFF, analog_x[side] + mx, analog_y[side] + my);
 
-            // Set new color
-            set_fgcolour(0xFF, analog_x[j] + mx, analog_y[j] + my);
+        write_stringfs("%4d", 0xFF, analog_offset_x[side] + 2, analog_offset_y[side] + analog_size + 2, ax);
+        write_stringfs("%4d", 0xFF, analog_offset_x[side] + 10, analog_offset_y[side] + analog_size + 2, ay);
 
-            write_stringfs("%4d", 0xFF, analog_offset_x[j] + 2, analog_offset_y[j] + analog_size + 2, ax);
-            write_stringfs("%4d", 0xFF, analog_offset_x[j] + 10, analog_offset_y[j] + analog_size + 2, ay);
-        }
+        // Draw analog right point
+        side = 1;
+        mx = analog_offset_x[side] + (analog_size / 2);
+        my = analog_offset_y[side] + (analog_size / 2);
+
+        // Reset previous color
+        set_fgcolour(color_analog_grid, analog_x[side] + mx, analog_y[side] + my);
+
+        ax = analog_r[(pad * 16)];
+        ay = analog_r[(pad * 16) + 8];
+
+        analog_x[side] = ax / analog_ratio;
+        analog_y[side] = ay / analog_ratio;
+
+        // Set new color
+        set_fgcolour(0xFF, analog_x[side] + mx, analog_y[side] + my);
+
+        write_stringfs("%4d", 0xFF, analog_offset_x[side] + 2, analog_offset_y[side] + analog_size + 2, ax);
+        write_stringfs("%4d", 0xFF, analog_offset_x[side] + 10, analog_offset_y[side] + analog_size + 2, ay);
+
+
     }
 }
 
@@ -466,17 +500,28 @@ void inputtester_advanced()
                 joystick_last[lastindex] = joy;
             }
 
-            // Draw analog inputs (only update if value has changed)
-            signed char ax = analog[(inputindex * 16)];
-            signed char ay = analog[(inputindex * 16) + 10];
-            if (ax != ax_last[inputindex] || ay != ay_last[inputindex])
+            char stra[10];
+            // Draw analog left inputs (only update if value has changed)
+            signed char ax_l = analog_l[(inputindex * 16)];
+            signed char ay_l = analog_l[(inputindex * 16) + 10];
+            if (ax_l != ax_l_last[inputindex] || ay_l != ay_l_last[inputindex])
             {
-                char stra[10];
-                sprintf(stra, "%4d %4d", ax, ay);
+                sprintf(stra, "%4d%4d", ax_l, ay_l);
                 write_string(stra, 0xFF, 20, 6 + inputindex);
             }
-            ax_last[inputindex] = ax;
-            ay_last[inputindex] = ay;
+            ax_l_last[inputindex] = ax_l;
+            ay_l_last[inputindex] = ay_l;
+
+            // Draw analog right inputs (only update if value has changed)
+            signed char ax_r = analog_r[(inputindex * 16)];
+            signed char ay_r = analog_r[(inputindex * 16) + 10];
+            if (ax_r != ax_r_last[inputindex] || ay_r != ay_r_last[inputindex])
+            {
+                sprintf(stra, "%4d%4d", ax_r, ay_r);
+                write_string(stra, 0xFF, 29, 6 + inputindex);
+            }
+            ax_r_last[inputindex] = ax_r;
+            ay_r_last[inputindex] = ay_r;
 
             // Draw paddle inputs (only update if value has changed)
             unsigned char px = paddle[(inputindex * 8)];

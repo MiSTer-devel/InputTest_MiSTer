@@ -103,7 +103,9 @@ void main()
 
 		default:
 			// Start default state
-			start_inputtester_digital();
+			//start_inputtester_digital();
+			//start_inputtester_advanced();
+			start_inputtester_analog();
 			//start_btntest();
 			break;
 		}
