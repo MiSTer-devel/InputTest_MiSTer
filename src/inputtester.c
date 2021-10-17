@@ -503,7 +503,7 @@ void inputtester_advanced()
             char stra[10];
             // Draw analog left inputs (only update if value has changed)
             signed char ax_l = analog_l[(inputindex * 16)];
-            signed char ay_l = analog_l[(inputindex * 16) + 10];
+            signed char ay_l = analog_l[(inputindex * 16) + 8];
             if (ax_l != ax_l_last[inputindex] || ay_l != ay_l_last[inputindex])
             {
                 sprintf(stra, "%4d%4d", ax_l, ay_l);
@@ -514,7 +514,7 @@ void inputtester_advanced()
 
             // Draw analog right inputs (only update if value has changed)
             signed char ax_r = analog_r[(inputindex * 16)];
-            signed char ay_r = analog_r[(inputindex * 16) + 10];
+            signed char ay_r = analog_r[(inputindex * 16) + 8];
             if (ax_r != ax_r_last[inputindex] || ay_r != ay_r_last[inputindex])
             {
                 sprintf(stra, "%4d%4d", ax_r, ay_r);
