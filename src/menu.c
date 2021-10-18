@@ -26,6 +26,22 @@
 #define menu_my 15
 #define menu_openholdtime 60
 #define menu_count 4
+
+#define menu_panel_outline_high 0xFF
+#define menu_panel_outline_mid 0b00110110
+#define menu_panel_outline_low 0b00100100
+#define menu_panel_back 0x00
+
+#define menu_outline_high 0b10111111
+#define menu_outline_mid 0b10110110
+#define menu_outline_low 0b01100100
+#define menu_back 0x00
+
+#define menu_sel_outline_high 0xFF
+#define menu_sel_outline_mid 0xFF
+#define menu_sel_outline_low 0b10111111
+#define menu_sel_back 0b00001001
+
 // Menu variables
 char menu_timer = 0;
 char menu_index;
@@ -70,7 +86,7 @@ void menu()
 			}
 			menu_dirty = true;
 		}
-		if (input_start && input_start_last)
+		if ((!input_start && input_start_last) || (!input_a && input_a_last) || (!input_b && input_b_last))
 		{
 			switch (menu_index)
 			{
@@ -100,11 +116,11 @@ void menu()
 			char oy1 = ((menu_timer) / 2);
 			char oy2 = oy1 + ((menu_count % 2) ? 0 : 1);
 			char my = menu_my;
-			panel_shaded(menu_tx, my - oy1, menu_bx, my + oy2, 0xFF, 0b00110110, 0b00100100);
+			panel_shaded(menu_tx, my - oy1, menu_bx, my + oy2, menu_panel_outline_high, menu_panel_outline_mid, menu_panel_outline_low);
 			if (oy1 > 1)
 			{
 				fill(menu_tx + 1, my - (oy1 - 1), menu_bx - 1, my + (oy2 - 1), 0, 0);
-				fill_bgcolor(menu_tx + 1, my - (oy1 - 1), menu_bx - 1, my + (oy2 - 1), 0b00001001);
+				fill_bgcolor(menu_tx + 1, my - (oy1 - 1), menu_bx - 1, my + (oy2 - 1), menu_panel_back);
 			}
 			menu_timer++;
 			if (menu_timer == maxsize)
@@ -121,13 +137,15 @@ void menu()
 				{
 					if (menu_index == m)
 					{
-						panel_shaded(menu_tx + 1, ty, menu_bx - 1, ty + 2, 0b11111111, 0b10111111, 0b10110110);
-						write_string(menu_string[m], 0b11111111, menu_tx + 2, ty + 1);
+						panel_shaded(menu_tx + 1, ty, menu_bx - 1, ty + 2, menu_sel_outline_high, menu_sel_outline_mid, menu_sel_outline_low);
+						write_string(menu_string[m], menu_sel_outline_high, menu_tx + 2, ty + 1);
+						fill_bgcolor(menu_tx + 1, ty, menu_bx - 1, ty + 2, menu_sel_back);
 					}
 					else
 					{
-						panel_shaded(menu_tx + 1, ty, menu_bx - 1, ty + 2, 0b10111111, 0b10110110, 0b01100100);
-						write_string(menu_string[m], 0b10110110, menu_tx + 2, ty + 1);
+						panel_shaded(menu_tx + 1, ty, menu_bx - 1, ty + 2, menu_outline_high, menu_outline_mid, menu_outline_low);
+						write_string(menu_string[m], menu_outline_mid, menu_tx + 2, ty + 1);
+						fill_bgcolor(menu_tx + 1, ty, menu_bx - 1, ty + 2, menu_back);
 					}
 					ty += 3;
 				}
