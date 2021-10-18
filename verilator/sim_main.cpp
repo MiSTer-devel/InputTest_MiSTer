@@ -341,10 +341,10 @@ int main(int argc, char** argv, char** env) {
 		top->joystick_r_analog_0 += 1;
 		top->joystick_r_analog_0 -= 256;
 
-		top->joystick_l_analog_1 -= 0;
-		top->joystick_l_analog_1 += 512;
-		top->joystick_r_analog_1 = 30;
-		top->joystick_r_analog_1 += 512;
+		top->joystick_l_analog_1 += 1;
+		top->joystick_l_analog_1 -= 256;
+		top->joystick_r_analog_1 += 1;
+		top->joystick_r_analog_1 -= 256;
 
 		top->joystick_l_analog_2 = 40;
 		top->joystick_l_analog_2 += 1024;
