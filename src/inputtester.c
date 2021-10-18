@@ -567,7 +567,7 @@ void inputtester_advanced()
             if (sx_toggle != sx_toggle_last[inputindex])
             {
                 sx_pos[inputindex] += sx;
-                write_stringf("%4d", 0xFF, 22, 14 + inputindex, sx_pos[inputindex] / 8);
+                write_stringf("%4d", 0xFF, 22, 14 + inputindex, sx_pos[inputindex]);
             }
             else
             {
