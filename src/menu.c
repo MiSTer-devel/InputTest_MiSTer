@@ -35,11 +35,13 @@
 #define menu_outline_high 0b10111111
 #define menu_outline_mid 0b10110110
 #define menu_outline_low 0b01100100
+#define menu_text 0b10110110
 #define menu_back 0x00
 
-#define menu_sel_outline_high 0xFF
-#define menu_sel_outline_mid 0xFF
-#define menu_sel_outline_low 0b10111111
+#define menu_sel_outline_high 0b01011111
+#define menu_sel_outline_mid 0b00010110
+#define menu_sel_outline_low 0b00010100
+#define menu_sel_text 0xFF
 #define menu_sel_back 0b00001001
 
 // Menu variables
@@ -138,14 +140,14 @@ void menu()
 					if (menu_index == m)
 					{
 						panel_shaded(menu_tx + 1, ty, menu_bx - 1, ty + 2, menu_sel_outline_high, menu_sel_outline_mid, menu_sel_outline_low);
-						write_string(menu_string[m], menu_sel_outline_high, menu_tx + 2, ty + 1);
-						fill_bgcolor(menu_tx + 1, ty, menu_bx - 1, ty + 2, menu_sel_back);
+						write_string(menu_string[m], menu_sel_text, menu_tx + 2, ty + 1);
+						//fill_bgcolor(menu_tx + 1, ty, menu_bx - 1, ty + 2, menu_sel_back);
 					}
 					else
 					{
 						panel_shaded(menu_tx + 1, ty, menu_bx - 1, ty + 2, menu_outline_high, menu_outline_mid, menu_outline_low);
-						write_string(menu_string[m], menu_outline_mid, menu_tx + 2, ty + 1);
-						fill_bgcolor(menu_tx + 1, ty, menu_bx - 1, ty + 2, menu_back);
+						write_string(menu_string[m], menu_text, menu_tx + 2, ty + 1);
+						//fill_bgcolor(menu_tx + 1, ty, menu_bx - 1, ty + 2, menu_back);
 					}
 					ty += 3;
 				}

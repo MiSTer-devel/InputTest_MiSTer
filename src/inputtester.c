@@ -89,7 +89,7 @@ char button_name[BUTTON_COUNT][12] = {
 char button_x[BUTTON_COUNT] = {6, 2, 4, 4, 24, 22, 22, 20, 3, 23, 9, 13};
 char button_y[BUTTON_COUNT] = {5, 5, 6, 4, 5, 6, 4, 5, 1, 1, 5, 5};
 #define color_button_active 0xFF
-#define color_button_inactive 0b11100100
+#define color_button_inactive 0b11100000
 
 char analog_offset_x[PAD_COUNT] = {1, 20};
 char analog_offset_y[PAD_COUNT] = {5, 5};
