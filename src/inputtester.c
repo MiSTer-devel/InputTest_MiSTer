@@ -502,7 +502,7 @@ void inputtester_advanced()
             char m = 0b00000001;
             char x = 6;
             char y = 6 + inputindex;
-            char inputoffset = (inputindex * 2);
+            char inputoffset = (inputindex * 4);
             char lastoffset = (inputindex * 2);
             for (char b = 0; b < 2; b++)
             {
@@ -598,7 +598,7 @@ void inputtester_advanced()
             mse_x_acc += mse_x;
             mse_y_acc += mse_y;
             mse_w_acc += mse_w;
-            
+
             write_stringf("%3d", 0xFF, 8, 23, mse_x_acc);
             write_stringf("%3d", 0xFF, 12, 23, mse_y_acc);
             write_stringf("%3d", 0xFF, 20, 23, mse_w_acc);
