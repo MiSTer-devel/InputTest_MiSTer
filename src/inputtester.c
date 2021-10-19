@@ -35,28 +35,16 @@ unsigned char px_last[6];
 signed char sx_toggle_last[6];
 signed char sx_last[6];
 unsigned long sx_pos[6];
-unsigned char kbd_lastscan_cache;
-unsigned char kbd_lastascii_cache;
-char mse_button1_last;
-char mse_button2_last;
-signed char mse_x_last;
-signed char mse_y_last;
-signed char mse_w_last;
-unsigned short mse_x_acc;
-unsigned short mse_y_acc;
-unsigned short mse_w_acc;
-
-// Console constants
-#define con_cursorfreq 30
-// Console variables
-unsigned char con_x;      // Console cursor X position
-unsigned char con_y;      // Console cursor X position
-unsigned char con_l = 2;  // Console left edge X
-unsigned char con_t = 22; // Console top edge Y
-unsigned char con_r = 37; // Console right edge X
-unsigned char con_b = 26; // Console bottom edge Y
-bool con_cursor;
-unsigned char con_cursortimer = 1;
+unsigned char kbd_lastscan_cache = 1;
+unsigned char kbd_lastascii_cache = 1;
+unsigned char mse_button1_last = 1;
+unsigned char mse_button2_last = 1;
+signed char mse_x_last = 1;
+signed char mse_y_last = 1;
+signed char mse_w_last = 1;
+unsigned char mse_x_acc;
+unsigned char mse_y_acc;
+unsigned char mse_w_acc;
 
 // Mode switcher variables
 char modeswitchtimer_select = 0;
@@ -207,19 +195,10 @@ void page_inputtester_advanced()
     }
 
     write_string("KEYBOARD", 0xFF, 2, 21);
-    write_string("SCAN", 0xFF, 2, 22);
-    write_string("ASC", 0xFF, 2, 23);
 
-    write_string("MOUSE", 0xFF, 14, 21);
-    write_string("SPD", 0xFF, 21, 21);
-    write_string("POS", 0xFF, 28, 21);
-    write_string("BTNS", 0xFF, 33, 21);
-    write_char('X', 0xFF, 18, 22);
-    write_char('Y', 0xFF, 18, 23);
-    write_char('W', 0xFF, 18, 24);
-    // write_char('Y', 0xFF, 25, 21);
-    // write_string("BUTTONS", 0xFF, 27, 21);
-    // write_string("MSE", 0xFF, 15, 22);
+    write_string("MOUSE", 0xFF, 2, 23);
+    write_string("WHL", 0xFF, 16, 23);
+    write_string("BTNS", 0xFF, 24, 23);
 }
 
 // Draw static elements for button test page
@@ -281,10 +260,6 @@ void start_inputtester_advanced()
 
     // Draw page
     page_inputtester_advanced();
-
-    // Reset console cursor
-    con_x = con_l;
-    con_y = con_t;
 
     // Reset last states for inputs
     reset_inputstates();
@@ -608,68 +583,11 @@ void inputtester_advanced()
             sx_toggle_last[inputindex] = sx_toggle;
         }
 
-        // // Keyboard test console
-        // if (kbd_buffer_len > 0)
-        // {
-        //     // Clear existing cursor if visible
-        //     if (con_cursor)
-        //     {
-        //         write_char(' ', 0xFF, con_x, con_y);
-        //     }
-        //     // Write characters in buffer
-        //     for (char k = 0; k < kbd_buffer_len; k++)
-        //     {
-        //         if (kbd_buffer[k] == '\n')
-        //         {
-        //             // New line
-        //             con_x = con_l;
-        //             con_y++;
-        //             if (con_y > con_b)
-        //             {
-        //                 // Wrap to top
-        //                 con_y = con_t;
-        //             }
-        //         }
-        //         else if (kbd_buffer[k] == '\b')
-        //         {
-        //             // Backspace - only if not at beginning of line
-        //             if (con_x > con_l)
-        //             {
-        //                 con_x--;
-        //                 // Clear existing character
-        //                 write_char(' ', 0xFF, con_x, con_y);
-        //             }
-        //         }
-        //         else
-        //         {
-        //             // Write character
-        //             write_char(kbd_buffer[k], 0xFF, con_x, con_y);
-        //             // Move cursor right
-        //             con_x++;
-        //             if (con_x > con_r)
-        //             {
-        //                 // New line
-        //                 con_x = con_l;
-        //                 con_y++;
-        //                 if (con_y > con_b)
-        //                 {
-        //                     // Wrap to top
-        //                     con_y = con_t;
-        //                 }
-        //             }
-        //         }
-        //     }
-        //     // Clear buffer and enable cursor
-        //     kbd_buffer_len = 0;
-        //     con_cursor = 0;
-        //     con_cursortimer = 1;
-        // }
-
         // Scancode output
         if (kbd_lastscan != kbd_lastscan_cache || kbd_lastascii != kbd_lastascii_cache)
         {
-            write_stringfs("%4x", 0xFF, 6, 20, kbd_lastscan);
-            write_char(kbd_lastascii, 0xFF, 9, 23);
+            write_stringf("%4x", 0xFF, 10, 21, kbd_lastscan);
+            write_char(kbd_lastascii, 0xFF, 15, 21);
 
             kbd_lastscan_cache = kbd_lastscan;
             kbd_lastascii_cache = kbd_lastascii;
@@ -678,84 +596,47 @@ void inputtester_advanced()
         if (mse_x_last != mse_x)
         {
             mse_x_acc += mse_x;
-            write_stringfs("%4d", 0xFF, 20, 22, mse_x);
-            write_stringf_ushort("%6d", 0xFF, 25, 22, mse_x_acc);
+            write_stringf("%3d", 0xFF, 8, 23, mse_x_acc);
             mse_x_last = mse_x;
         }
         if (mse_y_last != mse_y)
         {
             mse_y_acc += mse_y;
-            write_stringfs("%4d", 0xFF, 20, 23, mse_y);
-            write_stringf_ushort("%6d", 0xFF, 25, 23, mse_y_acc);
+            write_stringf("%3d", 0xFF, 12, 23, mse_y_acc);
             mse_y_last = mse_y;
         }
         if (mse_w_last != mse_w)
         {
             mse_w_acc += mse_w;
-            write_stringfs("%4d", 0xFF, 20, 24, mse_w);
-            write_stringf_ushort("%6d", 0xFF, 25, 24, mse_w_acc);
+            write_stringf("%3d", 0xFF, 20, 23, mse_w_acc);
             mse_w_last = mse_w;
         }
 
         if (mse_button1_last != mse_button1)
         {
-            char x = 32;
-            char y = 22;
+            char x = 28;
             char m = 0b00000001;
-            for (char i = 0; i < 4; i++)
+            for (char i = 0; i < 3; i++)
             {
                 x++;
-                write_char((mse_button1 & m) ? asc_1 : asc_0, 0xFF, x, y);
+                write_char((mse_button1 & m) ? asc_1 : asc_0, 0xFF, x, 23);
                 m <<= 1;
             }
             mse_button1_last = mse_button1;
         }
         if (mse_button2_last != mse_button2)
         {
-            char x = 32;
-            char y = 23;
+            char x = 31;
             char m = 0b00000001;
-            for (char i = 0; i < 4; i++)
+            for (char i = 0; i < 5; i++)
             {
                 x++;
-                write_char((mse_button2 & m) ? asc_1 : asc_0, 0xFF, x, y);
+                write_char((mse_button2 & m) ? asc_1 : asc_0, 0xFF, x, 23);
                 m <<= 1;
             }
             mse_button2_last = mse_button2;
         }
 
-        // {
-        //     char m = 0b00000001;
-        //     char x = 2;
-        //     char y = 27;
-        //     for (char b = 0; b < 8; b++)
-        //     {
-        //         char index = (b * 8);
-        //         char joy = ps2_mouse[index];
-        //         m = 0b00000001;
-        //         for (char i = 0; i < 8; i++)
-        //         {
-        //             x++;
-        //             write_char((joy & m) ? asc_1 : asc_0, 0xFF, x, y);
-        //             m <<= 1;
-        //         }
-        //         x++;
-        //         if (b == 3)
-        //         {
-        //             x = 2;
-        //             y++;
-        //         }
-        //     }
-        // }
-
-        // // Cursor blink timer
-        // con_cursortimer--;
-        // if (con_cursortimer <= 0)
-        // {
-        //     con_cursor = !con_cursor;
-        //     con_cursortimer = con_cursorfreq;
-        //     write_char(con_cursor ? '|' : ' ', 0xFF, con_x, con_y);
-        // }
     }
 }
 
