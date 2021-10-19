@@ -389,7 +389,7 @@ int main(int argc, char** argv, char** env) {
 		mouse_clock  = !mouse_clock;
 
 		top->ps2_mouse = mouse_temp;
-		//top->ps2_mouse_ext -= 1;
+		top->ps2_mouse_ext = mouse_x + (mouse_buttons << 8);
 
 		// Run simulation
 		if (run_enable) {
@@ -412,3 +412,4 @@ int main(int argc, char** argv, char** env) {
 
 	return 0;
 }
+	

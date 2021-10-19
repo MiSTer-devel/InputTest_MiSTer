@@ -223,9 +223,9 @@ wire timer_cs = cpu_addr[15:8] == 8'b01111000;
 // 	if(ps2_key_cs) $display("ps2_key %b %x", ps2_key_data_out, cpu_addr[3:0]);
 // 	$display("%x", cpu_addr);
 //end
-always @(posedge ps2_mouse[24]) begin
-	$display("%b", ps2_mouse);
-end
+// always @(posedge ps2_mouse[24]) begin
+// 	$display("%b", ps2_mouse);
+// end
 
 // CPU data mux
 assign cpu_din = pgrom_cs ? pgrom_data_out :

@@ -196,17 +196,18 @@ char kbd_lastascii = 0;
 char kbd_clock_index = 10;
 
 char mse_lastclock = 0;
-char mse_x;
-char mse_y;
-char mse_button;
+signed char mse_x;
+signed char mse_y;
+signed char mse_w;
+char mse_button1;
+char mse_button2;
 char mse_clock_index = 24;
 
 char kbd_buffer[128];
 char kbd_buffer_len = 0;
 
-void get_ascii(char scan)
+void get_ascii()
 {
-	kbd_lastscan = scan;
 	char p = (kbd_lastscan * 2);
 	if (!(kbd_shift_left || kbd_shift_right))
 	{
@@ -220,7 +221,6 @@ void get_ascii(char scan)
 	}
 }
 
-
 void handle_ps2()
 {
 	bool kbd_clock = CHECK_BIT(ps2_key[kbd_clock_index], 0);
@@ -233,6 +233,8 @@ void handle_ps2()
 		kbd_extend = CHECK_BIT(kbd_in[1], 0);
 		kbd_pressed = CHECK_BIT(kbd_in[1], 1);
 		kbd_scan = kbd_in[0];
+		kbd_lastscan = kbd_scan;
+		kbd_lastascii = 0;
 		if (kbd_pressed)
 		{
 			if (kbd_scan == KEY_LEFTSHIFT)
@@ -242,6 +244,10 @@ void handle_ps2()
 			else if (kbd_scan == KEY_RIGHTSHIFT)
 			{
 				kbd_shift_right = 1;
+			}
+			else
+			{
+				get_ascii();
 			}
 		}
 		else
@@ -256,7 +262,7 @@ void handle_ps2()
 			}
 			else
 			{
-				get_ascii(kbd_scan);
+				get_ascii();
 			}
 		}
 	}
@@ -265,9 +271,11 @@ void handle_ps2()
 	bool mse_clock = CHECK_BIT(ps2_mouse[mse_clock_index], 0);
 	if (mse_clock != mse_lastclock)
 	{
-		mse_button = ps2_mouse[0];
+		mse_button1 = ps2_mouse[0];
+		mse_button2 = ps2_mouse[40];
 		mse_x = ps2_mouse[8];
 		mse_y = ps2_mouse[16];
+		mse_w = ps2_mouse[32];
 	}
 	mse_lastclock = mse_clock;
 }
