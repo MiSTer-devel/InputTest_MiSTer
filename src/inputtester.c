@@ -373,10 +373,10 @@ void inputtester_digital()
         // Draw control pad buttons
         for (char joy = 0; joy < PAD_COUNT; joy++)
         {
-            char index = joy * 32;
+            char index = joy * 4;
             for (char button = 0; button < BUTTON_COUNT; button++)
             {
-                char color = (button < 8 ? CHECK_BIT(joystick[index], button) : CHECK_BIT(joystick[index + 8], button - 8)) ? color_button_active : color_button_inactive;
+                char color = (button < 8 ? CHECK_BIT(joystick[index], button) : CHECK_BIT(joystick[index + 1], button - 8)) ? color_button_active : color_button_inactive;
                 write_string(button_symbol[button], color, pad_offset_x[joy] + button_x[button], pad_offset_y[joy] + button_y[button]);
             }
         }
@@ -439,8 +439,8 @@ void inputtester_analog()
         // Reset previous color
         set_fgcolour(color_analog_grid, analog_x[side] + mx, analog_y[side] + my);
 
-        signed char ax = analog_l[(analog_pad * 16)];
-        signed char ay = analog_l[(analog_pad * 16) + 8];
+        signed char ax = analog_l[(analog_pad * 2)];
+        signed char ay = analog_l[(analog_pad * 2) + 1];
 
         analog_x[side] = ax / analog_ratio;
         analog_y[side] = ay / analog_ratio;
@@ -459,8 +459,8 @@ void inputtester_analog()
         // Reset previous color
         set_fgcolour(color_analog_grid, analog_x[side] + mx, analog_y[side] + my);
 
-        ax = analog_r[(analog_pad * 16)];
-        ay = analog_r[(analog_pad * 16) + 8];
+        ax = analog_r[(analog_pad * 2)];
+        ay = analog_r[(analog_pad * 2) + 1];
 
         analog_x[side] = ax / analog_ratio;
         analog_y[side] = ay / analog_ratio;
@@ -502,11 +502,11 @@ void inputtester_advanced()
             char m = 0b00000001;
             char x = 6;
             char y = 6 + inputindex;
-            char inputoffset = (inputindex * 32);
+            char inputoffset = (inputindex * 2);
             char lastoffset = (inputindex * 2);
             for (char b = 0; b < 2; b++)
             {
-                char index = (b * 8) + inputoffset;
+                char index = b + inputoffset;
                 char lastindex = b + lastoffset;
                 char joy = joystick[index];
                 if (joy != joystick_last[lastindex])
@@ -529,8 +529,8 @@ void inputtester_advanced()
 
             char stra[10];
             // Draw analog left inputs (only update if value has changed)
-            signed char ax_l = analog_l[(inputindex * 16)];
-            signed char ay_l = analog_l[(inputindex * 16) + 8];
+            signed char ax_l = analog_l[(inputindex * 2)];
+            signed char ay_l = analog_l[(inputindex * 2) + 1];
             if (ax_l != ax_l_last[inputindex] || ay_l != ay_l_last[inputindex])
             {
                 sprintf(stra, "%4d%4d", ax_l, ay_l);
@@ -540,8 +540,8 @@ void inputtester_advanced()
             ay_l_last[inputindex] = ay_l;
 
             // Draw analog right inputs (only update if value has changed)
-            signed char ax_r = analog_r[(inputindex * 16)];
-            signed char ay_r = analog_r[(inputindex * 16) + 8];
+            signed char ax_r = analog_r[(inputindex * 2)];
+            signed char ay_r = analog_r[(inputindex * 2) + 1];
             if (ax_r != ax_r_last[inputindex] || ay_r != ay_r_last[inputindex])
             {
                 sprintf(stra, "%4d%4d", ax_r, ay_r);
@@ -551,7 +551,7 @@ void inputtester_advanced()
             ay_r_last[inputindex] = ay_r;
 
             // Draw paddle inputs (only update if value has changed)
-            unsigned char px = paddle[(inputindex * 8)];
+            unsigned char px = paddle[(inputindex)];
             if (px != px_last[inputindex])
             {
                 char strp[5];
@@ -561,8 +561,8 @@ void inputtester_advanced()
             px_last[inputindex] = px;
 
             // Draw spinner inputs (only update when update clock changes)
-            bool sx_toggle = CHECK_BIT(spinner[(inputindex * 16) + 8], 0);
-            signed char sx = spinner[(inputindex * 16)];
+            bool sx_toggle = CHECK_BIT(spinner[(inputindex * 8) + 1], 0);
+            signed char sx = spinner[(inputindex * 8)];
             if (sx_toggle != sx_toggle_last[inputindex])
             {
                 sx_pos[inputindex] += sx;
@@ -586,57 +586,72 @@ void inputtester_advanced()
         // Scancode output
         if (kbd_lastscan != kbd_lastscan_cache || kbd_lastascii != kbd_lastascii_cache)
         {
-            write_stringf("%4x", 0xFF, 10, 21, kbd_lastscan);
+            write_stringf("%02x", 0xFF, 11, 21, kbd_lastscan);
             write_char(kbd_lastascii, 0xFF, 15, 21);
 
             kbd_lastscan_cache = kbd_lastscan;
             kbd_lastascii_cache = kbd_lastascii;
         }
 
-        if (mse_x_last != mse_x)
+        if (mse_changed)
         {
             mse_x_acc += mse_x;
-            write_stringf("%3d", 0xFF, 8, 23, mse_x_acc);
-            mse_x_last = mse_x;
-        }
-        if (mse_y_last != mse_y)
-        {
             mse_y_acc += mse_y;
-            write_stringf("%3d", 0xFF, 12, 23, mse_y_acc);
-            mse_y_last = mse_y;
-        }
-        if (mse_w_last != mse_w)
-        {
             mse_w_acc += mse_w;
+            
+            write_stringf("%3d", 0xFF, 8, 23, mse_x_acc);
+            write_stringf("%3d", 0xFF, 12, 23, mse_y_acc);
             write_stringf("%3d", 0xFF, 20, 23, mse_w_acc);
-            mse_w_last = mse_w;
+
+            if (mse_button1_last != mse_button1)
+            {
+                char x = 28;
+                char m = 0b00000001;
+                for (char i = 0; i < 3; i++)
+                {
+                    x++;
+                    write_char((mse_button1 & m) ? asc_1 : asc_0, 0xFF, x, 23);
+                    m <<= 1;
+                }
+                mse_button1_last = mse_button1;
+            }
+            if (mse_button2_last != mse_button2)
+            {
+                char x = 31;
+                char m = 0b00000001;
+                for (char i = 0; i < 5; i++)
+                {
+                    x++;
+                    write_char((mse_button2 & m) ? asc_1 : asc_0, 0xFF, x, 23);
+                    m <<= 1;
+                }
+                mse_button2_last = mse_button2;
+            }
+            mse_changed = 0;
         }
 
-        if (mse_button1_last != mse_button1)
-        {
-            char x = 28;
-            char m = 0b00000001;
-            for (char i = 0; i < 3; i++)
-            {
-                x++;
-                write_char((mse_button1 & m) ? asc_1 : asc_0, 0xFF, x, 23);
-                m <<= 1;
-            }
-            mse_button1_last = mse_button1;
-        }
-        if (mse_button2_last != mse_button2)
-        {
-            char x = 31;
-            char m = 0b00000001;
-            for (char i = 0; i < 5; i++)
-            {
-                x++;
-                write_char((mse_button2 & m) ? asc_1 : asc_0, 0xFF, x, 23);
-                m <<= 1;
-            }
-            mse_button2_last = mse_button2;
-        }
-
+        // {
+        //     char m = 0b00000001;
+        //     char x = 2;
+        //     char y = 27;
+        //     for (char b = 0; b < 8; b++)
+        //     {
+        //         char joy = ps2_mouse[b];
+        //         m = 0b00000001;
+        //         for (char i = 0; i < 8; i++)
+        //         {
+        //             x++;
+        //             write_char((joy & m) ? asc_1 : asc_0, 0xFF, x, y);
+        //             m <<= 1;
+        //         }
+        //         x++;
+        //         if (b == 3)
+        //         {
+        //             x = 2;
+        //             y++;
+        //         }
+        //     }
+        // }
     }
 }
 
