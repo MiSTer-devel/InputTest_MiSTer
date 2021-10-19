@@ -158,9 +158,10 @@ int verilate() {
 	return 0;
 }
 
-char ps2_scancode = 0;
-char ps2_toggle = 0;
-char ps2_timer = 0;
+unsigned char mouse_clock = 0;
+unsigned char mouse_buttons= 0;
+unsigned char mouse_x = 0;
+unsigned char mouse_y = 0;
 
 char spinner_toggle = 0;
 
@@ -370,15 +371,25 @@ int main(int argc, char** argv, char** env) {
 
 		if (input.inputs[0] || input.inputs[1]) {
 			spinner_toggle = !spinner_toggle;
-			top->spinner_0 = (input.inputs[0]) ? 16 : -16;
+			top->spinner_0 = (input.inputs[0]) ? 4 : -4;
 			for (char b = 8; b < 16; b++) {
 				top->spinner_0 &= ~(1UL << b);
 			}
 			if (spinner_toggle) { top->spinner_0 |= 1UL << 8; }
 		}
 
-		top->ps2_mouse += 1;
-		top->ps2_mouse_ext -= 1;
+		mouse_buttons += 1;
+		mouse_x += 1;
+		mouse_y -= 1;
+		unsigned long mouse_temp = mouse_buttons;
+		mouse_temp += (mouse_x << 8);
+		mouse_temp += (mouse_y << 16);
+		if (mouse_clock) { mouse_temp |= (1UL << 24); }
+
+		mouse_clock  = !mouse_clock;
+
+		top->ps2_mouse = mouse_temp;
+		//top->ps2_mouse_ext -= 1;
 
 		// Run simulation
 		if (run_enable) {

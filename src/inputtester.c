@@ -35,6 +35,11 @@ unsigned char px_last[6];
 signed char sx_toggle_last[6];
 signed char sx_last[6];
 unsigned long sx_pos[6];
+unsigned char kbd_lastscan_cache;
+unsigned char kbd_lastascii_cache;
+char mse_button_last;
+char mse_x_last;
+char mse_y_last;
 
 // Console constants
 #define con_cursorfreq 30
@@ -44,7 +49,7 @@ unsigned char con_y;      // Console cursor X position
 unsigned char con_l = 2;  // Console left edge X
 unsigned char con_t = 22; // Console top edge Y
 unsigned char con_r = 37; // Console right edge X
-unsigned char con_b = 36; // Console bottom edge Y
+unsigned char con_b = 26; // Console bottom edge Y
 bool con_cursor;
 unsigned char con_cursortimer = 1;
 
@@ -89,7 +94,7 @@ char button_name[BUTTON_COUNT][12] = {
 char button_x[BUTTON_COUNT] = {6, 2, 4, 4, 24, 22, 22, 20, 3, 23, 9, 13};
 char button_y[BUTTON_COUNT] = {5, 5, 6, 4, 5, 6, 4, 5, 1, 1, 5, 5};
 #define color_button_active 0xFF
-#define color_button_inactive 0b11100000
+#define color_button_inactive 0b01010010
 
 char analog_offset_x[PAD_COUNT] = {1, 20};
 char analog_offset_y[PAD_COUNT] = {5, 5};
@@ -195,7 +200,14 @@ void page_inputtester_advanced()
         sprintf(label, "SPN%d", j + 1);
         write_string(label, 0xFF - (j * 2), 14, 14 + j);
     }
-    write_string("CON", 0xFF, 2, 21);
+    write_string("SCAN ASC", 0xFF, 6, 21);
+    write_string("KBD", 0xFF, 2, 22);
+
+    write_char('X', 0xFF, 21, 21);
+    write_char('Y', 0xFF, 25, 21);
+    write_string("BUTTONS", 0xFF, 27, 21);
+    write_string("MSE", 0xFF, 15, 22);
+
 }
 
 // Draw static elements for button test page
@@ -352,8 +364,8 @@ bool modeswitcher()
 void inputtester_digital()
 {
 
-    // Handle PS/2 inputs whenever possible to improve latency
-    handle_ps2();
+    // // Handle PS/2 inputs whenever possible to improve latency
+    // handle_ps2();
 
     // Handle secret code detection (joypad 1 directions)
     if (HBLANK_RISING)
@@ -389,13 +401,13 @@ void inputtester_analog()
 {
 
     // Handle PS/2 inputs whenever possible to improve latency
-    handle_ps2();
+    // handle_ps2();
 
     if (HBLANK_RISING)
     {
         basic_input();
         handle_codes();
-        
+
         // Pad selection
         if (!input_a && input_a_last)
         {
@@ -584,71 +596,104 @@ void inputtester_advanced()
             sx_toggle_last[inputindex] = sx_toggle;
         }
 
-        // Keyboard test console
-        if (kbd_buffer_len > 0)
+        // // Keyboard test console
+        // if (kbd_buffer_len > 0)
+        // {
+        //     // Clear existing cursor if visible
+        //     if (con_cursor)
+        //     {
+        //         write_char(' ', 0xFF, con_x, con_y);
+        //     }
+        //     // Write characters in buffer
+        //     for (char k = 0; k < kbd_buffer_len; k++)
+        //     {
+        //         if (kbd_buffer[k] == '\n')
+        //         {
+        //             // New line
+        //             con_x = con_l;
+        //             con_y++;
+        //             if (con_y > con_b)
+        //             {
+        //                 // Wrap to top
+        //                 con_y = con_t;
+        //             }
+        //         }
+        //         else if (kbd_buffer[k] == '\b')
+        //         {
+        //             // Backspace - only if not at beginning of line
+        //             if (con_x > con_l)
+        //             {
+        //                 con_x--;
+        //                 // Clear existing character
+        //                 write_char(' ', 0xFF, con_x, con_y);
+        //             }
+        //         }
+        //         else
+        //         {
+        //             // Write character
+        //             write_char(kbd_buffer[k], 0xFF, con_x, con_y);
+        //             // Move cursor right
+        //             con_x++;
+        //             if (con_x > con_r)
+        //             {
+        //                 // New line
+        //                 con_x = con_l;
+        //                 con_y++;
+        //                 if (con_y > con_b)
+        //                 {
+        //                     // Wrap to top
+        //                     con_y = con_t;
+        //                 }
+        //             }
+        //         }
+        //     }
+        //     // Clear buffer and enable cursor
+        //     kbd_buffer_len = 0;
+        //     con_cursor = 0;
+        //     con_cursortimer = 1;
+        // }
+
+        // Scancode output
+        if (kbd_lastscan != kbd_lastscan_cache || kbd_lastascii != kbd_lastascii_cache)
         {
-            // Clear existing cursor if visible
-            if (con_cursor)
-            {
-                write_char(' ', 0xFF, con_x, con_y);
-            }
-            // Write characters in buffer
-            for (char k = 0; k < kbd_buffer_len; k++)
-            {
-                if (kbd_buffer[k] == '\n')
-                {
-                    // New line
-                    con_x = con_l;
-                    con_y++;
-                    if (con_y > con_b)
-                    {
-                        // Wrap to top
-                        con_y = con_t;
-                    }
-                }
-                else if (kbd_buffer[k] == '\b')
-                {
-                    // Backspace - only if not at beginning of line
-                    if (con_x > con_l)
-                    {
-                        con_x--;
-                        // Clear existing character
-                        write_char(' ', 0xFF, con_x, con_y);
-                    }
-                }
-                else
-                {
-                    // Write character
-                    write_char(kbd_buffer[k], 0xFF, con_x, con_y);
-                    // Move cursor right
-                    con_x++;
-                    if (con_x > con_r)
-                    {
-                        // New line
-                        con_x = con_l;
-                        con_y++;
-                        if (con_y > con_b)
-                        {
-                            // Wrap to top
-                            con_y = con_t;
-                        }
-                    }
-                }
-            }
-            // Clear buffer and enable cursor
-            kbd_buffer_len = 0;
-            con_cursor = 0;
-            con_cursortimer = 1;
+            write_stringfs("%3x", 0xFF, 7, 22, kbd_lastscan);
+            write_char(kbd_lastascii, 0xFF, 13, 22);
+
+            kbd_lastscan_cache = kbd_lastscan;
+            kbd_lastascii_cache = kbd_lastascii;
         }
 
-        // Cursor blink timer
-        con_cursortimer--;
-        if (con_cursortimer <= 0)
+        if (mse_x_last != mse_x)
         {
-            con_cursor = !con_cursor;
-            con_cursortimer = con_cursorfreq;
-            write_char(con_cursor ? '|' : ' ', 0xFF, con_x, con_y);
+            write_stringfs("%4d", 0xFF, 18, 22, mse_x);
+            mse_x_last = mse_x;
         }
+        if (mse_y_last != mse_y)
+        {
+            write_stringfs("%4d", 0xFF, 22, 22, mse_y);
+            mse_y_last = mse_y;
+        }
+        if (mse_button_last != mse_button)
+        {
+            char x = 26;
+            char m = 0b00000001;
+            for (char i = 0; i < 8; i++)
+            {
+                x++;
+                write_char((mse_button & m) ? asc_1 : asc_0, 0xFF, x, 22);
+                m <<= 1;
+            }
+            mse_button_last = mse_button;
+        }
+
+        // // Cursor blink timer
+        // con_cursortimer--;
+        // if (con_cursortimer <= 0)
+        // {
+        //     con_cursor = !con_cursor;
+        //     con_cursortimer = con_cursorfreq;
+        //     write_char(con_cursor ? '|' : ' ', 0xFF, con_x, con_y);
+        // }
     }
 }
 
