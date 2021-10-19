@@ -21,7 +21,7 @@ Created by JimmyStones (http://github.com/jimmystones), with thanks to:
 - v1.0 - 2021-07-03 - First release with digital, analog and advanced tests
 - v1.1 - 2021-07-18 - PETSCII UI update, add button test mode (unreleased!)
 - v1.2 - 2021-10-17 - Add support for 2nd analog stick
-- v1.3 - 2021-10-18 - Fix bugs, UI colour tweaks
+- v1.3 - 2021-10-19 - Fix bugs, UI colour tweaks, remove console, show keyboard and mouse inputs on advanced mode
 
 ## Hardware
 
