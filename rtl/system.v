@@ -179,15 +179,15 @@ wire [7:0] chmap_data_out;
 
 // Hardware inputs
 wire [7:0] in0_data_out = {VGA_HS, VGA_VS,VGA_HB, VGA_VB, 4'b1000};
-wire [7:0] joystick_data_out = joystick[cpu_addr[7:0] +: 8];
-wire [7:0] analog_l_data_out = analog_l[cpu_addr[6:0] +: 8];
-wire [7:0] analog_r_data_out = analog_r[cpu_addr[6:0] +: 8];
-wire [7:0] paddle_data_out = paddle[cpu_addr[5:0] +: 8];
-wire [7:0] spinner_data_out = spinner[cpu_addr[6:0] +: 8];
-wire [7:0] ps2_key_data_out = ps2_key[cpu_addr[3:0] +: 8];
-wire [7:0] ps2_mouse_data_out = ps2_mouse[cpu_addr[5:0] +: 8];
-wire [7:0] timestamp_data_out = timestamp[cpu_addr[5:0] +: 8];
-wire [7:0] timer_data_out = timer[cpu_addr[3:0] +: 8];
+wire [7:0] joystick_data_out = joystick[{cpu_addr[4:0],3'd0} +: 8];
+wire [7:0] analog_l_data_out = analog_l[{cpu_addr[3:0],3'd0} +: 8];
+wire [7:0] analog_r_data_out = analog_r[{cpu_addr[3:0],3'd0} +: 8];
+wire [7:0] paddle_data_out = paddle[{cpu_addr[2:0],3'd0} +: 8];
+wire [7:0] spinner_data_out = spinner[{cpu_addr[3:0],3'd0} +: 8];
+wire [7:0] ps2_key_data_out = ps2_key[{cpu_addr[0],3'd0} +: 8];
+wire [7:0] ps2_mouse_data_out = ps2_mouse[{cpu_addr[2:0],3'd0} +: 8];
+wire [7:0] timestamp_data_out = timestamp[{cpu_addr[2:0],3'd0} +: 8];
+wire [7:0] timer_data_out = timer[{cpu_addr[0],3'd0} +: 8];
 
 // CPU address decodes
 wire pgrom_cs = cpu_addr[15:14] == 2'b00;
@@ -207,7 +207,7 @@ wire ps2_mouse_cs = cpu_addr[15:8] == 8'b01110110;
 wire timestamp_cs = cpu_addr[15:8] == 8'b01110111;
 wire timer_cs = cpu_addr[15:8] == 8'b01111000;
 
-// always @(posedge timestamp[32]) begin
+//always @(posedge timestamp[32]) begin
 // 	$display("%b", timestamp);
 // end
 //always @(posedge clk_sys) begin
@@ -223,6 +223,9 @@ wire timer_cs = cpu_addr[15:8] == 8'b01111000;
 // 	if(ps2_key_cs) $display("ps2_key %b %x", ps2_key_data_out, cpu_addr[3:0]);
 // 	$display("%x", cpu_addr);
 //end
+// always @(posedge ps2_mouse[24]) begin
+// 	$display("%b", ps2_mouse);
+// end
 
 // CPU data mux
 assign cpu_din = pgrom_cs ? pgrom_data_out :

@@ -103,7 +103,7 @@ void snek_gameplay()
             nyd = 0;
         }
 
-        if (CHECK_BIT(joystick[8], 2)) // select to quit
+        if (CHECK_BIT(joystick[1], 2)) // select to quit
         {
             state = 0;
             return;
@@ -156,12 +156,12 @@ void snek_attract()
 
     if (HBLANK_RISING)
     {
-        if (CHECK_BIT(joystick[8], 3)) // start to start
+        if (CHECK_BIT(joystick[1], 3)) // start to start
         {
             start_gameplay();
             return;
         }
-        if (CHECK_BIT(joystick[8], 2)) // select to quit
+        if (CHECK_BIT(joystick[1], 2)) // select to quit
         {
             state = 0;
             return;
@@ -174,7 +174,7 @@ void snek_attract()
         if (movetimer == 0)
         {
             attractstate = !attractstate;
-            write_string("PRESS START", attractstate == 0 ? 0x00 : 0xFF, 16, 15);
+            write_string("PRESS START", attractstate == 0 ? 0x00 : 0xFF, 14, 15);
             movetimer = movefreq;
         }
     }

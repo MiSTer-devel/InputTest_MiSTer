@@ -349,7 +349,6 @@ arcade_video #(320,24) arcade_video
 );
 
 ///////////////////   MAIN CORE   ////////////////////
-
 wire rom_download = ioctl_download && (ioctl_index < 8'd2);
 wire reset = (RESET | status[0] | buttons[1] | rom_download);
 assign LED_USER = rom_download;

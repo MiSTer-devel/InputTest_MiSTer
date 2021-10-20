@@ -2,8 +2,8 @@
 	Aznable OS - PS/2 interface functions
 
 	Author: Jim Gregory - https://github.com/JimmyStones/
-	Version: 1.0
-	Date: 2021-07-03
+	Version: 1.1
+	Date: 2021-10-20
 
 	This program is free software; you can redistribute it and/or modify it
 	under the terms of the GNU General Public License as published by the Free
@@ -19,6 +19,7 @@
 	with this program. If not, see <http://www.gnu.org/licenses/>.
 ===========================================================================*/
 
+#pragma once
 #include "sys.c"
 
 // COMMAND KEYS
@@ -31,6 +32,10 @@ const char KEY_LEFTSHIFT = 0x12;
 const char KEY_RIGHTSHIFT = 0x59;
 const char KEY_ALT = 0x11;	// EXT 0 = LEFT, EXT 1 = RIGHT
 const char KEY_CTRL = 0x63; // EXT 0 = LEFT, EXT 1 = RIGHT
+
+// USEFUL KEYS
+const char KEY_1 = 0x16;
+const char KEY_SPACE = 0x29;
 
 // UNMAPPED COMMAND KEYS
 // 	0x7c, //55  KEY_KPASTERISK
@@ -191,50 +196,53 @@ char kbd_shift_right = 0;
 char kbd_scan = 0;
 char kbd_pressed;
 char kbd_extend;
-char kbd_lastscan = 0;
-char kbd_lastascii = 0;
+char kbd_ascii = 0;
+char kbd_clock_index = 1;
 
-// char mse_in[6];
-// char mse_lastclock = 0;
-// char mse_a1;
-// char mse_a2;
-// char mse_a3;
+char mse_lastclock = 0;
+bool mse_changed = 1;
+signed char mse_x;
+signed char mse_y;
+signed char mse_w;
+char mse_button1;
+char mse_button2;
+char mse_clock_index = 3;
 
 char kbd_buffer[128];
 char kbd_buffer_len = 0;
+bool kbd_down[256];
 
-void get_ascii(char scan)
+void get_ascii()
 {
-	kbd_lastscan = scan;
-	char p = (kbd_lastscan * 2);
+	char p = (kbd_scan * 2);
 	if (!(kbd_shift_left || kbd_shift_right))
 	{
 		p++;
 	}
-	kbd_lastascii = kbd_UK[p];
-	if (kbd_lastascii > 0)
+	kbd_ascii = kbd_UK[p];
+	if (kbd_ascii > 0)
 	{
-		kbd_buffer[kbd_buffer_len] = kbd_lastascii;
+		kbd_buffer[kbd_buffer_len] = kbd_ascii;
 		kbd_buffer_len++;
 	}
 }
 
-char kbd_clock_index = 10;
-
 void handle_ps2()
 {
-	bool kbd_clock = CHECK_BIT(ps2_key[kbd_clock_index], 0);
+	bool kbd_clock = CHECK_BIT(ps2_key[kbd_clock_index], 2);
 	if (kbd_clock != kbd_lastclock)
 	{
 		for (char k = 0; k < 2; k++)
 		{
-			kbd_in[k] = ps2_key[k * 8];
+			kbd_in[k] = ps2_key[k];
 		}
-		kbd_extend = CHECK_BIT(kbd_in[1], 0);
-		kbd_pressed = CHECK_BIT(kbd_in[1], 1);
+		kbd_extend = CHECK_BIT(kbd_in[1], 0) > 0;
+		kbd_pressed = CHECK_BIT(kbd_in[1], 1) > 0;
 		kbd_scan = kbd_in[0];
+		kbd_ascii = 0;
 		if (kbd_pressed)
 		{
+			kbd_down[kbd_scan] = 1;
 			if (kbd_scan == KEY_LEFTSHIFT)
 			{
 				kbd_shift_left = 1;
@@ -243,9 +251,14 @@ void handle_ps2()
 			{
 				kbd_shift_right = 1;
 			}
+			else
+			{
+				get_ascii();
+			}
 		}
 		else
 		{
+			kbd_down[kbd_scan] = 0;
 			if (kbd_scan == KEY_LEFTSHIFT)
 			{
 				kbd_shift_left = 0;
@@ -256,16 +269,21 @@ void handle_ps2()
 			}
 			else
 			{
-				get_ascii(kbd_scan);
+				get_ascii();
 			}
 		}
 	}
 	kbd_lastclock = kbd_clock;
 
-	// bool mse_clock = CHECK_BIT(ps2_mouse[3], 0);
-	// if (mse_clock != mse_lastclock)
-	// {
-	// 	mse_a1++;
-	// }
-	// mse_lastclock = mse_clock;
+	bool mse_clock = CHECK_BIT(ps2_mouse[mse_clock_index], 0);
+	if (mse_clock != mse_lastclock)
+	{
+		mse_changed = 1;
+		mse_button1 = ps2_mouse[0];
+		mse_button2 = ps2_mouse[5];
+		mse_x = ps2_mouse[1];
+		mse_y = ps2_mouse[2];
+		mse_w = ps2_mouse[4];
+	}
+	mse_lastclock = mse_clock;
 }

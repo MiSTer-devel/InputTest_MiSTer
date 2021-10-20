@@ -5,10 +5,10 @@
 A custom mini-system running an input test utility.  There are 4 test screens available:
  - Digital - shows joypad buttons for first two input devices
  - Analog - shows analog axes for selected input device (cycle with a/b)
- - Advanced - shows all standard HPS sourced inputs (joystick, analog, paddle, spinner) simultaneously as well as a ps2 keyboard console
+ - Advanced - shows all standard HPS sourced inputs (joystick, analog, paddle, spinner, ps2 keyboard and mouse) simultaneously
  - Button test - guided button test to help detect bounce / missed inputs and test man+machine lag
  
-Hold (select) on the first joypad to enter the menu
+Hold (select) on the first joypad or Escape on a keyboard to enter the menu
 
 ## Acknowledgements
 
@@ -16,11 +16,14 @@ Created by JimmyStones (http://github.com/jimmystones), with thanks to:
 - alanswx (https://github.com/alanswx) for ideas, cross-platform simulation support, and the tutorial this core was based on
 - Jotego (https://github.com/jotego) for his very tidy JTFRAME modules
 - Porkchop Express (https://misteraddons.com/) for testing a bunch of devices I couldn't
+- Sorgelig (https://github.com/sorgelig) for testing, finding bugs and suggesting new features.  Oh, and the MiSTer project :)
 
 ## History
 - v1.0 - 2021-07-03 - First release with digital, analog and advanced tests
 - v1.1 - 2021-07-18 - PETSCII UI update, add button test mode (unreleased!)
 - v1.2 - 2021-10-17 - Add support for 2nd analog stick
+- v1.3 - 2021-10-19 - Fix bugs, UI colour tweaks, remove console, show keyboard and mouse inputs on advanced mode
+- v1.4 - 2021-10-20 - Add keyboard control in menus
 
 ## Hardware
 
@@ -70,10 +73,9 @@ Start|End|Length|Name
 
 /src contains a C program compiled to Z80 assembly using sdcc.  
 
-All required ROMs (compiled program and default MiSTer font) are built into this core.  
+All required ROMs (compiled program and font) are built into this core.
 
 Selecting Load BIOS in the core allows hot loading of binary OS ROM files for easier development.
-Selecting Load Font in the core allows hot loading of MiSTer .pf font files (https://github.com/MiSTer-devel/Fonts_MiSTer).
 
 ### Building the OS
 

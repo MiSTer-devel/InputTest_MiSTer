@@ -21,6 +21,7 @@
 
 #pragma once
 #include "sys.c"
+#include "ps2.c"
 
 // Application states
 #define STATE_START_INPUTTESTER 1
@@ -48,7 +49,7 @@
 #define STATE_START_GAME_SNEK 40
 #define STATE_GAME_SNEK 41
 
-#define GET_TIMER ((unsigned short)timer[8] << 8) | (unsigned char)timer[0]
+#define GET_TIMER ((unsigned short)timer[1] << 8) | (unsigned char)timer[0]
 
 // DPAD tracker
 bool input_left = 0;
@@ -79,13 +80,12 @@ void basic_input()
 	input_select_last = input_select;
 	input_a_last = input_a;
 	input_b_last = input_b;
-	input_up = CHECK_BIT(joystick[0], 3);
-	input_down = CHECK_BIT(joystick[0], 2);
-	input_left = CHECK_BIT(joystick[0], 1);
-	input_right = CHECK_BIT(joystick[0], 0);
-	input_start = CHECK_BIT(joystick[8], 3);
-	input_select = CHECK_BIT(joystick[8], 2);
-	input_a = CHECK_BIT(joystick[0], 4);
-	input_b = CHECK_BIT(joystick[0], 5);
+	input_up = CHECK_BIT(joystick[0], 3) || kbd_down[KEY_UP];
+	input_down = CHECK_BIT(joystick[0], 2) || kbd_down[KEY_DOWN];
+	input_left = CHECK_BIT(joystick[0], 1) || kbd_down[KEY_LEFT];
+	input_right = CHECK_BIT(joystick[0], 0) || kbd_down[KEY_RIGHT];
+	input_start = CHECK_BIT(joystick[1], 3) || kbd_down[KEY_1];
+	input_select = CHECK_BIT(joystick[1], 2) || kbd_down[KEY_ESC];
+	input_a = CHECK_BIT(joystick[0], 4) || kbd_down[KEY_ENTER];
+	input_b = CHECK_BIT(joystick[0], 5) || kbd_down[KEY_SPACE];
 }
-
