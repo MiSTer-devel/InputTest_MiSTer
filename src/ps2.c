@@ -19,6 +19,7 @@
 	with this program. If not, see <http://www.gnu.org/licenses/>.
 ===========================================================================*/
 
+#pragma once
 #include "sys.c"
 
 // COMMAND KEYS
@@ -31,6 +32,10 @@ const char KEY_LEFTSHIFT = 0x12;
 const char KEY_RIGHTSHIFT = 0x59;
 const char KEY_ALT = 0x11;	// EXT 0 = LEFT, EXT 1 = RIGHT
 const char KEY_CTRL = 0x63; // EXT 0 = LEFT, EXT 1 = RIGHT
+
+// USEFUL KEYS
+const char KEY_1 = 0x16;
+const char KEY_SPACE = 0x29;
 
 // UNMAPPED COMMAND KEYS
 // 	0x7c, //55  KEY_KPASTERISK
@@ -191,8 +196,7 @@ char kbd_shift_right = 0;
 char kbd_scan = 0;
 char kbd_pressed;
 char kbd_extend;
-char kbd_lastscan = 0;
-char kbd_lastascii = 0;
+char kbd_ascii = 0;
 char kbd_clock_index = 1;
 
 char mse_lastclock = 0;
@@ -206,18 +210,19 @@ char mse_clock_index = 3;
 
 char kbd_buffer[128];
 char kbd_buffer_len = 0;
+bool kbd_down[256];
 
 void get_ascii()
 {
-	char p = (kbd_lastscan * 2);
+	char p = (kbd_scan * 2);
 	if (!(kbd_shift_left || kbd_shift_right))
 	{
 		p++;
 	}
-	kbd_lastascii = kbd_UK[p];
-	if (kbd_lastascii > 0)
+	kbd_ascii = kbd_UK[p];
+	if (kbd_ascii > 0)
 	{
-		kbd_buffer[kbd_buffer_len] = kbd_lastascii;
+		kbd_buffer[kbd_buffer_len] = kbd_ascii;
 		kbd_buffer_len++;
 	}
 }
@@ -231,13 +236,13 @@ void handle_ps2()
 		{
 			kbd_in[k] = ps2_key[k];
 		}
-		kbd_extend = CHECK_BIT(kbd_in[1], 0);
-		kbd_pressed = CHECK_BIT(kbd_in[1], 1);
+		kbd_extend = CHECK_BIT(kbd_in[1], 0) > 0;
+		kbd_pressed = CHECK_BIT(kbd_in[1], 1) > 0;
 		kbd_scan = kbd_in[0];
-		kbd_lastscan = kbd_scan;
-		kbd_lastascii = 0;
+		kbd_ascii = 0;
 		if (kbd_pressed)
 		{
+			kbd_down[kbd_scan] = 1;
 			if (kbd_scan == KEY_LEFTSHIFT)
 			{
 				kbd_shift_left = 1;
@@ -253,6 +258,7 @@ void handle_ps2()
 		}
 		else
 		{
+			kbd_down[kbd_scan] = 0;
 			if (kbd_scan == KEY_LEFTSHIFT)
 			{
 				kbd_shift_left = 0;

@@ -35,8 +35,8 @@ unsigned char px_last[6];
 signed char sx_toggle_last[6];
 signed char sx_last[6];
 unsigned long sx_pos[6];
-unsigned char kbd_lastscan_cache = 1;
-unsigned char kbd_lastascii_cache = 1;
+unsigned char kbd_scan_last = 1;
+unsigned char kbd_ascii_last = 1;
 unsigned char mse_button1_last = 1;
 unsigned char mse_button2_last = 1;
 signed char mse_x_last = 1;
@@ -352,7 +352,7 @@ void inputtester_digital()
 {
 
     // // Handle PS/2 inputs whenever possible to improve latency
-    // handle_ps2();
+    handle_ps2();
 
     // Handle secret code detection (joypad 1 directions)
     if (HBLANK_RISING)
@@ -388,7 +388,7 @@ void inputtester_analog()
 {
 
     // Handle PS/2 inputs whenever possible to improve latency
-    // handle_ps2();
+    handle_ps2();
 
     if (HBLANK_RISING)
     {
@@ -584,13 +584,13 @@ void inputtester_advanced()
         }
 
         // Scancode output
-        if (kbd_lastscan != kbd_lastscan_cache || kbd_lastascii != kbd_lastascii_cache)
+        if (kbd_scan != kbd_scan_last || kbd_ascii != kbd_ascii_last)
         {
-            write_stringf("%02x", 0xFF, 11, 21, kbd_lastscan);
-            write_char(kbd_lastascii, 0xFF, 15, 21);
+            write_stringf("%02x", 0xFF, 11, 21, kbd_scan);
+            write_char(kbd_ascii, 0xFF, 15, 21);
 
-            kbd_lastscan_cache = kbd_lastscan;
-            kbd_lastascii_cache = kbd_lastascii;
+            kbd_scan_last = kbd_scan;
+            kbd_ascii_last = kbd_ascii;
         }
 
         if (mse_changed)
@@ -629,29 +629,6 @@ void inputtester_advanced()
             }
             mse_changed = 0;
         }
-
-        // {
-        //     char m = 0b00000001;
-        //     char x = 2;
-        //     char y = 27;
-        //     for (char b = 0; b < 8; b++)
-        //     {
-        //         char joy = ps2_mouse[b];
-        //         m = 0b00000001;
-        //         for (char i = 0; i < 8; i++)
-        //         {
-        //             x++;
-        //             write_char((joy & m) ? asc_1 : asc_0, 0xFF, x, y);
-        //             m <<= 1;
-        //         }
-        //         x++;
-        //         if (b == 3)
-        //         {
-        //             x = 2;
-        //             y++;
-        //         }
-        //     }
-        // }
     }
 }
 

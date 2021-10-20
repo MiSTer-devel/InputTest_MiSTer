@@ -66,6 +66,9 @@ void start_menu()
 // Menu state
 void menu()
 {
+    // // Handle PS/2 inputs whenever possible to improve latency
+    handle_ps2();
+	
 	// Check inputs at end of each scanline.  Is this too much?!
 	if (HBLANK_RISING)
 	{

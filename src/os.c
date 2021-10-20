@@ -109,6 +109,7 @@ void main()
 			//start_btntest();
 			break;
 		}
+
 		hsync_last = hsync;
 		vsync_last = vsync;
 		hblank_last = hblank;
