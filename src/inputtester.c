@@ -37,8 +37,8 @@ signed char sx_last[6];
 unsigned long sx_pos[6];
 unsigned char kbd_scan_last = 1;
 unsigned char kbd_ascii_last = 1;
-unsigned char mse_button1_last = 1;
-unsigned char mse_button2_last = 1;
+unsigned char mse_button1_last = 255;
+unsigned char mse_button2_last = 255;
 signed char mse_x_last = 1;
 signed char mse_y_last = 1;
 signed char mse_w_last = 1;
@@ -587,7 +587,7 @@ void inputtester_advanced()
         if (kbd_scan != kbd_scan_last || kbd_ascii != kbd_ascii_last)
         {
             write_stringf("%02x", 0xFF, 11, 21, kbd_scan);
-            write_char(kbd_ascii, 0xFF, 15, 21);
+            write_char(kbd_ascii, 0xFF, 14, 21);
 
             kbd_scan_last = kbd_scan;
             kbd_ascii_last = kbd_ascii;

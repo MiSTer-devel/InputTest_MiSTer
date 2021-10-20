@@ -2,8 +2,8 @@
 	Aznable OS - PS/2 interface functions
 
 	Author: Jim Gregory - https://github.com/JimmyStones/
-	Version: 1.0
-	Date: 2021-07-03
+	Version: 1.1
+	Date: 2021-10-20
 
 	This program is free software; you can redistribute it and/or modify it
 	under the terms of the GNU General Public License as published by the Free
@@ -200,7 +200,7 @@ char kbd_ascii = 0;
 char kbd_clock_index = 1;
 
 char mse_lastclock = 0;
-bool mse_changed = 0;
+bool mse_changed = 1;
 signed char mse_x;
 signed char mse_y;
 signed char mse_w;
