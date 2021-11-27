@@ -561,8 +561,8 @@ void inputtester_advanced()
             px_last[inputindex] = px;
 
             // Draw spinner inputs (only update when update clock changes)
-            bool sx_toggle = CHECK_BIT(spinner[(inputindex * 8) + 1], 0);
-            signed char sx = spinner[(inputindex * 8)];
+            bool sx_toggle = CHECK_BIT(spinner[(inputindex * 2) + 1], 0);
+            signed char sx = spinner[(inputindex * 2)];
             if (sx_toggle != sx_toggle_last[inputindex])
             {
                 sx_pos[inputindex] += sx;
