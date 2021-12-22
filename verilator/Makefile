@@ -1,10 +1,4 @@
-#
-#
-#
-
 V = verilator
-#V = /usr/local/bin/verilator
-#V = /usr/local/src/verilator-3.876/bin/verilator
 COSIM = n
 
 TOP = --top-module emu
@@ -49,27 +43,30 @@ LDFLAGS = $(LIBS)
 EXE = ./obj_dir/Vemu
 V_OPT = -O3 --x-assign fast --x-initial fast --noassert 
 CC_OPT = -O
-#V_OPT = 
-#CC_OPT =   
 
 V_SRC = \
         sim.v \
         $(RTL)/system.v \
+        $(RTL)/charmap.v \
+        $(RTL)/sprite_engine.v \
+        $(RTL)/generic_timer.v \
         $(RTL)/dpram.v  \
+        $(RTL)/dpram_w1r2.v  \
         $(RTL)/spram.v  \
 		$(RTL)/JTFRAME/jtframe_vtimer.v \
 		$(RTL)/JTFRAME/jtframe_cen24.v \
-../rtl/tv80/tv80_core.v \
-../rtl/tv80/tv80_alu.v \
-../rtl/tv80/tv80_mcode.v \
-../rtl/tv80/tv80_reg.v \
-../rtl/tv80/tv80n.v \
-../rtl/tv80/tv80s.v
+		$(RTL)/tv80/tv80_core.v \
+		$(RTL)/tv80/tv80_alu.v \
+		$(RTL)/tv80/tv80_mcode.v \
+		$(RTL)/tv80/tv80_reg.v \
+		$(RTL)/tv80/tv80n.v \
+		$(RTL)/tv80/tv80s.v
 
 C_SRC = \
 	sim_main.cpp  \
-sim/sim_bus.cpp		sim/sim_clock.cpp	sim/sim_console.cpp	sim/sim_video.cpp sim/sim_input.cpp \
- sim/imgui/imgui_impl_sdl.cpp sim/imgui/imgui_impl_opengl2.cpp sim/imgui/imgui_draw.cpp sim/imgui/imgui_widgets.cpp sim/imgui/imgui_tables.cpp sim/imgui/imgui.cpp sim/imgui/ImGuiFileDialog.cpp
+	sim/sim_bus.cpp sim/sim_clock.cpp sim/sim_console.cpp sim/sim_video.cpp sim/sim_input.cpp \
+	sim/imgui/imgui_impl_sdl.cpp sim/imgui/imgui_impl_opengl2.cpp sim/imgui/imgui_draw.cpp sim/imgui/imgui_widgets.cpp sim/imgui/imgui_tables.cpp sim/imgui/imgui.cpp sim/imgui/ImGuiFileDialog.cpp
+
 VOUT = obj_dir/Vemu.cpp
 
 all: $(EXE)

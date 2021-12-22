@@ -66,6 +66,18 @@
     <ClCompile Include="sim\imgui\ImGuiFileDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="obj_dir\Vemu__1.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="obj_dir\Vemu__Slow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="obj_dir\Vemu__1__Slow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sim\vinc\verilated_vcd_c.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sim\imgui\imconfig.h">
@@ -113,5 +125,13 @@
     <ClInclude Include="sim\sim_clock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="font.hex">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="rom.hex">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

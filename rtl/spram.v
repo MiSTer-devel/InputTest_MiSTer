@@ -36,7 +36,7 @@ reg [data_width-1:0] mem [ramLength-1:0];
 always @(posedge clock) begin
 	q <= mem[address];
 	if(wren) begin
-		q <= data;
+		//q <= data;
 		mem[address] <= data;
 	end
 end

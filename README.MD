@@ -73,7 +73,7 @@ Start|End|Length|Name
 
 /src contains a C program compiled to Z80 assembly using sdcc.  
 
-All required ROMs (compiled program and font) are built into this core.
+All required ROMs (compiled program, font, images, sounds and music) are built into this core.
 
 Selecting Load BIOS in the core allows hot loading of binary OS ROM files for easier development.
 

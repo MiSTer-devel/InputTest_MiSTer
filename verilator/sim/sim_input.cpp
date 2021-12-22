@@ -19,6 +19,10 @@ unsigned char m_keyboardState_last[256];
 #endif
 
 #include <vector>
+#include "sim_console.h"
+
+static DebugConsole console;
+
 #ifdef WIN32
 static const unsigned int ev2ps2[] =
 {
@@ -648,9 +652,10 @@ void SimInput::BeforeEval()
 	}
 }
 
-SimInput::SimInput(int count)
+SimInput::SimInput(int count, DebugConsole c)
 {
 	inputCount = count;
+	console = c;
 }
 
 SimInput::~SimInput()
