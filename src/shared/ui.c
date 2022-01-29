@@ -31,8 +31,8 @@ void clear_chars(char c)
 	for (unsigned short p = 0; p < chram_size; p++)
 	{
 		chram[p] = c;
-		fgcolram[p] = c;
-		bgcolram[p] = c;
+		fgcolram[p] = 0;
+		bgcolram[p] = transparent_char;
 	}
 }
 
