@@ -100,7 +100,7 @@ jtframe_vtimer #(
 
 // Millisecond timer
 wire  [15:0]	timer;
-generic_timer #(16,15,24) ms_timer
+generic_timer #(16,15,15'd24000) ms_timer
 (
 	.clk(clk_24),
 	.reset(reset || (timer_cs && !cpu_wr_n)),
@@ -191,7 +191,7 @@ always @(posedge clk_24) begin
 	// if(starfield1_cs) $display("starfield1 %b %b", cpu_addr, cpu_dout);
 	// if(starfield2_cs) $display("starfield2 %b %b", cpu_addr, cpu_dout);
 	// if(starfield3_cs) $display("starfield3 %b %b", cpu_addr, cpu_dout);
-	//if(!cpu_wr_n) $display("cpu_write %x %b",cpu_addr, cpu_dout);
+	if(timer_cs) $display("timer: %b %x %x", timer_cs, cpu_addr, cpu_dout);
 	//if(spritecollisionram_cs && !cpu_wr_n) $display("spritecollisionram %b %b %b", cpu_wr_n, cpu_addr, cpu_dout);
 	//if(spriteram_cs && !cpu_wr_n) $display("spriteram_cs %x %b", cpu_addr[SPRITE_RAM_WIDTH-1:0], cpu_dout);
 	//if(sound_cs && !cpu_wr_n) $display("sound_cs %b %b", cpu_addr, cpu_dout);

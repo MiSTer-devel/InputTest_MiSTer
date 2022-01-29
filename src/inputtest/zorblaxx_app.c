@@ -156,7 +156,7 @@ void update_scroller()
 void intro_loop()
 {
 
-	clear_bgcolor(0);
+	clear_bgcolor(transparent_char);
 
 	// Start intro music loop
 	play_music_if(const_music_maintheme, 1);

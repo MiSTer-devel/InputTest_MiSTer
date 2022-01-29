@@ -24,6 +24,8 @@
 extern char asc_0;
 extern char asc_1;
 
+#define transparent_char 0b11000111
+
 #define char_corner_round_tl 149
 #define char_corner_round_tr 137
 #define char_corner_round_bl 138

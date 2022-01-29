@@ -19,4 +19,3 @@ set_global_assignment -name VERILOG_FILE rtl/system.v
 set_global_assignment -name VERILOG_FILE rtl/dpram.v
 set_global_assignment -name VERILOG_FILE rtl/dpram_w1r2.v
 set_global_assignment -name VERILOG_FILE rtl/spram.v
-set_global_assignment -name VERILOG_FILE rtl/pause.v

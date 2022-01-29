@@ -94,7 +94,7 @@ void loader(const char *title)
 	// Set charmap area
 	chram_size = chram_cols * chram_rows;
 	// Clear charmap
-	clear_bgcolor(0);
+	clear_bgcolor(transparent_char);
 	clear_chars(0);
 	// Reset sprites
 	clear_sprites();

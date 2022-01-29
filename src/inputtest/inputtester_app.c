@@ -729,7 +729,6 @@ void btntest_select()
 {
     if (HBLANK_RISING)
     {
-
         // If any of 1st 8 buttons is pressed
         if (joystick[0] != 0)
         {

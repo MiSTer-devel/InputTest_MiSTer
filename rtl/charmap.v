@@ -44,11 +44,13 @@ wire [5:0] chram_x = hcnt[8:3];
 wire [5:0] chram_y = vcnt[8:3];
 assign chram_addr = {chram_y, chram_x};
 assign chrom_addr = {1'b0, chmap_data_out[7:0], chpos_y};
-assign a = chrom_data_out[chpos_x[2:0]];
+wire char_a = chrom_data_out[chpos_x[2:0]];
 
-wire [2:0] r_temp = a ? fgcolram_data_out[2:0] : bgcolram_data_out[2:0];
-wire [2:0] g_temp = a ? fgcolram_data_out[5:3] : bgcolram_data_out[5:3];
-wire [1:0] b_temp = a ? fgcolram_data_out[7:6] : bgcolram_data_out[7:6];
+wire [2:0] r_temp = char_a ? fgcolram_data_out[2:0] : bgcolram_data_out[2:0];
+wire [2:0] g_temp = char_a ? fgcolram_data_out[5:3] : bgcolram_data_out[5:3];
+wire [1:0] b_temp = char_a ? fgcolram_data_out[7:6] : bgcolram_data_out[7:6];
+
+assign a = char_a ? char_a : (bgcolram_data_out != 8'b11000111);
 
 assign r = {{2{r_temp}},2'b0};
 assign g = {{2{g_temp}},2'b0};

@@ -213,10 +213,6 @@ localparam CONF_STR = {
 	"-;",	
 	"RA,Open menu;",
 	"-;",
-	"P1,Pause options;",
-	"P1OP,Pause when OSD is open,On,Off;",
-	"P1OQ,Dim video after 10s,On,Off;",
-	"-;",
 	"F0,BIN,Load BIOS;",
 	"F3,BIN,Load Sprite ROM;",
 	"F4,YM,Load Music (YM5/6);",
@@ -355,6 +351,7 @@ jtframe_cen24 divider
 wire hblank, vblank, hs, vs, hs_original, vs_original;
 wire [7:0] r, g, b;
 
+wire [23:0] rgb = {r,g,b};
 wire rotate_ccw = status[7];
 wire no_rotate = ~status[6];
 wire flip = status[7];
@@ -363,7 +360,7 @@ arcade_video #(320,24) arcade_video
 (
 	.*,
 	.clk_video(clk_sys),
-	.RGB_in(rgb_out),
+	.RGB_in(rgb),
 	.HBlank(hblank),
 	.VBlank(vblank),
 	.HSync(hs),
@@ -388,20 +385,9 @@ jtframe_resync jtframe_resync
   .vs_out(vs)
 );
 
-///////////////////  PAUSE SYSTEM ///////////////////
-wire m_pause   = joystick_0[8];
-wire				pause_cpu;
-wire [23:0]		rgb_out;
-pause #(8,8,8,24) pause (
-	.*,
-	.user_button(m_pause),
-	.pause_request(),
-	.options(~status[26:25])
-);
-
 ///////////////////   MAIN CORE   ////////////////////
 wire rom_download = ioctl_download && (ioctl_index < 8'd2);
-wire reset = (RESET | status[0] | buttons[1] | rom_download);
+wire reset = (RESET | status[0] | rom_download);
 assign LED_USER = rom_download;
 
 system system(
@@ -409,7 +395,7 @@ system system(
 	.ce_6(ce_pix),
 	.ce_2(ce_2),
 	.reset(reset),
-	.pause(pause_cpu),
+	.pause(1'b0),
 	.menu(status[10] || buttons[1]),
 	.VGA_HS(hs_original),
 	.VGA_VS(vs_original),
