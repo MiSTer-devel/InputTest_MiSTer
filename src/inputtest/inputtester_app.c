@@ -335,6 +335,7 @@ void handle_codes()
     {
         pushhistory(6);
     }
+
     // Check for SNEK code
     if (history[0] == 1 && history[1] == 1 && history[2] == 2 && history[3] == 2 && history[4] == 3 && history[5] == 4 && history[6] == 5)
     {
@@ -729,6 +730,7 @@ void btntest_select()
 {
     if (HBLANK_RISING)
     {
+
         // If any of 1st 8 buttons is pressed
         if (joystick[0] != 0)
         {

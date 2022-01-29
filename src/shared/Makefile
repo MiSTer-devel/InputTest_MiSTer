@@ -30,6 +30,7 @@ $(OUTPUT).bin: build/$(OUTPUT).ihx
 	srec_cat $< -intel -o $@ -binary
 	rm build/$(OUTPUT).ihx
 	mv $(OUTPUT).bin bin/$(OUTPUT).bin
+	mv build/$(OUTPUT).asm $(OUTPUT).asm
 	rm -f build/$(OUTPUT).*
 
 clean:

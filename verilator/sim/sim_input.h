@@ -15,11 +15,13 @@ public:
 	char code;
 	bool pressed;
 	bool extended;
+	unsigned int mapped;
 
-	SimInput_PS2KeyEvent(char code, bool pressed, bool extended) {
+	SimInput_PS2KeyEvent(char code, bool pressed, bool extended, unsigned int mapped) {
 		this->code = code;
 		this->pressed = pressed;
 		this->extended = extended;
+		this->mapped = mapped;
 	}
 };
 

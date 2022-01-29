@@ -25,8 +25,8 @@ extern void enable_starfield();
 
 extern void disable_starfield();
 
-extern void set_starfield_speed_x(float speed);
+extern void set_starfield_speed_x(signed short speed);
 
-extern void set_starfield_speed_y(float speed);
+extern void set_starfield_speed_y(signed short speed);
 
 #endif

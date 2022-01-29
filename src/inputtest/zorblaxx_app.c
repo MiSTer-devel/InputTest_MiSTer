@@ -164,7 +164,7 @@ void intro_loop()
 	// Setup starfield layer speeds
 	enable_starfield();
 	set_starfield_speed_x(0);
-	set_starfield_speed_y(-0.5f);
+	set_starfield_speed_y(-64);
 
 	// Setup title sprites
 	unsigned char title_sprite = 16;
@@ -329,7 +329,7 @@ void game_loop()
 			if (scroll_speed != scroll_speed_last)
 			{
 				scroll_speed_last = scroll_speed;
-				set_starfield_speed_y(scroll_speed * -0.02f);
+				set_starfield_speed_y(-scroll_speed * 4);
 			}
 
 			// Track player button press

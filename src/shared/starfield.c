@@ -33,10 +33,10 @@ void disable_starfield()
 	starfield3[0] = 0;
 }
 
-void set_starfield_speed_x(float speed)
+void set_starfield_speed_x(signed short speed)
 {
 	unsigned char dir = (speed < 0) << 7;
-	unsigned short mag = (unsigned short)abs(speed * 256);
+	unsigned short mag = (unsigned short)abs(speed);
 	starfield3[1] = dir | mag >> 8;
 	starfield3[2] = (unsigned char)mag;
 	mag = mag << 1;
@@ -47,10 +47,10 @@ void set_starfield_speed_x(float speed)
 	starfield1[2] = (unsigned char)mag;
 }
 
-void set_starfield_speed_y(float speed)
+void set_starfield_speed_y(signed short speed)
 {
 	unsigned char dir = (speed < 0) << 7;
-	unsigned short mag = (unsigned short)abs(speed * 256);
+	unsigned short mag = (unsigned short)abs(speed);
 	starfield3[3] = dir | mag >> 8;
 	starfield3[4] = (unsigned char)mag;
 	mag = mag << 1;
