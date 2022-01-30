@@ -734,10 +734,11 @@ void btntest_select()
         // If any of 1st 8 buttons is pressed
         if (joystick[0] != 0)
         {
+            btntest_buttonbank = 0;
             // Find which button
             for (char b = 0; b < 8; b++)
             {
-                if (CHECK_BIT(joystick[0], b))
+                if (CHECK_BIT(joystick[btntest_buttonbank], b))
                 {
                     btntest_buttonindex = b;
                     break;
@@ -747,13 +748,36 @@ void btntest_select()
             page_btntest(false, false); // reset screen
             write_string("Hit the button at each prompt", 0b11111000, 5, 14);
             write_string("Selected button is: ", 0xFF, 6, 16);
-            char i = btntest_buttonindex;
+            char i = btntest_buttonindex + (btntest_buttonbank * 8);
+            write_string(button_name[i], 0b00000111, 26, 16);
+            write_string("Press again to start test", 0b00111000, 7, 18);
+            btntest_timer = 10;
+            return;
+        }
+        else if (joystick[1] != 0)
+        {
+            btntest_buttonbank = 1;
+            // Find which button
+            for (char b = 0; b < 8; b++)
+            {
+                if (CHECK_BIT(joystick[btntest_buttonbank], b))
+                {
+                    btntest_buttonindex = b;
+                    break;
+                }
+            }
+            btntest_mode = btntest_mode_ready;
+            page_btntest(false, false); // reset screen
+            write_string("Hit the button at each prompt", 0b11111000, 5, 14);
+            write_string("Selected button is: ", 0xFF, 6, 16);
+            char i = btntest_buttonindex + (btntest_buttonbank * 8);
             write_string(button_name[i], 0b00000111, 26, 16);
             write_string("Press again to start test", 0b00111000, 7, 18);
             btntest_timer = 10;
             return;
         }
     }
+
     if (VBLANK_RISING)
     {
         // Check inputs for select hold to enter menu
@@ -767,10 +791,10 @@ void btntest_ready()
 {
     if (HBLANK_RISING)
     {
-        char button = CHECK_BIT(joystick[0], btntest_buttonindex);
+        char button = CHECK_BIT(joystick[btntest_buttonbank], btntest_buttonindex);
         if (btntest_timer > 0)
         {
-            if (joystick[0] == 0)
+            if (joystick[btntest_buttonbank] == 0)
             {
                 btntest_timer--;
             }
@@ -792,7 +816,7 @@ void btntest_test()
 {
 
     // Track button presses
-    bool down = CHECK_BIT(joystick[0], btntest_buttonindex);
+    bool down = CHECK_BIT(joystick[btntest_buttonbank], btntest_buttonindex);
     if (down && !btntest_buttondownlast)
     {
         btntest_presses[btntest_pos] = GET_TIMER;
