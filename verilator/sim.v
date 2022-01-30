@@ -108,34 +108,18 @@ jtframe_cen24 divider
 // Debug defines
 `define DEBUG_SIMULATION
 
-wire m_pause   = joystick_0[8];
-// PAUSE SYSTEM
-wire				pause_cpu;
-wire [7:0]  r,g,b;
-wire [23:0]		rgb_out;
-assign VGA_R = rgb_out[23:16];
-assign VGA_G = rgb_out[15:8];
-assign VGA_B = rgb_out[7:0];
-pause #(8,8,8,24) pause (
-	.*,
-	.OSD_STATUS(),
-	.user_button(m_pause),
-	.pause_request(),
-	.options(2'b0)
-);
-
 system system(
 	.clk_24(clk_sys),
 	.ce_6(ce_6),
 	.ce_2(ce_2),
 	.reset(reset | ioctl_download),
-	.pause(pause_cpu),
+	.pause(1'b0),
 	.menu(menu),
 	.VGA_HS(VGA_HS),
 	.VGA_VS(VGA_VS),
-	.VGA_R(r),
-	.VGA_G(g),
-	.VGA_B(b),
+	.VGA_R(VGA_R),
+	.VGA_G(VGA_G),
+	.VGA_B(VGA_B),
 	.VGA_HB(VGA_HB),
 	.VGA_VB(VGA_VB),
 	.dn_addr(ioctl_addr[16:0]),
