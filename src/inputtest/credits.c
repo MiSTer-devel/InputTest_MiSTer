@@ -41,7 +41,7 @@ void app_credits()
 
 	enable_starfield();
 	set_starfield_speed_x(0);
-	set_starfield_speed_y(-0.1f);
+	set_starfield_speed_y(-16);
 
 	tilemap_offset_x = 0;
 	tilemap_offset_y = 0;

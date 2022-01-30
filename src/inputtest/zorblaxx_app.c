@@ -157,6 +157,9 @@ void intro_loop()
 {
 
 	clear_bgcolor(transparent_char);
+	clear_tilemap();
+	tilemap_offset_x = 0;
+	scroller_pos = 0;
 
 	// Start intro music loop
 	play_music_if(const_music_maintheme, 1);
