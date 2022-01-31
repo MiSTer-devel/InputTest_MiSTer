@@ -52,4 +52,6 @@ void stop_music()
 {
 	// Send stop command
 	musicram[0] = 3;
+	// Reset last played track
+	music_last_played = 255;
 }
