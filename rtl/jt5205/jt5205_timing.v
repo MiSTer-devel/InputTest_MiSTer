@@ -16,6 +16,8 @@
     Version: 1.0
     Date: 30-10-2019 */
 
+`timescale 1ps / 1ps
+
 module jt5205_timing(
     input             clk,
     (* direct_enable *) input cen,

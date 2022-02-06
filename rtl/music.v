@@ -1,4 +1,3 @@
-`timescale 1ns / 1ps
 /*============================================================================
 	Aznable (custom 8-bit computer system) - Deikun (music engine)
 
@@ -19,6 +18,8 @@
 	You should have received a copy of the GNU General Public License along
 	with this program. If not, see <http://www.gnu.org/licenses/>.
 ===========================================================================*/
+
+`timescale 1ps / 1ps
 
 module music #(
 	parameter ROM_WIDTH = 17

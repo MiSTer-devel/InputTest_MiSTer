@@ -21,6 +21,8 @@
     
     */
 
+`timescale 1ps / 1ps
+
 module jt49_eg(
   (* direct_enable *) input cen,
   input           clk, // this is the divided down clock from the core

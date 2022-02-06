@@ -19,6 +19,8 @@
 	with this program. If not, see <http://www.gnu.org/licenses/>.
 ===========================================================================*/
 
+`timescale 1ps / 1ps
+
 module dpram_w1r2 #(
 	parameter address_width = 10,
 	parameter data_width = 8,

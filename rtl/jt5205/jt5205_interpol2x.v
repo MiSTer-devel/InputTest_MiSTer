@@ -20,6 +20,8 @@
 // Reduces HF content without altering too much the
 // original sound
 
+`timescale 1ps / 1ps
+
 module jt5205_interpol2x(
     input                      rst,
     input                      clk,

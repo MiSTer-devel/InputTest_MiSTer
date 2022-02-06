@@ -588,7 +588,7 @@ void SimInput::Read() {
 			keyEvents.push(evt);
 		}
 		m_keyboardState_last[k] = m_keyboardState[k];
-}
+	}
 #else
 	for (int k = 0; k < m_keyboardStateCount; k++) {
 		if (m_keyboardState_last[k] != m_keyboardState[k]) {
@@ -608,7 +608,7 @@ void SimInput::SetMapping(int index, int code) {
 		mappings[index] = code;
 	else
 		mappings[index] = 0;
-		}
+}
 
 void SimInput::CleanUp() {
 

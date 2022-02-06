@@ -21,6 +21,7 @@
     
     */
 
+`timescale 1ps / 1ps
 
 module jt49_noise(
   (* direct_enable *) input cen,

@@ -24,7 +24,7 @@
 ===========================================================================*/
 
 `default_nettype none
-`timescale 1ns / 1ps
+`timescale 1ps / 1ps
 
 module starfield #(
     parameter [LEN-1:0] H=800,

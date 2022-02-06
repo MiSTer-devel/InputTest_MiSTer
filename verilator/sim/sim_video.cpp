@@ -403,26 +403,33 @@ void SimVideo::Clock(bool hblank, bool vblank, bool hsync, bool vsync, uint32_t 
 
 	bool de = !(hblank || vblank);
 
-	// Next line on rising hsync
+	bool hs_falling = (!hsync && last_hsync);
+	bool hs_rising = (hsync && !last_hsync);
+	bool hb_falling = (!hblank && last_hblank);
+	bool hb_rising = (hblank && !last_hblank);
+	bool vs_falling = (!vsync && last_vsync);
+	bool vs_rising = (vsync && !last_vsync);
+	bool vb_falling = (!vblank && last_vblank);
+	bool vb_rising = (vblank && !last_vblank);
+
 	if (!vblank) {
-		if (last_hsync && !hsync) {
+		// Next line on end of hblank
+		if (hb_falling) {
 			// Increment line and reset pixel count
 			count_line++;
 			count_pixel = 0;
 		}
-		else {
-			// Increment pixel counter when not blanked
-			if (de) {
-				count_pixel++;
-			}
+		if (de) {
+			count_pixel++;
 		}
 	}
 
+	//frame_ready = 1;
 	// Reset on rising vsync
 	if (last_vsync && !vsync) {
-		frame_ready = 1;
 		count_frame++;
 		count_line = 0;
+		frame_ready = 1;
 #ifdef WIN32
 		GetSystemTime(&actualtime);
 		time_ms = (actualtime.wSecond * 1000) + actualtime.wMilliseconds;

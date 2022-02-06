@@ -29,6 +29,7 @@
 // Memory mapped IO
 // - Inputs
 unsigned char __at(0x8000) input0;
+unsigned char __at(0x8001) video_ctl;		// 0=sprite layer priority over charmap
 unsigned char __at(0x8100) joystick[24];
 unsigned char __at(0x8200) analog_l[12];
 unsigned char __at(0x8300) analog_r[12];

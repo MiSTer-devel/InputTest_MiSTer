@@ -1,4 +1,4 @@
-`timescale 1ns / 1ps
+`timescale 1ps / 1ps
 /*============================================================================
 	Aznable (custom 8-bit computer system) - System module
 
@@ -100,7 +100,7 @@ jtframe_vtimer #(
 
 // Millisecond timer
 wire  [15:0]	timer;
-generic_timer #(16,15,15'd24000) ms_timer
+generic_timer #(16,15,24000) ms_timer
 (
 	.clk(clk_24),
 	.reset(reset || (timer_cs && !cpu_wr_n)),
@@ -129,9 +129,10 @@ wire [7:0] music_data_out;
 // CPU address decodes
 // - Program ROM
 wire pgrom_cs = cpu_addr[15] == 1'b0;
-// - Memory mapped inputs
+// - Memory mapped input/output
 wire [7:0] memory_map_addr = cpu_addr[15:8];
-wire in0_cs = memory_map_addr == 8'b10000000;
+wire in0_cs = cpu_addr == 16'b1000000000000000;
+wire video_ctl_cs = cpu_addr == 16'b1000000000000001;
 wire joystick_cs = memory_map_addr == 8'b10000001;
 wire analog_l_cs = memory_map_addr == 8'b10000010;
 wire analog_r_cs = memory_map_addr == 8'b10000011;
@@ -161,6 +162,14 @@ wire tilemapcontrol_cs = cpu_addr[15:2] == 14'b10001100000000;
 wire tilemapram_cs = cpu_addr >= 16'h8C10 && cpu_addr < 16'h8F10;
 // - CPU working RAM
 wire wkram_cs = cpu_addr[15:14] == 2'b11;
+
+// Video control output
+reg [7:0] video_control;
+always @(posedge clk_24) begin
+	if(video_ctl_cs && !cpu_wr_n) video_control <= cpu_dout;
+end
+wire video_sprite_layer_high = video_control[0]; // If high sprites are above charmap
+
 
 // System pause trigger
 reg pause_trigger = 0;
@@ -201,6 +210,7 @@ always @(posedge clk_24) begin
 	//if(chram_cs) $display("%x chram i %x o %x w %b", cpu_addr, cpu_dout, chram_data_out, chram_wr);
 	//if(fgcolram_cs) $display("%x fgcolram i %x o %x w %b", cpu_addr, cpu_dout, fgcolram_data_out, fgcolram_wr);
 	//if(in0_cs) $display("%x in0 i %x o %x", cpu_addr, cpu_dout, in0_data_out);
+	// if(video_ctl_cs) $display("%x video_ctl_cs i %x w %b", cpu_addr, cpu_dout, ~cpu_wr_n);
  	//if(joystick_cs) $display("joystick %b  %b", joystick_bit, joystick_data_out);
  	//if(analog_l_cs) $display("analog_l %b  %b", analog_l_bit, analog_l_data_out);
  	//if(analog_r_cs) $display("analog_r %b  %b", analog_r_bit, analog_r_data_out);
@@ -587,23 +597,30 @@ wire sf_on = sf_on1 || sf_on2 || sf_on3;
 wire [7:0] sf_star_colour = sf_on1 ? sf_star1[7:0] : sf_on2 ? {1'b0,sf_star2[6:0]} : sf_on3 ? {2'b0,sf_star3[5:0]} : 8'b0;
 
 // RGB mixer
+
+wire [23:0] rgb_starfield = {3{sf_on ? sf_star_colour : 8'b0}};
+wire [23:0] rgb_charmap = { charmap_b, charmap_g, charmap_r };
+wire [23:0] rgb_tilemap = { tilemap_b, tilemap_g, tilemap_r };
+wire [23:0] rgb_sprite = { spr_b, spr_g, spr_r };
+
 `ifdef DEBUG_SPRITE_COLLISION
-// highlight collisions
-assign VGA_R = spritedebugram_data_out_a > 8'b0 ? spritedebugram_data_out_a : spr_a ? spr_r : charmap_a ? charmap_r : sf_on ? sf_star_colour : 8'b0; 
-assign VGA_G = spr_a ? spr_g : charmap_a ? charmap_g : sf_on ? sf_star_colour : 8'b0;
-assign VGA_B = spritedebugram_data_out_a > 8'b0 ? spritedebugram_data_out_a : spr_a ? spr_b : charmap_a ? charmap_b : sf_on ? sf_star_colour : 8'b0;
+// highlight sprite collisions
+wire [23:0] rgb_sprite_debug = {3{spritedebugram_data_out_a}};
+wire [23:0] rgb_final = spritedebugram_data_out_a ? rgb_sprite_debug : video_sprite_layer_high ? 
+							(spr_a ? rgb_sprite : charmap_a ? rgb_charmap : tilemap_a ? rgb_tilemap : rgb_starfield) :
+							(charmap_a ? rgb_charmap : spr_a ? rgb_sprite : tilemap_a ? rgb_tilemap : rgb_starfield);
 `endif
 `ifndef DEBUG_SPRITE_COLLISION
-`ifdef SPRITE_LAYER_HIGH
-assign VGA_R = spr_a ? spr_r : charmap_a ? charmap_r : tilemap_a ? tilemap_r : sf_on ? sf_star_colour : 8'b0; 
-assign VGA_G = spr_a ? spr_g : charmap_a ? charmap_g : tilemap_a ? tilemap_g : sf_on ? sf_star_colour : 8'b0;
-assign VGA_B = spr_a ? spr_b : charmap_a ? charmap_b : tilemap_a ? tilemap_b : sf_on ? sf_star_colour : 8'b0;
-`else 
-assign VGA_R = charmap_a ? charmap_r : spr_a ? spr_r : tilemap_a ? tilemap_r : sf_on ? sf_star_colour : 8'b0; 
-assign VGA_G = charmap_a ? charmap_g : spr_a ? spr_g : tilemap_a ? tilemap_g : sf_on ? sf_star_colour : 8'b0;
-assign VGA_B = charmap_a ? charmap_b : spr_a ? spr_b : tilemap_a ? tilemap_b : sf_on ? sf_star_colour : 8'b0;
+wire [23:0] rgb_final = video_sprite_layer_high ? 
+							(spr_a ? rgb_sprite : charmap_a ? rgb_charmap : tilemap_a ? rgb_tilemap : rgb_starfield) :
+							(charmap_a ? rgb_charmap : spr_a ? rgb_sprite : tilemap_a ? rgb_tilemap : rgb_starfield);
 `endif
-`endif
+
+
+assign VGA_R = rgb_final[7:0];
+assign VGA_G = rgb_final[15:8];
+assign VGA_B = rgb_final[23:16];
+
 
 // Music player
 wire [9:0] music_audio_out;
@@ -647,12 +664,10 @@ sound #(.ROM_WIDTH(SOUND_ROM_WIDTH)) sound (
 `endif 
 
 // Mix audio (badly)
-wire signed [15:0] music_signed = { 2'b0, music_audio_out, 4'b0 };
+wire signed [15:0] music_signed = { 1'b0, music_audio_out, 5'b0 };
 wire signed [15:0] audio_signed = { 1'b0, (snd_audio_out + 12'b100000000000), 3'b0 } + 16'b1100000000000000;
-
 assign AUDIO_L =  audio_signed + music_signed;
 assign AUDIO_R = AUDIO_L;
-
 
 // MEMORY
 // ------

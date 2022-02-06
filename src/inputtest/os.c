@@ -115,6 +115,7 @@ void app_main()
 		default:
 			// Start default state
 			//state = STATE_START_ZORBLAXX;
+			//app_zorblaxx();
 			//state = STATE_START_CREDITS;
 			loader("INPUTTESTER.AZN");
 			start_inputtester_digital();

@@ -52,6 +52,11 @@ signed short mse_x_acc;
 signed short mse_y_acc;
 signed short mse_w_acc;
 
+unsigned char socd_ud[6]; // Concurrent press of U and D detected
+unsigned char socd_ud_last[6];
+unsigned char socd_lr[6]; // Concurrent press of L and R detected
+unsigned char socd_lr_last[6];
+
 #define MOUSE_POINTER_SPRITE 9
 
 // Mode switcher variables
@@ -207,6 +212,8 @@ void page_inputtester_advanced()
     write_string("MOUSE", 0xFF, 2, 23);
     write_string("WHL", 0xFF, 16, 23);
     write_string("BTNS", 0xFF, 24, 23);
+
+    SET_BIT(video_ctl, 0); // Enable sprite priority over charmap
 }
 
 // Draw static elements for button test page
@@ -234,6 +241,8 @@ void reset_inputstates()
         sx_toggle_last[i] = 1;
         sx_last[i] = 1;
         sx_pos[i] = 0;
+        socd_lr[i] = 0;
+        socd_ud[i] = 0;
     }
 }
 
@@ -414,6 +423,34 @@ void inputtester_digital()
                 char color = (button < 8 ? CHECK_BIT(joystick[index], button) : CHECK_BIT(joystick[index + 1], button - 8)) ? color_button_active : color_button_inactive;
                 write_string(button_symbol[button], color, pad_offset_x[joy] + button_x[button], pad_offset_y[joy] + button_y[button]);
             }
+            // SOCD detection
+            socd_lr[joy] = CHECK_BIT(joystick[index], 0) && CHECK_BIT(joystick[index], 1);
+            if (socd_lr[joy])
+            {
+                write_string("SOCD L+R", 0b00000111, pad_offset_x[joy] + 9, pad_offset_y[joy] + 8);
+            }
+            else
+            {
+                if (socd_lr_last[joy])
+                {
+                    write_string("SOCD L+R", 0b00000010, pad_offset_x[joy] + 9, pad_offset_y[joy] + 8);
+                }
+            }
+            socd_lr_last[joy] = socd_lr[joy];
+
+            socd_ud[joy] = CHECK_BIT(joystick[index], 2) && CHECK_BIT(joystick[index], 3);
+            if (socd_ud[joy])
+            {
+                write_string("SOCD U+D", 0b00000111, pad_offset_x[joy] + 9, pad_offset_y[joy] + 9);
+            }
+            else
+            {
+                if (socd_ud_last[joy])
+                {
+                    write_string("SOCD U+D", 0b00000010, pad_offset_x[joy] + 9, pad_offset_y[joy] + 9);
+                }
+            }
+            socd_ud_last[joy] = socd_ud[joy];
         }
     }
 }

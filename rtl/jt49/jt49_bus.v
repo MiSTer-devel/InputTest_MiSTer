@@ -23,6 +23,8 @@
 
 // This is a wrapper with the BDIR/BC1 pins
 
+`timescale 1ps / 1ps
+
 module jt49_bus ( // note that input ports are not multiplexed
     input            rst_n,
     input            clk,    // signal on positive edge

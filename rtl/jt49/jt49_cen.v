@@ -21,6 +21,8 @@
     
     */
 
+`timescale 1ps / 1ps
+
 module jt49_cen(
     input       clk,
     input       rst_n,

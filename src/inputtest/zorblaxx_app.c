@@ -636,7 +636,8 @@ void game_loop()
 	}
 }
 
-void quit_zorblaxx(){
+void quit_zorblaxx()
+{
 	stop_music();
 	clear_tilemap();
 	clear_chars(0);
@@ -645,8 +646,11 @@ void quit_zorblaxx(){
 
 void app_zorblaxx()
 {
+	pleaseStop = false;
 	setup_variables();
 	stop_music();
+
+	CLEAR_BIT(video_ctl,0); // Set charmap to high priority
 
 	while (1)
 	{
@@ -677,4 +681,3 @@ void app_zorblaxx()
 		game_loop();
 	}
 }
-

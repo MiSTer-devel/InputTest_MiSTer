@@ -23,6 +23,8 @@
 	with this program. If not, see <http://www.gnu.org/licenses/>.
 ===========================================================================*/
 
+`timescale 1ps / 1ps
+
 module lfsr #(
     parameter LEN=8,                  // shift register length
     parameter TAPS=8'b10111000        // XOR taps

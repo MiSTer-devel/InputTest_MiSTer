@@ -28,6 +28,8 @@
 // 2 -> 21.8
 // 3 -> 13.4
 
+`timescale 1ps / 1ps
+
 module jt49_exp(
     input            clk,
     input      [1:0] comp,  // compression

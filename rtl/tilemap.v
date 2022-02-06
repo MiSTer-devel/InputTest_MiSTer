@@ -1,4 +1,4 @@
-`timescale 1ns / 1ps
+`timescale 1ps / 1ps
 /*============================================================================
 	Aznable (custom 8-bit computer system) - Zechs (tilemap)
 
