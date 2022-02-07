@@ -765,11 +765,11 @@ void btntest_starttest()
 // Button test - button select state
 void btntest_select()
 {
+
     if (HBLANK_RISING)
     {
-
         // If any of 1st 8 buttons is pressed
-        if (joystick[0] != 0)
+        if (joystick[0] != 0 && joystick_last[0] == 0)
         {
             btntest_buttonbank = 0;
             // Find which button
@@ -791,7 +791,7 @@ void btntest_select()
             btntest_timer = 10;
             return;
         }
-        else if (joystick[1] != 0)
+        else if (joystick[1] != 0 && joystick_last[1] == 0)
         {
             btntest_buttonbank = 1;
             // Find which button
@@ -812,6 +812,11 @@ void btntest_select()
             write_string("Press again to start test", 0b00111000, 7, 18);
             btntest_timer = 10;
             return;
+        }
+
+        for (unsigned char i = 0; i < 16; i++)
+        {
+            joystick_last[i] = joystick[i];
         }
     }
 
@@ -858,6 +863,13 @@ void btntest_test()
     {
         btntest_presses[btntest_pos] = GET_TIMER;
         btntest_pos++;
+        if (btntest_pos == 14)
+        {
+            btntest_mode = btntest_mode_results;
+            btntest_results_refresh = true;
+            page_btntest(true, true); // reset screen
+            return;
+        }
     }
     btntest_buttondownlast = down;
 
@@ -993,6 +1005,10 @@ void btntest_results()
 
         if (input_start && !input_start_last)
         {
+            for (unsigned char i = 0; i < 16; i++)
+            {
+                joystick_last[i] = 1;
+            }
             start_btntest();
         }
     }
