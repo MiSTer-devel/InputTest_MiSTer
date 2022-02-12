@@ -1,10 +1,10 @@
 `timescale 1ns / 1ps
 /*============================================================================
-	Input Test - Verilator emu module
+	Aznable (custom 8-bit computer system) - Verilator emu module
 
 	Author: Jim Gregory - https://github.com/JimmyStones/
-	Version: 1.0
-	Date: 2021-07-12
+	Version: 1.1
+	Date: 2021-10-17
 
 	This program is free software; you can redistribute it and/or modify it
 	under the terms of the GNU General Public License as published by the Free
@@ -24,6 +24,7 @@ module emu (
 
 	input clk_sys,
 	input reset,
+	input menu,
 	
 	input [31:0] joystick_0,
 	input [31:0] joystick_1,
@@ -80,8 +81,11 @@ module emu (
 	output VGA_HB,
 	output VGA_VB,
 	
-	input				ioctl_download,
-	input				ioctl_wr,
+	output	[15:0]	AUDIO_L,
+	output	[15:0]	AUDIO_R,
+	
+	input			ioctl_download,
+	input			ioctl_wr,
 	input [24:0]	ioctl_addr,
 	input [7:0]		ioctl_dout,
 	input [7:0]		ioctl_index,
@@ -89,20 +93,28 @@ module emu (
 );
 
 // Clock divider from JTFRAME
-wire ce_pix;
+wire ce_6;
+wire ce_2;
 /* verilator lint_off PINMISSING */
 jtframe_cen24 divider
 (
 	.clk(clk_sys),
-	.cen12(ce_pix), // <-- dodgy video speed for faster simulation, will cause bearable char map corruption
-	//.cen4(ce_pix) // <-- correct video speed
+	.cen12(ce_6), // <-- dodgy video speed for faster simulation, will cause graphical corruption
+	//.cen6(ce_6), // <-- correct video speed
+	.cen2(ce_2)
 );
 /* verilator lint_on PINMISSING */
 
+// Debug defines
+`define DEBUG_SIMULATION
+
 system system(
-	.clk_sys(clk_sys),
-	.ce_pix(ce_pix),
+	.clk_24(clk_sys),
+	.ce_6(ce_6),
+	.ce_2(ce_2),
 	.reset(reset | ioctl_download),
+	.pause(1'b0),
+	.menu(menu),
 	.VGA_HS(VGA_HS),
 	.VGA_VS(VGA_VS),
 	.VGA_R(VGA_R),
@@ -110,7 +122,7 @@ system system(
 	.VGA_B(VGA_B),
 	.VGA_HB(VGA_HB),
 	.VGA_VB(VGA_VB),
-	.dn_addr(ioctl_addr[13:0]),
+	.dn_addr(ioctl_addr[16:0]),
 	.dn_data(ioctl_dout),
 	.dn_wr(ioctl_wr),
 	.dn_index(ioctl_index),
@@ -122,7 +134,9 @@ system system(
 	.spinner({7'b0,spinner_5,7'b0,spinner_4,7'b0,spinner_3,7'b0,spinner_2,7'b0,spinner_1,7'b0,spinner_0}),
 	.ps2_key(ps2_key),
 	.ps2_mouse({ps2_mouse_ext,7'b0,ps2_mouse}),
-	.timestamp(timestamp)
+	.timestamp(timestamp),
+	.AUDIO_L(AUDIO_L),
+	.AUDIO_R(AUDIO_R)
 );
 
 endmodule 

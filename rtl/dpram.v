@@ -19,6 +19,8 @@
 	with this program. If not, see <http://www.gnu.org/licenses/>.
 ===========================================================================*/
 
+`timescale 1ps / 1ps
+
 module dpram #(
 	parameter address_width = 10,
 	parameter data_width = 8,
@@ -40,8 +42,8 @@ module dpram #(
 initial begin
 	if (init_file>0)
 	begin
-		$display("Loading dpram from file:");
-		$display(init_file);
+		// $display("Loading dpram from file:");
+		// $display(init_file);
 		$readmemh(init_file, mem);
 	end
 end

@@ -1186,11 +1186,11 @@ inline vluint64_t VerilatedContext::time() const VL_MT_SAFE {
 // Time scaled from 1-per-precision into a module's time units ("Unit"-ed, not "United")
 // Optimized assuming scale is always constant.
 // Can't use multiply in Q flavor, as might lose precision
-#define VL_TIME_UNITED_Q(scale) (VL_TIME_Q() / static_cast<QData>(scale))
-#define VL_TIME_UNITED_D(scale) (VL_TIME_D() / static_cast<double>(scale))
+#define VL_TIME_UNITED_Q(vga_scale) (VL_TIME_Q() / static_cast<QData>(vga_scale))
+#define VL_TIME_UNITED_D(vga_scale) (VL_TIME_D() / static_cast<double>(vga_scale))
 
 // Return time precision as multiplier of time units
-double vl_time_multiplier(int scale) VL_PURE;
+double vl_time_multiplier(int vga_scale) VL_PURE;
 // Return power of 10. e.g. returns 100 if n==2
 vluint64_t vl_time_pow10(int n) VL_PURE;
 

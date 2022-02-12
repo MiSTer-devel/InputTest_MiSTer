@@ -50,7 +50,7 @@ set_global_assignment -name PHYSICAL_SYNTHESIS_ASYNCHRONOUS_SIGNAL_PIPELINING ON
 set_global_assignment -name ALM_REGISTER_PACKING_EFFORT MEDIUM
 set_global_assignment -name SEED 1
 
-#set_global_assignment -name VERILOG_MACRO "MISTER_FB=1"
+set_global_assignment -name VERILOG_MACRO "MISTER_FB=1"
 
 #enable it only if 8bit indexed mode is used in core
 #set_global_assignment -name VERILOG_MACRO "MISTER_FB_PALETTE=1"
@@ -59,6 +59,18 @@ set_global_assignment -name SEED 1
 
 #do not enable DEBUG_NOHDMI in release!
 #set_global_assignment -name VERILOG_MACRO "MISTER_DEBUG_NOHDMI=1"
+
+# Aznable specific defines
+# ------------------------
+#set_global_assignment -name VERILOG_MACRO "DISABLE_CPU=1"
+#set_global_assignment -name VERILOG_MACRO "DISABLE_CHARMAP=1"
+#set_global_assignment -name VERILOG_MACRO "DISABLE_SPRITES=1"
+#set_global_assignment -name VERILOG_MACRO "DISABLE_TILEMAP=1"
+#set_global_assignment -name VERILOG_MACRO "DISABLE_MUSIC=1"
+#set_global_assignment -name VERILOG_MACRO "DISABLE_SOUND=1"
+#set_global_assignment -name VERILOG_MACRO "DISABLE_STARS_2=1"
+#set_global_assignment -name VERILOG_MACRO "DISABLE_STARS_3=1"
+#set_global_assignment -name VERILOG_MACRO "DEBUG_SPRITE_COLLISION=1"
 
 source sys/sys.tcl
 source sys/sys_analog.tcl

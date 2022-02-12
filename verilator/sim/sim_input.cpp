@@ -19,6 +19,10 @@ unsigned char m_keyboardState_last[256];
 #endif
 
 #include <vector>
+#include "sim_console.h"
+
+static DebugConsole console;
+
 #ifdef WIN32
 static const unsigned int ev2ps2[] =
 {
@@ -580,11 +584,11 @@ void SimInput::Read() {
 		if (m_keyboardState_last[k] != m_keyboardState[k]) {
 			unsigned int ext = ev2ps2[k] & EXT;
 			//fprintf(stderr, "ev2ps2[k] = %x  ext = %x  temp = %x\n", ev2ps2[k], ext, EXT | 0x6b);
-			SimInput_PS2KeyEvent evt = SimInput_PS2KeyEvent(k, m_keyboardState[k], ext);
+			SimInput_PS2KeyEvent evt = SimInput_PS2KeyEvent(k, m_keyboardState[k], ext, ev2ps2[k]);
 			keyEvents.push(evt);
 		}
 		m_keyboardState_last[k] = m_keyboardState[k];
-}
+	}
 #else
 	for (int k = 0; k < m_keyboardStateCount; k++) {
 		if (m_keyboardState_last[k] != m_keyboardState[k]) {
@@ -604,7 +608,7 @@ void SimInput::SetMapping(int index, int code) {
 		mappings[index] = code;
 	else
 		mappings[index] = 0;
-		}
+}
 
 void SimInput::CleanUp() {
 
@@ -627,10 +631,11 @@ void SimInput::BeforeEval()
 		if (keyEvents.size() > 0) {
 			// Get chunk from queue
 			SimInput_PS2KeyEvent evt = keyEvents.front();
-			//fprintf(stderr, "evt = %x  ext = %d \n", evt.code, evt.extended);
 			keyEvents.pop();
 
-			ps2_key_temp = ev2ps2[evt.code];
+			//ps2_key_temp = ev2ps2[evt.code];
+			ps2_key_temp = evt.mapped;
+			/*fprintf(stderr, "evt = %x  ext = %d key = %d \n", evt.code, evt.extended, evt.mapped);*/
 
 			if (evt.extended) { ps2_key_temp |= (1UL << 8); }
 			if (evt.pressed) { ps2_key_temp |= (1UL << 9); }
@@ -648,9 +653,10 @@ void SimInput::BeforeEval()
 	}
 }
 
-SimInput::SimInput(int count)
+SimInput::SimInput(int count, DebugConsole c)
 {
 	inputCount = count;
+	console = c;
 }
 
 SimInput::~SimInput()

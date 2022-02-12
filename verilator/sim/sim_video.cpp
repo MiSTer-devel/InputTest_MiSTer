@@ -25,6 +25,7 @@ int output_width = 512;
 int output_height = 512;
 int output_rotate = 0;
 bool output_vflip = false;
+bool output_usevsync = 1;
 
 uint32_t* output_ptr = NULL;
 unsigned int output_size;
@@ -48,6 +49,7 @@ bool last_hblank;
 bool last_vblank;
 bool last_hsync;
 bool last_vsync;
+bool frame_ready = 1;
 
 // Statistics
 #ifdef WIN32
@@ -308,12 +310,12 @@ int SimVideo::Initialise(const char* windowTitle) {
 	{
 		D3D11_SAMPLER_DESC desc;
 		ZeroMemory(&desc, sizeof(desc));
-		desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		desc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
 		desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 		desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 		desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 		desc.MipLODBias = 0.f;
-		desc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+		desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 		desc.MinLOD = 0.f;
 		desc.MaxLOD = 0.f;
 		g_pd3dDevice->CreateSamplerState(&desc, &g_pFontSampler);
@@ -337,19 +339,19 @@ void SimVideo::UpdateTexture() {
 	// Update the texture!
 	// D3D11_USAGE_DEFAULT MUST be set in the texture description (somewhere above) for this to work.
 	// (D3D11_USAGE_DYNAMIC is for use with map / unmap.) ElectronAsh.
-
-	g_pd3dDeviceContext->UpdateSubresource(texture, 0, NULL, output_ptr, output_width * 4, 0);
-
+	if (frame_ready) {
+		g_pd3dDeviceContext->UpdateSubresource(texture, 0, NULL, output_ptr, output_width * 4, 0);
+	}
 	// Rendering
 	ImGui::Render();
 	g_pd3dDeviceContext->OMSetRenderTargets(1, &g_mainRenderTargetView, NULL);
 	g_pd3dDeviceContext->ClearRenderTargetView(g_mainRenderTargetView, (float*)&clear_color);
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-	g_pSwapChain->Present(1, 0); // Present without vsync
+	g_pSwapChain->Present(output_usevsync, 0); // Present without vsync
 #else
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, output_width, output_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, output_ptr);
-
+	if (frame_ready) {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, output_width, output_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, output_ptr);
+	}
 	// Rendering
 	ImGui::Render();
 	glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
@@ -360,7 +362,7 @@ void SimVideo::UpdateTexture() {
 	SDL_GL_SwapWindow(window);
 #endif
 
-
+	frame_ready = 0;
 
 }
 
@@ -401,25 +403,33 @@ void SimVideo::Clock(bool hblank, bool vblank, bool hsync, bool vsync, uint32_t 
 
 	bool de = !(hblank || vblank);
 
-	// Next line on rising hsync
+	bool hs_falling = (!hsync && last_hsync);
+	bool hs_rising = (hsync && !last_hsync);
+	bool hb_falling = (!hblank && last_hblank);
+	bool hb_rising = (hblank && !last_hblank);
+	bool vs_falling = (!vsync && last_vsync);
+	bool vs_rising = (vsync && !last_vsync);
+	bool vb_falling = (!vblank && last_vblank);
+	bool vb_rising = (vblank && !last_vblank);
+
 	if (!vblank) {
-		if (last_hsync && !hsync) {
+		// Next line on end of hblank
+		if (hb_falling) {
 			// Increment line and reset pixel count
 			count_line++;
 			count_pixel = 0;
 		}
-		else {
-			// Increment pixel counter when not blanked
-			if (de) {
-				count_pixel++;
-			}
+		if (de) {
+			count_pixel++;
 		}
 	}
 
+	//frame_ready = 1;
 	// Reset on rising vsync
 	if (last_vsync && !vsync) {
 		count_frame++;
 		count_line = 0;
+		frame_ready = 1;
 #ifdef WIN32
 		GetSystemTime(&actualtime);
 		time_ms = (actualtime.wSecond * 1000) + actualtime.wMilliseconds;

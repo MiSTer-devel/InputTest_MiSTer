@@ -19,6 +19,8 @@
 	with this program. If not, see <http://www.gnu.org/licenses/>.
 ===========================================================================*/
 
+`timescale 1ps / 1ps
+
 module spram #(
 	parameter address_width = 10,
 	parameter data_width = 8
@@ -36,7 +38,7 @@ reg [data_width-1:0] mem [ramLength-1:0];
 always @(posedge clock) begin
 	q <= mem[address];
 	if(wren) begin
-		q <= data;
+		//q <= data;
 		mem[address] <= data;
 	end
 end

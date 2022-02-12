@@ -2,8 +2,8 @@
 	Input Test - emu module
 
 	Author: Jim Gregory - https://github.com/JimmyStones/
-	Version: 1.0
-	Date: 2021-07-12
+	Version: 1.1
+	Date: 2021-12-22
 
 	This program is free software; you can redistribute it and/or modify it
 	under the terms of the GNU General Public License as published by the Free
@@ -29,7 +29,7 @@ module emu
 	input         RESET,
 
 	//Must be passed to hps_io module
-	inout  [45:0] HPS_BUS,
+	inout  [47:0] HPS_BUS,
 
 	//Base video clock. Usually equals to CLK_SYS.
 	output        CLK_VIDEO,
@@ -180,14 +180,14 @@ assign USER_OUT = '1;
 assign {UART_RTS, UART_TXD, UART_DTR} = 0;
 assign {SD_SCK, SD_MOSI, SD_CS} = 'Z;
 assign {SDRAM_DQ, SDRAM_A, SDRAM_BA, SDRAM_CLK, SDRAM_CKE, SDRAM_DQML, SDRAM_DQMH, SDRAM_nWE, SDRAM_nCAS, SDRAM_nRAS, SDRAM_nCS} = 'Z;
-assign {DDRAM_CLK, DDRAM_BURSTCNT, DDRAM_ADDR, DDRAM_DIN, DDRAM_BE, DDRAM_RD, DDRAM_WE} = '0;  
+assign FB_FORCE_BLANK = 0;
 assign VGA_F1 = 0;
 assign VGA_SCALER = 0;
 assign HDMI_FREEZE = 0;
-assign AUDIO_S = 0;
-assign AUDIO_L = 0;
-assign AUDIO_R = 0;
+
+assign AUDIO_S = 1;
 assign AUDIO_MIX = 0;
+
 assign LED_DISK = 0;
 assign LED_POWER = 0;
 assign BUTTONS = 0;
@@ -203,10 +203,21 @@ assign VIDEO_ARY = (!ar) ? 12'd3 : 12'd0;
 localparam CONF_STR = {
 	"InputTest;;",
 	"-;",
+	"O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
+	"OGJ,Analog Video H-Pos,0,-1,-2,-3,-4,-5,-6,-7,8,7,6,5,4,3,2,1;",
+	"OKN,Analog Video V-Pos,0,-1,-2,-3,-4,-5,-6,-7,8,7,6,5,4,3,2,1;",
 	"O89,Aspect ratio,Original,Full Screen,[ARC1],[ARC2];",
 	"-;",
-	"F0,BIN,Load BIOS;",
+	"O6,Rotate video,Off,On;",
+	"O7,Flip video,Off,On;",
+	"-;",	
+	"RA,Open menu;",
 	"-;",
+	"F0,BIN,Load BIOS;",
+	"F3,BIN,Load Sprite ROM;",
+	"F4,YM,Load Music (YM5/6);",
+	"-;",
+	"R0,Reset;",
 	"J,A,B,X,Y,L,R,Select,Start;",
 	"V,v",`BUILD_DATE
 };
@@ -287,6 +298,7 @@ hps_io #(.CONF_STR(CONF_STR)) hps_io
 	.joystick_l_analog_3(joystick_l_analog_3),
 	.joystick_l_analog_4(joystick_l_analog_4),
 	.joystick_l_analog_5(joystick_l_analog_5),
+	
 	.joystick_r_analog_0(joystick_r_analog_0),
 	.joystick_r_analog_1(joystick_r_analog_1),
 	.joystick_r_analog_2(joystick_r_analog_2),
@@ -327,20 +339,28 @@ pll pll
 
 ///////////////////   CLOCK DIVIDER   ////////////////////
 wire ce_pix;
+wire ce_2;
 jtframe_cen24 divider
 (
 	.clk(clk_sys),
-	.cen6(ce_pix)
+	.cen6(ce_pix),
+	.cen2(ce_2)
 );
 
 ///////////////////   VIDEO   ////////////////////
-wire hblank, vblank, hs, vs;
+wire hblank, vblank, hs, vs, hs_original, vs_original;
 wire [7:0] r, g, b;
+
+wire [23:0] rgb = {r,g,b};
+wire rotate_ccw = status[7];
+wire no_rotate = ~status[6];
+wire flip = status[7];
+screen_rotate screen_rotate (.*);
 arcade_video #(320,24) arcade_video
 (
 	.*,
 	.clk_video(clk_sys),
-	.RGB_in({r,g,b}),
+	.RGB_in(rgb),
 	.HBlank(hblank),
 	.VBlank(vblank),
 	.HSync(hs),
@@ -348,34 +368,56 @@ arcade_video #(320,24) arcade_video
 	.fx(status[5:3])
 );
 
+// H/V offset
+wire [3:0]  voffset = status[23:20];
+wire [3:0]  hoffset = status[19:16];
+jtframe_resync jtframe_resync
+(
+  .clk(clk_sys),
+  .pxl_cen(ce_pix),
+  .hs_in(hs_original),
+  .vs_in(vs_original),
+  .LVBL(~vblank),
+  .LHBL(~hblank),
+  .hoffset(hoffset),
+  .voffset(voffset),
+  .hs_out(hs),
+  .vs_out(vs)
+);
+
 ///////////////////   MAIN CORE   ////////////////////
 wire rom_download = ioctl_download && (ioctl_index < 8'd2);
-wire reset = (RESET | status[0] | buttons[1] | rom_download);
+wire reset = (RESET | status[0] | rom_download);
 assign LED_USER = rom_download;
 
 system system(
-	.clk_sys(clk_sys),
-	.ce_pix(ce_pix),
+	.clk_24(clk_sys),
+	.ce_6(ce_pix),
+	.ce_2(ce_2),
 	.reset(reset),
-	.VGA_HS(hs),
-	.VGA_VS(vs),
+	.pause(1'b0),
+	.menu(status[10] || buttons[1]),
+	.VGA_HS(hs_original),
+	.VGA_VS(vs_original),
 	.VGA_R(r),
 	.VGA_G(g),
 	.VGA_B(b),
 	.VGA_HB(hblank),
 	.VGA_VB(vblank),
-	.dn_addr(ioctl_addr[13:0]),
+	.dn_addr(ioctl_addr[16:0]),
 	.dn_data(ioctl_dout),
 	.dn_wr(ioctl_wr),
 	.dn_index(ioctl_index),
 	.joystick({joystick_5,joystick_4,joystick_3,joystick_2,joystick_1,joystick_0}),
 	.analog_l({joystick_l_analog_5,joystick_l_analog_4,joystick_l_analog_3,joystick_l_analog_2,joystick_l_analog_1,joystick_l_analog_0}),
 	.analog_r({joystick_r_analog_5,joystick_r_analog_4,joystick_r_analog_3,joystick_r_analog_2,joystick_r_analog_1,joystick_r_analog_0}),
-	.paddle({paddle_5,paddle_4,paddle_3,paddle_2,paddle_1,paddle_0}),
+ 	.paddle({paddle_5,paddle_4,paddle_3,paddle_2,paddle_1,paddle_0}),
 	.spinner({7'b0,spinner_5,7'b0,spinner_4,7'b0,spinner_3,7'b0,spinner_2,7'b0,spinner_1,7'b0,spinner_0}),
 	.ps2_key(ps2_key),
 	.ps2_mouse({ps2_mouse_ext,7'b0,ps2_mouse}),
-	.timestamp(timestamp)
+	.timestamp(timestamp),
+	.AUDIO_L(AUDIO_L),
+	.AUDIO_R(AUDIO_R)
 );
 
 endmodule
