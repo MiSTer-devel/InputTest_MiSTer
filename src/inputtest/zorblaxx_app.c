@@ -162,7 +162,7 @@ void intro_loop()
 	scroller_pos = 0;
 
 	// Start intro music loop
-	play_music_if(const_music_maintheme, 1);
+	play_music_if(const_music_attract, 1);
 
 	// Setup starfield layer speeds
 	enable_starfield();
@@ -677,6 +677,9 @@ void app_zorblaxx()
 			quit_zorblaxx();
 			return;
 		}
+
+		// Start main music loop
+		play_music_if(const_music_maintheme, 1);
 
 		game_loop();
 	}

@@ -61,13 +61,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="sim\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="sim\imgui\imgui_tables.cpp" />
+    <ClCompile Include="sim\imgui\imgui_impl_win32.cpp" />
+    <ClCompile Include="sim\imgui\imgui_impl_dx11.cpp" />
+    <ClCompile Include="sim\imgui\imgui_draw.cpp" />
     <ClCompile Include="sim\imgui\imgui.cpp" />
     <ClCompile Include="sim\imgui\ImGuiFileDialog.cpp" />
-    <ClCompile Include="sim\imgui\imgui_draw.cpp" />
-    <ClCompile Include="sim\imgui\imgui_impl_dx11.cpp" />
-    <ClCompile Include="sim\imgui\imgui_impl_win32.cpp" />
-    <ClCompile Include="sim\imgui\imgui_tables.cpp" />
-    <ClCompile Include="sim\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="sim\imgui\implot.cpp" />
+    <ClCompile Include="sim\imgui\implot_items.cpp" />
     <ClCompile Include="sim\vinc\verilated.cpp" />
     <ClCompile Include="sim\vinc\verilated_save.cpp" />
     <ClCompile Include="sim\vinc\verilated_vcd_c.cpp" />
@@ -81,24 +83,26 @@
     <ClCompile Include="sim\sim_console.cpp" />
     <ClCompile Include="sim\sim_input.cpp" />
     <ClCompile Include="sim\sim_video.cpp" />
+    <ClCompile Include="sim\sim_audio.cpp" />
     <ClCompile Include="sim_main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sim\imgui\imconfig.h" />
-    <ClInclude Include="sim\imgui\imgui.h" />
-    <ClInclude Include="sim\imgui\imgui_impl_opengl2.h" />
-    <ClInclude Include="sim\imgui\imgui_impl_sdl.h" />
+    <ClInclude Include="sim\imgui\imgui_config.h" />
+    <ClInclude Include="sim\imgui\imgui_impl_dx11.h" />
+    <ClInclude Include="sim\imgui\imgui_impl_win32.h" />
     <ClInclude Include="sim\imgui\imgui_internal.h" />
     <ClInclude Include="sim\imgui\imgui_memory_editor.h" />
-    <ClInclude Include="sim\imgui\imstb_rectpack.h" />
-    <ClInclude Include="sim\imgui\imstb_textedit.h" />
-    <ClInclude Include="sim\imgui\imstb_truetype.h" />
+    <ClInclude Include="sim\imgui\ImGuiFileDialog.h" />
+    <ClInclude Include="sim\imgui\ImGuiFileDialogConfig.h" />
+    <ClInclude Include="sim\imgui\implot.h" />
     <ClInclude Include="sim\sim_clock.h" />
     <ClInclude Include="sim\vinc\verilated.h" />
     <ClInclude Include="sim\sim_bus.h" />
     <ClInclude Include="sim\sim_console.h" />
     <ClInclude Include="sim\sim_input.h" />
     <ClInclude Include="sim\sim_video.h" />
+    <ClInclude Include="sim\sim_audio.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="font.hex">

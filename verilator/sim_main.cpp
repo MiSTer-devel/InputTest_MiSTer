@@ -91,7 +91,7 @@ SimClock clk_sys(1);
 
 // Audio
 // -----
-#define DISABLE_AUDIO
+//#define DISABLE_AUDIO
 #ifndef DISABLE_AUDIO
 SimAudio audio(clk_sys_freq, false);
 #endif
