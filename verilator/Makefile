@@ -5,7 +5,12 @@ TOP = --top-module emu
 RTL = ../rtl
 V_INC = +incdir+$(RTL) 
 
-V_DEFINE = +define+debug=1 +define+SIMULATION=1   -CFLAGS "-I../sim/imgui -I../sim/vinc -I../sim/ -O3" 
+V_DEFINE = +define+debug=1 +define+SIMULATION=1   -CFLAGS "-I../sim/imgui -I../sim/vinc -I../sim/ -O3"  --timescale-override 1ps/1ps -Wno-TIMESCALEMOD  \
+	-I../rtl \
+	-I../rtl/JTFRAME \
+	-I../rtl/jt49 \
+	-I../rtl/jt5205 \
+	-I../rtl/tv80
 #V_DEFINE += --converge-limit 2000 -Wno-WIDTH -Wno-IMPLICIT -Wno-MODDUP -Wno-UNSIGNED -Wno-CASEINCOMPLETE -Wno-CASEX -Wno-SYMRSVDWORD -Wno-COMBDLY -Wno-INITIALDLY -Wno-BLKANDNBLK -Wno-UNOPTFLAT -Wno-SELRANGE -Wno-CMPCONST -Wno-CASEOVERLAP -Wno-PINMISSING -Wno-MULTIDRIVEN
 #V_DEFINE += --threads 8  # this slows it way down
 V_DEFINE += 
@@ -60,12 +65,13 @@ V_SRC = \
 		$(RTL)/tv80/tv80_mcode.v \
 		$(RTL)/tv80/tv80_reg.v \
 		$(RTL)/tv80/tv80n.v \
-		$(RTL)/tv80/tv80s.v
+		$(RTL)/tv80/tv80s.v 
+
 
 C_SRC = \
 	sim_main.cpp  \
-	sim/sim_bus.cpp sim/sim_clock.cpp sim/sim_console.cpp sim/sim_video.cpp sim/sim_input.cpp \
-	sim/imgui/imgui_impl_sdl.cpp sim/imgui/imgui_impl_opengl2.cpp sim/imgui/imgui_draw.cpp sim/imgui/imgui_widgets.cpp sim/imgui/imgui_tables.cpp sim/imgui/imgui.cpp sim/imgui/ImGuiFileDialog.cpp
+	sim/sim_bus.cpp sim/sim_clock.cpp sim/sim_console.cpp sim/sim_video.cpp sim/sim_console.cpp sim/sim_input.cpp  sim/sim_audio.cpp \
+	sim/imgui/imgui_impl_sdl.cpp sim/imgui/imgui_impl_opengl2.cpp sim/imgui/imgui_draw.cpp sim/imgui/imgui_widgets.cpp sim/imgui/imgui_tables.cpp sim/imgui/imgui.cpp sim/imgui/ImGuiFileDialog.cpp sim/imgui/implot.cpp sim/imgui/implot_items.cpp
 
 VOUT = obj_dir/Vemu.cpp
 
