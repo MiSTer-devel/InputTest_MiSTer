@@ -355,7 +355,7 @@ wire [7:0]	tilemap_g;
 wire [7:0]	tilemap_b;
 wire		tilemap_a;
 `ifndef DISABLE_TILEMAP
-localparam TILEMAP_ROM_WIDTH = 17;
+localparam TILEMAP_ROM_WIDTH = 15;
 localparam TILEMAP_RAM_WIDTH = 10;
 wire [TILEMAP_ROM_WIDTH-1:0]	tilemaprom_addr;
 wire [15:0]	tilemaprom_data_out;
