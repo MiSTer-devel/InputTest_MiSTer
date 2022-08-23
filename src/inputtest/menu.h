@@ -27,7 +27,7 @@
 #define menu_bx 28
 #define menu_my 15
 #define menu_openholdtime 60
-#define menu_count 5
+#define menu_count 6
 
 #define menu_panel_outline_high 0xFF
 #define menu_panel_outline_mid 0b00110110

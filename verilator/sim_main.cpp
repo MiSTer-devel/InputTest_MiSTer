@@ -157,8 +157,8 @@ int verilate() {
 unsigned char mouse_clock = 0;
 unsigned char mouse_clock_reduce = 0;
 unsigned char mouse_buttons = 0;
-unsigned char mouse_x = 0;
-unsigned char mouse_y = 0;
+signed int mouse_x = 0;
+signed int mouse_y = 0;
 
 char spinner_toggle = 0;
 
@@ -413,21 +413,79 @@ int main(int argc, char** argv, char** env) {
 		//	if (spinner_toggle) { top->spinner_0 |= 1UL << 8; }
 		//}
 
-		mouse_buttons = 0;
-		mouse_x = 0;
-		mouse_y = 0;
-		if (input.inputs[input_left]) { mouse_x = -2; }
-		if (input.inputs[input_right]) { mouse_x = 2; }
-		if (input.inputs[input_up]) { mouse_y = 2; }
-		if (input.inputs[input_down]) { mouse_y = -2; }
 
-		if (input.inputs[input_a]) { mouse_buttons |= (1UL << 0); }
-		if (input.inputs[input_b]) { mouse_buttons |= (1UL << 1); }
+		int acc = 8;
+		int dec = 1;
+		int fric = 2;
+
+		if (input.inputs[input_left]) { mouse_x -= acc; }
+		else if (mouse_x < 0) { mouse_x += (dec + (-mouse_x / fric)); }
+
+		if (input.inputs[input_right]) { mouse_x += acc; }
+		else if (mouse_x > 0) { mouse_x -= (dec + (mouse_x / fric)); }
+
+		if (input.inputs[input_up]) { mouse_y += acc; }
+		else if (mouse_y > 0) { mouse_y -= (dec + (mouse_y / fric)); }
+
+		if (input.inputs[input_down]) { mouse_y -= acc; }
+		else if (mouse_y < 0) { mouse_y += (dec + (-mouse_y / fric)); }
+
+		int lim = 127;
+		if (mouse_x > lim) { mouse_x = lim; }
+		if (mouse_x < -lim) { mouse_x = -lim; }
+		if (mouse_y > lim) { mouse_y = lim; }
+		if (mouse_y < -lim) { mouse_y = -lim; }
+
+		top->joystick_l_analog_0 = mouse_x;
+		top->joystick_l_analog_0 |= mouse_y << 8;
+
+		unsigned char ps2_mouse1;
+		unsigned char ps2_mouse2;
+		int x = mouse_x;
+		mouse_buttons |= (x < 0) ? 0x10 : 0x00;
+		if (x < -255)
+		{
+			// min possible value + overflow flag
+			mouse_buttons |= 0x40;
+			ps2_mouse1 = 1; // -255
+		}
+		else if (x > 255)
+		{
+			// max possible value + overflow flag
+			mouse_buttons |= 0x40;
+			ps2_mouse1 = 255;
+		}
+		else
+		{
+			ps2_mouse1 = (char)x;
+		}
+
+		// ------ Y axis -----------
+		// store sign bit in first byte
+		int y = mouse_y;
+		mouse_buttons |= (y < 0) ? 0x20 : 0x00;
+		if (y < -255)
+		{
+			// min possible value + overflow flag
+			mouse_buttons |= 0x80;
+			ps2_mouse2 = 1; // -255;
+		}
+		else if (y > 255)
+		{
+			// max possible value + overflow flag
+			mouse_buttons |= 0x80;
+			ps2_mouse2 = 255;
+		}
+		else
+		{
+			ps2_mouse2 = (char)y;
+		}
 
 		unsigned long mouse_temp = mouse_buttons;
-		mouse_temp += (mouse_x << 8);
-		mouse_temp += (mouse_y << 16);
+		mouse_temp += (((unsigned char)ps2_mouse1) << 8);
+		mouse_temp += (((unsigned char)ps2_mouse2) << 16);
 		if (mouse_clock) { mouse_temp |= (1UL << 24); }
+
 		mouse_clock = !mouse_clock;
 
 		top->ps2_mouse = mouse_temp;

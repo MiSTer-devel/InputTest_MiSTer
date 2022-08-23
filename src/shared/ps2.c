@@ -238,8 +238,8 @@ void handle_ps2()
 	if (mse_clock != mse_lastclock)
 	{
 		mse_changed = 1;
-		mse_button1 = ps2_mouse[0];
-		mse_button2 = ps2_mouse[5];
+		mse_button1 = CHECK_BIT(ps2_mouse[0],0);
+		mse_button2 = CHECK_BIT(ps2_mouse[0],1);
 		mse_x = ps2_mouse[1];
 		mse_y = ps2_mouse[2];
 		mse_w = ps2_mouse[4];

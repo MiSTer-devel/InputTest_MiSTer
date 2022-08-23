@@ -43,8 +43,8 @@
 #define sprite_pixelsize_player 16
 #define sprite_halfpixelsize_player 8
 #define sprite_index_pointer_first 36
-#define sprite_index_pointer_count 1
-#define sprite_index_pointer_last 36
+#define sprite_index_pointer_count 4
+#define sprite_index_pointer_last 39
 #define sprite_palette_pointer 2
 #define sprite_size_pointer 1
 #define sprite_pixelsize_pointer 16

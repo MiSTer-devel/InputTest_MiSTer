@@ -146,6 +146,15 @@ char btntest_results_offset = 0;
 char btntest_highlight = 0;
 char btntest_aftertimer = 0;
 
+unsigned char gunsight_back_colour = 0;
+#define gunsight_cursor_colour_max 3
+unsigned char gunsight_cursor_colour = 0;
+#define gunsight_back_colour_max 2
+unsigned char gunsight_back_colours[gunsight_back_colour_max] = {0, 255};
+unsigned char gunsight_text_colour = 0b11101000;
+unsigned short gunsight_pos_x;
+unsigned short gunsight_pos_y;
+
 // Draw static elements for digital input test page
 void page_inputtester_digital()
 {
@@ -307,6 +316,24 @@ void start_btntest()
     write_string("Remember to enable fast USB polling!", 0xEE, 2, 25);
 }
 
+// Initialise Gunsight test state and draw static elements
+void start_gunsight()
+{
+    state = STATE_GUNSIGHT;
+
+    enable_sprite(MOUSE_POINTER_SPRITE, sprite_palette_pointer, sprite_size_pointer, 0);
+    spr_index[MOUSE_POINTER_SPRITE] = sprite_index_pointer_first + 1 + gunsight_cursor_colour;
+    spr_on[MOUSE_POINTER_SPRITE] = 1;
+    SET_BIT(video_ctl, 0); // Enable sprite priority over charmap
+
+    clear_chars(0);
+    clear_bgcolor(gunsight_back_colours[gunsight_back_colour]);
+    write_string("GUNSIGHT", gunsight_text_colour, 15, 0);
+
+    write_string("A) Cycle Background", gunsight_text_colour, 21, 28);
+    write_string("B) Cycle Crosshair", gunsight_text_colour, 21, 29);
+}
+
 // Rotate DPAD direction history and push new entry
 void pushhistory(char new)
 {
@@ -369,6 +396,8 @@ bool modeswitcher()
     {
         system_menu = 0;
         modeswitchtimer_select = 0;
+        clear_sprites();
+        update_sprites();
         start_menu();
         return 1;
     }
@@ -1032,5 +1061,74 @@ void btntest()
     case btntest_mode_results:
         btntest_results();
         break;
+    }
+}
+
+// Gunsight test state
+void gunsight()
+{
+
+    // Handle PS/2 inputs whenever possible to improve latency
+    handle_ps2();
+
+    if (HBLANK_RISING)
+    {
+        basic_input();
+        handle_codes();
+
+        if (input_a && !input_a_last)
+        {
+            gunsight_back_colour++;
+            if (gunsight_back_colour == gunsight_back_colour_max)
+            {
+                gunsight_back_colour = 0;
+            }
+            start_gunsight();
+        }
+        if (input_b && !input_b_last)
+        {
+            gunsight_cursor_colour++;
+            if (gunsight_cursor_colour == gunsight_cursor_colour_max)
+            {
+                gunsight_cursor_colour = 0;
+            }
+            start_gunsight();
+        }
+    }
+
+    // As soon as vsync is detected start drawing screen updates
+    if (VBLANK_RISING)
+    {
+        // Handle test mode switch
+        if (modeswitcher())
+        {
+            return;
+        }
+
+        signed char ax_l = analog_l[0];
+        signed char ay_l = analog_l[1];
+        if (ax_l != ax_l_last[0])
+        {
+            write_stringfs("X: %4d", gunsight_text_colour, 0, 29, ax_l);
+            gunsight_pos_x = 184 + ax_l;
+            gunsight_pos_x += (ax_l / 4);
+        }
+        ax_l_last[0] = ax_l;
+
+        if (ay_l != ay_l_last[0])
+        {
+            write_stringfs("Y: %4d", gunsight_text_colour, 8, 29, ay_l);
+            signed short tempy = (ay_l * 120);
+            tempy /= 128;
+            // if (ay_l < 0)
+            // {
+            //     tempy = -tempy;
+            // }
+            gunsight_pos_y = 144 + tempy;
+        }
+        ay_l_last[0] = ay_l;
+
+        set_sprite_position(MOUSE_POINTER_SPRITE, gunsight_pos_x, gunsight_pos_y);
+        update_sprites();
     }
 }

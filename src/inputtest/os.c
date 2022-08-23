@@ -42,7 +42,7 @@ void app_main()
 	{
 		hsync = input0 & 0x80;
 		vsync = input0 & 0x40;
-		hblank = input0 & 0x20;
+		hblank = CHECK_BIT(input0, INPUT_HBLANK);
 		vblank = CHECK_BIT(input0, INPUT_VBLANK);
 		switch (state)
 		{
@@ -72,6 +72,13 @@ void app_main()
 			break;
 		case STATE_BTNTEST:
 			btntest();
+			break;
+
+		case STATE_START_GUNSIGHT:
+			start_gunsight();
+			break;
+		case STATE_GUNSIGHT:
+			gunsight();
 			break;
 
 		case STATE_START_MENU:
