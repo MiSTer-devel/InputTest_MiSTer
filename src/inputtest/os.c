@@ -20,12 +20,7 @@
 ===========================================================================*/
 #include "../shared/sys.h"
 #include "../shared/ui.h"
-#include "../shared/sprite.h"
-#include "../shared/sound.h"
-#include "../shared/tilemap.h"
 #include "loader.h"
-#include "sprite_images.h"
-#include "sound_samples.h"
 #include "inputtester_app.h"
 #include "inputtester_sys.h"
 #include "menu.h"

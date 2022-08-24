@@ -23,6 +23,7 @@
 #include "../shared/ui.h"
 #include "../shared/ps2.h"
 #include "../shared/sprite.h"
+#include "../shared/tilemap.h"
 #include "fader.h"
 #include "menu.h"
 #include "sprite_images.h"
@@ -150,10 +151,12 @@ unsigned char gunsight_back_colour = 0;
 #define gunsight_cursor_colour_max 3
 unsigned char gunsight_cursor_colour = 0;
 #define gunsight_back_colour_max 2
-unsigned char gunsight_back_colours[gunsight_back_colour_max] = {0, 255};
-unsigned char gunsight_text_colour = 0b11101000;
+unsigned char gunsight_text_colours[gunsight_back_colour_max] = {255, 0};
+unsigned char gunsight_text_colour;
 unsigned short gunsight_pos_x;
 unsigned short gunsight_pos_y;
+unsigned char gunsight_bullet_index;
+unsigned char gunsight_crosshair_index = 15;
 
 // Draw static elements for digital input test page
 void page_inputtester_digital()
@@ -321,17 +324,37 @@ void start_gunsight()
 {
     state = STATE_GUNSIGHT;
 
-    enable_sprite(MOUSE_POINTER_SPRITE, sprite_palette_pointer, sprite_size_pointer, 0);
-    spr_index[MOUSE_POINTER_SPRITE] = sprite_index_pointer_first + 1 + gunsight_cursor_colour;
-    spr_on[MOUSE_POINTER_SPRITE] = 1;
+    clear_chars(0);
+    clear_sprites();
+    clear_tilemap();
+    tilemap_offset_x = 0;
+    tilemap_offset_y = 0;
+    update_tilemap_offset();
+    for (unsigned short t = 0; t < 32 * 24; t++)
+    {
+        tilemapram[t] = 46 + gunsight_back_colour;
+    }
+
+    enable_sprite(gunsight_crosshair_index, sprite_palette_pointer, sprite_size_pointer, 0);
+    spr_index[gunsight_crosshair_index] = sprite_index_pointer_first + 1 + gunsight_cursor_colour;
+    spr_on[gunsight_crosshair_index] = 1;
+
     SET_BIT(video_ctl, 0); // Enable sprite priority over charmap
 
-    clear_chars(0);
-    clear_bgcolor(gunsight_back_colours[gunsight_back_colour]);
+    gunsight_text_colour = gunsight_text_colours[gunsight_back_colour];
+
     write_string("GUNSIGHT", gunsight_text_colour, 15, 0);
 
-    write_string("A) Cycle Background", gunsight_text_colour, 21, 28);
-    write_string("B) Cycle Crosshair", gunsight_text_colour, 21, 29);
+    write_string("X) Cycle Background", gunsight_text_colour, 21, 28);
+    write_string("Y) Cycle Crosshair", gunsight_text_colour, 21, 29);
+}
+
+// Cleanup gunsight resources
+void stop_gunsight()
+{
+    clear_sprites();
+    update_sprites();
+    clear_tilemap();
 }
 
 // Rotate DPAD direction history and push new entry
@@ -1076,7 +1099,7 @@ void gunsight()
         basic_input();
         handle_codes();
 
-        if (input_a && !input_a_last)
+        if (input_x && !input_x_last)
         {
             gunsight_back_colour++;
             if (gunsight_back_colour == gunsight_back_colour_max)
@@ -1085,7 +1108,7 @@ void gunsight()
             }
             start_gunsight();
         }
-        if (input_b && !input_b_last)
+        if (input_y && !input_y_last)
         {
             gunsight_cursor_colour++;
             if (gunsight_cursor_colour == gunsight_cursor_colour_max)
@@ -1093,6 +1116,20 @@ void gunsight()
                 gunsight_cursor_colour = 0;
             }
             start_gunsight();
+        }
+
+        bool fire = (input_a && !input_a_last) || (input_b && !input_b_last);
+        if (fire)
+        {
+            enable_sprite(gunsight_bullet_index, sprite_palette_pointer, sprite_size_pointer, 0);
+            spr_index[gunsight_bullet_index] = sprite_index_pointer_first + 4 + gunsight_back_colour;
+            set_sprite_position(gunsight_bullet_index, gunsight_pos_x, gunsight_pos_y);
+
+            gunsight_bullet_index++;
+            if (gunsight_bullet_index >= gunsight_crosshair_index)
+            {
+                gunsight_bullet_index = 0;
+            }
         }
     }
 
@@ -1102,6 +1139,7 @@ void gunsight()
         // Handle test mode switch
         if (modeswitcher())
         {
+            stop_gunsight();
             return;
         }
 
@@ -1120,15 +1158,11 @@ void gunsight()
             write_stringfs("Y: %4d", gunsight_text_colour, 8, 29, ay_l);
             signed short tempy = (ay_l * 120);
             tempy /= 128;
-            // if (ay_l < 0)
-            // {
-            //     tempy = -tempy;
-            // }
             gunsight_pos_y = 144 + tempy;
         }
         ay_l_last[0] = ay_l;
 
-        set_sprite_position(MOUSE_POINTER_SPRITE, gunsight_pos_x, gunsight_pos_y);
+        set_sprite_position(gunsight_crosshair_index, gunsight_pos_x, gunsight_pos_y);
         update_sprites();
     }
 }

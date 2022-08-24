@@ -74,6 +74,10 @@ extern bool input_a;
 extern bool input_a_last;
 extern bool input_b;
 extern bool input_b_last;
+extern bool input_x;
+extern bool input_x_last;
+extern bool input_y;
+extern bool input_y_last;
 
 // Mouse tracker
 extern bool input_mouse_left;

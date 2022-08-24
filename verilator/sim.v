@@ -99,8 +99,8 @@ wire ce_2;
 jtframe_cen24 divider
 (
 	.clk(clk_sys),
-	.cen12(ce_6), // <-- dodgy video speed for faster simulation, will cause graphical corruption
-	//.cen6(ce_6), // <-- correct video speed
+	//.cen12(ce_6), // <-- dodgy video speed for faster simulation, will cause graphical corruption
+	.cen6(ce_6), // <-- correct video speed
 	.cen2(ce_2)
 );
 /* verilator lint_on PINMISSING */
