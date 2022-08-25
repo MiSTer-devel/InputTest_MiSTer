@@ -616,10 +616,10 @@ wire [23:0] rgb_final = video_sprite_layer_high ?
 							(charmap_a ? rgb_charmap : spr_a ? rgb_sprite : tilemap_a ? rgb_tilemap : rgb_starfield);
 `endif
 
-
-assign VGA_R = rgb_final[7:0];
-assign VGA_G = rgb_final[15:8];
-assign VGA_B = rgb_final[23:16];
+wire de = ~(VGA_VB || VGA_HB);
+assign VGA_R = de ? rgb_final[7:0] : 8'b0;
+assign VGA_G = de ? rgb_final[15:8] : 8'b0;
+assign VGA_B = de ? rgb_final[23:16] : 8'b0;
 
 
 // Music player

@@ -35,8 +35,11 @@
 #define STATE_START_BTNTEST 7
 #define STATE_BTNTEST 8
 
-#define STATE_START_MENU 9
-#define STATE_MENU 10
+#define STATE_START_GUNSIGHT 9
+#define STATE_GUNSIGHT 10
+
+#define STATE_START_MENU 11
+#define STATE_MENU 12
 
 #define STATE_FADEOUT 20
 #define STATE_START_FADEIN 21
@@ -71,6 +74,10 @@ extern bool input_a;
 extern bool input_a_last;
 extern bool input_b;
 extern bool input_b_last;
+extern bool input_x;
+extern bool input_x_last;
+extern bool input_y;
+extern bool input_y_last;
 
 // Mouse tracker
 extern bool input_mouse_left;

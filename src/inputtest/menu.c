@@ -33,6 +33,7 @@ char *menu_string[] = {
 	"Digital",
 	"Analog",
 	"Advanced",
+	"Gunsight",
 	"Button test",
 	"Credits"};
 
@@ -88,9 +89,12 @@ void menu()
 				state = STATE_START_INPUTTESTERADVANCED;
 				break;
 			case 3:
-				state = STATE_START_BTNTEST;
+				state = STATE_START_GUNSIGHT;
 				break;
 			case 4:
+				state = STATE_START_BTNTEST;
+				break;
+			case 5:
 				state = STATE_START_CREDITS;
 				break;
 			}
@@ -100,7 +104,8 @@ void menu()
 	// As soon as vsync is detected start drawing screen updates
 	if (VBLANK_RISING)
 	{
-		char maxsize = (menu_count * 3) + 1 + (menu_count % 2);
+		//char maxsize = (menu_count * 3) + 1 + (menu_count % 2);
+		char maxsize = (menu_count * 3) + 2;
 
 		if (menu_timer < maxsize)
 		{
@@ -124,19 +129,18 @@ void menu()
 			if (menu_dirty)
 			{
 				char ty = menu_my - ((menu_count * 3) / 2);
+				if((menu_count % 2)==0) ty++;
 				for (char m = 0; m < menu_count; m++)
 				{
 					if (menu_index == m)
 					{
 						panel_shaded(menu_tx + 1, ty, menu_bx - 1, ty + 2, menu_sel_outline_high, menu_sel_outline_mid, menu_sel_outline_low);
 						write_string(menu_string[m], menu_sel_text, menu_tx + 2, ty + 1);
-						// fill_bgcol(menu_tx + 1, ty, menu_bx - 1, ty + 2, menu_sel_back);
 					}
 					else
 					{
 						panel_shaded(menu_tx + 1, ty, menu_bx - 1, ty + 2, menu_outline_high, menu_outline_mid, menu_outline_low);
 						write_string(menu_string[m], menu_text, menu_tx + 2, ty + 1);
-						// fill_bgcol(menu_tx + 1, ty, menu_bx - 1, ty + 2, menu_back);
 					}
 					ty += 3;
 				}

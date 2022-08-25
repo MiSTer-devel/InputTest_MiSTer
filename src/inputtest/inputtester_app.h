@@ -62,6 +62,9 @@ extern void start_inputtester_advanced();
 // Initialise button test state and draw static elements
 extern void start_btntest();
 
+// Initialise Gunsight test state and draw static elements
+extern void start_gunsight();
+
 // Digital input tester state
 extern void inputtester_digital();
 
@@ -73,6 +76,9 @@ extern void inputtester_advanced();
 
 // Button test - mode handler
 extern void btntest();
+
+// Gunsight test - mode handler
+extern void gunsight();
 
 
 #endif

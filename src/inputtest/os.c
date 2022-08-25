@@ -20,12 +20,7 @@
 ===========================================================================*/
 #include "../shared/sys.h"
 #include "../shared/ui.h"
-#include "../shared/sprite.h"
-#include "../shared/sound.h"
-#include "../shared/tilemap.h"
 #include "loader.h"
-#include "sprite_images.h"
-#include "sound_samples.h"
 #include "inputtester_app.h"
 #include "inputtester_sys.h"
 #include "menu.h"
@@ -42,7 +37,7 @@ void app_main()
 	{
 		hsync = input0 & 0x80;
 		vsync = input0 & 0x40;
-		hblank = input0 & 0x20;
+		hblank = CHECK_BIT(input0, INPUT_HBLANK);
 		vblank = CHECK_BIT(input0, INPUT_VBLANK);
 		switch (state)
 		{
@@ -72,6 +67,13 @@ void app_main()
 			break;
 		case STATE_BTNTEST:
 			btntest();
+			break;
+
+		case STATE_START_GUNSIGHT:
+			start_gunsight();
+			break;
+		case STATE_GUNSIGHT:
+			gunsight();
 			break;
 
 		case STATE_START_MENU:
