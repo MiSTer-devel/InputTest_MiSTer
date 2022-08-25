@@ -1118,6 +1118,8 @@ void gunsight()
             start_gunsight();
         }
 
+        bool changed = false;
+
         bool fire = (input_a && !input_a_last) || (input_b && !input_b_last);
         if (fire)
         {
@@ -1130,6 +1132,34 @@ void gunsight()
             {
                 gunsight_bullet_index = 0;
             }
+            changed=true;
+        }
+
+        signed char ax_l = analog_l[0];
+        signed char ay_l = analog_l[1];
+        if (ax_l != ax_l_last[0])
+        {
+            write_stringfs("X: %4d", gunsight_text_colour, 0, 29, ax_l);
+            gunsight_pos_x = 184 + ax_l;
+            gunsight_pos_x += (ax_l / 4);
+            changed = true;
+            ax_l_last[0] = ax_l;
+        }
+
+        if (ay_l != ay_l_last[0])
+        {
+            write_stringfs("Y: %4d", gunsight_text_colour, 8, 29, ay_l);
+            signed short tempy = (ay_l * 120);
+            tempy /= 128;
+            gunsight_pos_y = 144 + tempy;
+            changed = true;
+            ay_l_last[0] = ay_l;
+        }
+
+        if (changed)
+        {
+            set_sprite_position(gunsight_crosshair_index, gunsight_pos_x, gunsight_pos_y);
+            update_sprites();
         }
     }
 
@@ -1142,27 +1172,5 @@ void gunsight()
             stop_gunsight();
             return;
         }
-
-        signed char ax_l = analog_l[0];
-        signed char ay_l = analog_l[1];
-        if (ax_l != ax_l_last[0])
-        {
-            write_stringfs("X: %4d", gunsight_text_colour, 0, 29, ax_l);
-            gunsight_pos_x = 184 + ax_l;
-            gunsight_pos_x += (ax_l / 4);
-        }
-        ax_l_last[0] = ax_l;
-
-        if (ay_l != ay_l_last[0])
-        {
-            write_stringfs("Y: %4d", gunsight_text_colour, 8, 29, ay_l);
-            signed short tempy = (ay_l * 120);
-            tempy /= 128;
-            gunsight_pos_y = 144 + tempy;
-        }
-        ay_l_last[0] = ay_l;
-
-        set_sprite_position(gunsight_crosshair_index, gunsight_pos_x, gunsight_pos_y);
-        update_sprites();
     }
 }
