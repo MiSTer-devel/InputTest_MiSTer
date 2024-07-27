@@ -99,6 +99,11 @@ generate
 		assign G = {RGB_fix[7:4],RGB_fix[7:4]};
 		assign B = {RGB_fix[3:0],RGB_fix[3:0]};
 	end
+	else if(DW == 18) begin
+		assign R = {RGB_fix[17:12],RGB_fix[17:16]};
+		assign G = {RGB_fix[11: 6],RGB_fix[11:10]};
+		assign B = {RGB_fix[ 5: 0],RGB_fix[ 5: 4]};
+	end
 	else begin // 24
 		assign R = RGB_fix[23:16];
 		assign G = RGB_fix[15:8];
@@ -175,6 +180,7 @@ module screen_rotate
 	input         rotate_ccw,
 	input         no_rotate,
 	input         flip,
+	output        video_rotated,
 
 	output            FB_EN,
 	output      [4:0] FB_FORMAT,
@@ -220,6 +226,8 @@ function [1:0] buf_next;
 		if ((a==1 && b==2) || (a==2 && b==1)) buf_next = 0;
 	end
 endfunction
+
+assign video_rotated = ~no_rotate;
 
 always @(posedge CLK_VIDEO) begin
 	do_flip <= no_rotate && flip;
