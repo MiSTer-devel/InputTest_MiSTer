@@ -368,7 +368,7 @@ begin
 				spritelb_slot_rd <= spritelb_slot_rd + 1'b1;
 				spritelb_slot_wr <= spritelb_slot_wr + 1'b1;
 				// Calculate active Y line
-				spr_active_y <= (vcnt == 9'd255) ? spr_border_size : (vcnt + spr_border_size) + 9'd1;	
+				spr_active_y <= (vcnt == 9'd261) ? spr_border_size : (vcnt + spr_border_size) + 9'd1;
 
 				spr_state <= SE_RESET;
 			end

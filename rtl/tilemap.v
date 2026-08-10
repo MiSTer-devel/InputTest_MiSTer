@@ -229,7 +229,7 @@ always @(posedge clk) begin
 			begin
 				tilemap_ctl_cycles <= 16'b0;
 				hcnt_last <= hcnt;
-				if(hcnt == 9'd395 && hcnt_last == 9'd394)
+				if(hcnt == 9'd380 && hcnt_last == 9'd379)
 				begin
 					// When end of HBLANK is reached, reset tilemap read state
 					tilemap_read_state <= 2'b0;
@@ -243,8 +243,8 @@ always @(posedge clk) begin
 						2'b00:
 						begin
 							// - Calculate next pixel lookup address
-							tilemap_pos_x = $signed($signed((hcnt == 9'd395 ? 9'd0 : hcnt + 9'd1)) + TILEMAP_BORDER) + $signed(tilemap_offset_x);
-							tilemap_pos_y = $signed($signed((vcnt == 9'd255 ? 9'd0 : vcnt)) + TILEMAP_BORDER) + $signed(tilemap_offset_y);
+							tilemap_pos_x = $signed($signed((hcnt == 9'd380 ? 9'd0 : hcnt + 9'd1)) + TILEMAP_BORDER) + $signed(tilemap_offset_x);
+							tilemap_pos_y = $signed($signed((vcnt == 9'd261 ? 9'd0 : vcnt)) + TILEMAP_BORDER) + $signed(tilemap_offset_y);
 							// - Set tilemapram lookup address
 							tilemapram_addr <= { tilemap_pos_y[8:4], tilemap_pos_x[8:4] };
 							// Set colour output for previous ROM lookup
