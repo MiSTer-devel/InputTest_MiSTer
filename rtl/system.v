@@ -83,8 +83,10 @@ wire [8:0] vcnt;
 // Display timing module from JTFRAME
 jtframe_vtimer #(
 	.HB_START(VGA_WIDTH - 1'b1),
-	.VB_START(VGA_HEIGHT - 1'b1)
-) vtimer 
+	.HB_END(9'd380),  // 381 px/line @ 6MHz = 15.748kHz (NTSC-compatible)
+	.VB_START(VGA_HEIGHT - 1'b1),
+	.VB_END(9'd261)   // 262 lines/frame = 60.11Hz
+) vtimer
 (
 	.clk(clk_24),
 	.pxl_cen(ce_6),
