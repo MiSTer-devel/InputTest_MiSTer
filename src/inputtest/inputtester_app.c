@@ -38,6 +38,8 @@ signed char ax_l_last[6];
 signed char ay_l_last[6];
 signed char ax_r_last[6];
 signed char ay_r_last[6];
+unsigned char l2_last[6];
+unsigned char r2_last[6];
 unsigned char px_last[6];
 signed char sx_toggle_last[6];
 signed char sx_last[6];
@@ -197,19 +199,20 @@ void page_inputtester_advanced()
 {
     page_frame(true, false);
 
-    write_string("RLDUABXYLRsS", 0xFF, 7, 5);
-    write_string("ALX", 0xFF, 21, 5);
-    write_string("ALY", 0xFF, 25, 5);
-    write_string("ARX", 0xFF, 30, 5);
-    write_string("ARY", 0xFF, 34, 5);
+    write_string("RLDUABXYL23R23sS", 0xFF, 5, 5);
+    write_string("ALX", 0xFF, 23, 5);
+    write_string("ALY", 0xFF, 27, 5);
+    write_string("ARX", 0xFF, 31, 5);
+    write_string("ARY", 0xFF, 35, 5);
 
     write_string("POS", 0xFF, 7, 13);
     write_string("SPD  POS", 0xFF, 20, 13);
+    write_string("LT  RT", 0xFF, 31, 13);
 
     char label[5];
     for (unsigned char j = 0; j < 6; j++)
     {
-        sprintf(label, "JOY%d", j + 1);
+        sprintf(label, "P%d", j + 1);
         write_string(label, 0xFF - (j * 2), 2, 6 + j);
 
         sprintf(label, "PAD%d", j + 1);
@@ -249,6 +252,8 @@ void reset_inputstates()
         ay_l_last[i] = -1;
         ax_r_last[i] = 1;
         ay_r_last[i] = -1;
+        l2_last[i] = 1;
+        r2_last[i] = 1;
         px_last[i] = 1;
         sx_toggle_last[i] = 1;
         sx_last[i] = 1;
@@ -594,6 +599,9 @@ void inputtester_analog()
 
         write_stringfs("%4d", 0xFF, analog_offset_x[side] + 3, analog_offset_y[side] + analog_size + 1, ax);
         write_stringfs("%4d", 0xFF, analog_offset_x[side] + 12, analog_offset_y[side] + analog_size + 1, ay);
+
+        write_stringf("LT:%3d", 0xFF, 7, 26, analog_l2[analog_pad]);
+        write_stringf("RT:%3d", 0xFF, 26, 26, analog_r2[analog_pad]);
     }
 }
 
@@ -625,33 +633,31 @@ void inputtester_advanced()
         // Draw joystick inputs (only update each byte if value has changed)
         for (char inputindex = 0; inputindex < 6; inputindex++)
         {
-            char mask = 0b00000001;
-            char cx = 6;
             char y = 6 + inputindex;
             char inputoffset = (inputindex * 4);
             char lastoffset = (inputindex * 2);
-            for (char b = 0; b < 2; b++)
+            char joy = joystick[inputoffset];
+            if (joy != joystick_last[lastoffset])
             {
-                char index = b + inputoffset;
-                char lastindex = b + lastoffset;
-                char joy = joystick[index];
-                if (joy != joystick_last[lastindex])
+                char mask = 0b00000001;
+                for (char i = 0; i < 8; i++)
                 {
-                    mask = 0b00000001;
-                    char bytes = (b == 0 ? 8 : 4);
-                    for (char i = 0; i < bytes; i++)
-                    {
-                        cx++;
-                        write_char((joy & mask) ? asc_1 : asc_0, 0xFF, cx, y);
-                        mask <<= 1;
-                    }
+                    write_char((joy & mask) ? asc_1 : asc_0, 0xFF, 5 + i, y);
+                    mask <<= 1;
                 }
-                else
-                {
-                    cx += 8;
-                }
-                joystick_last[lastindex] = joy;
             }
+            joystick_last[lastoffset] = joy;
+
+            joy = joystick[inputoffset + 1];
+            if (joy != joystick_last[lastoffset + 1])
+            {
+                char button_bits[8] = {0, 4, 6, 1, 5, 7, 2, 3};
+                for (char i = 0; i < 8; i++)
+                {
+                    write_char((joy & (1 << button_bits[i])) ? asc_1 : asc_0, 0xFF, 13 + i, y);
+                }
+            }
+            joystick_last[lastoffset + 1] = joy;
 
             char stra[10];
             // Draw analog left inputs (only update if value has changed)
@@ -660,7 +666,7 @@ void inputtester_advanced()
             if (ax_l != ax_l_last[inputindex] || ay_l != ay_l_last[inputindex])
             {
                 sprintf(stra, "%4d%4d", ax_l, ay_l);
-                write_string(stra, 0xFF, 20, 6 + inputindex);
+                write_string(stra, 0xFF, 22, 6 + inputindex);
             }
             ax_l_last[inputindex] = ax_l;
             ay_l_last[inputindex] = ay_l;
@@ -671,10 +677,22 @@ void inputtester_advanced()
             if (ax_r != ax_r_last[inputindex] || ay_r != ay_r_last[inputindex])
             {
                 sprintf(stra, "%4d%4d", ax_r, ay_r);
-                write_string(stra, 0xFF, 29, 6 + inputindex);
+                write_string(stra, 0xFF, 30, 6 + inputindex);
             }
             ax_r_last[inputindex] = ax_r;
             ay_r_last[inputindex] = ay_r;
+
+            // Draw analog trigger inputs (only update if value has changed)
+            unsigned char l2 = analog_l2[inputindex];
+            unsigned char r2 = analog_r2[inputindex];
+            if (l2 != l2_last[inputindex] || r2 != r2_last[inputindex])
+            {
+                char strt[9];
+                sprintf(strt, "%3d %3d", l2, r2);
+                write_string(strt, 0xFF, 30, 14 + inputindex);
+            }
+            l2_last[inputindex] = l2;
+            r2_last[inputindex] = r2;
 
             // Draw paddle inputs (only update if value has changed)
             unsigned char px = paddle[(inputindex)];

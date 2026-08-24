@@ -222,7 +222,7 @@ localparam CONF_STR = {
 	"F4,YM,Load Music (YM5/6);",
 	"-;",
 	"R0,Reset;",
-	"J,A,B,X,Y,L,R,Select,Start;",
+	"J,A,B,X,Y,L,R,Select,Start,L2,R2,L3,R3;",
 	"V,v",`BUILD_DATE
 };
 
@@ -257,6 +257,18 @@ wire [15:0] joystick_r_analog_2;
 wire [15:0] joystick_r_analog_3;
 wire [15:0] joystick_r_analog_4;
 wire [15:0] joystick_r_analog_5;
+wire  [7:0] joystick_l2_analog_0;
+wire  [7:0] joystick_l2_analog_1;
+wire  [7:0] joystick_l2_analog_2;
+wire  [7:0] joystick_l2_analog_3;
+wire  [7:0] joystick_l2_analog_4;
+wire  [7:0] joystick_l2_analog_5;
+wire  [7:0] joystick_r2_analog_0;
+wire  [7:0] joystick_r2_analog_1;
+wire  [7:0] joystick_r2_analog_2;
+wire  [7:0] joystick_r2_analog_3;
+wire  [7:0] joystick_r2_analog_4;
+wire  [7:0] joystick_r2_analog_5;
 wire  [7:0] paddle_0;
 wire  [7:0] paddle_1;
 wire  [7:0] paddle_2;
@@ -311,6 +323,20 @@ hps_io #(.CONF_STR(CONF_STR)) hps_io
 	.joystick_r_analog_3(joystick_r_analog_3),
 	.joystick_r_analog_4(joystick_r_analog_4),
 	.joystick_r_analog_5(joystick_r_analog_5),
+
+	.joystick_l2_analog_0(joystick_l2_analog_0),
+	.joystick_l2_analog_1(joystick_l2_analog_1),
+	.joystick_l2_analog_2(joystick_l2_analog_2),
+	.joystick_l2_analog_3(joystick_l2_analog_3),
+	.joystick_l2_analog_4(joystick_l2_analog_4),
+	.joystick_l2_analog_5(joystick_l2_analog_5),
+
+	.joystick_r2_analog_0(joystick_r2_analog_0),
+	.joystick_r2_analog_1(joystick_r2_analog_1),
+	.joystick_r2_analog_2(joystick_r2_analog_2),
+	.joystick_r2_analog_3(joystick_r2_analog_3),
+	.joystick_r2_analog_4(joystick_r2_analog_4),
+	.joystick_r2_analog_5(joystick_r2_analog_5),
 
 	.paddle_0(paddle_0),
 	.paddle_1(paddle_1),
@@ -417,6 +443,8 @@ system system(
 	.joystick({joystick_5,joystick_4,joystick_3,joystick_2,joystick_1,joystick_0}),
 	.analog_l({joystick_l_analog_5,joystick_l_analog_4,joystick_l_analog_3,joystick_l_analog_2,joystick_l_analog_1,joystick_l_analog_0}),
 	.analog_r({joystick_r_analog_5,joystick_r_analog_4,joystick_r_analog_3,joystick_r_analog_2,joystick_r_analog_1,joystick_r_analog_0}),
+	.analog_l2({joystick_l2_analog_5,joystick_l2_analog_4,joystick_l2_analog_3,joystick_l2_analog_2,joystick_l2_analog_1,joystick_l2_analog_0}),
+	.analog_r2({joystick_r2_analog_5,joystick_r2_analog_4,joystick_r2_analog_3,joystick_r2_analog_2,joystick_r2_analog_1,joystick_r2_analog_0}),
  	.paddle({paddle_5,paddle_4,paddle_3,paddle_2,paddle_1,paddle_0}),
 	.spinner({7'b0,spinner_5,7'b0,spinner_4,7'b0,spinner_3,7'b0,spinner_2,7'b0,spinner_1,7'b0,spinner_0}),
 	.ps2_key(ps2_key),

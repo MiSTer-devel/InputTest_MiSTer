@@ -40,6 +40,10 @@ module system (
 
 	// 6 devices, 16 bits each - -127..+127, Y: [15:8], X: [7:0]
 	input [95:0]	analog_r,
+
+	// 6 devices, 8 bits each - analog triggers 0..255
+	input [47:0]	analog_l2,
+	input [47:0]	analog_r2,
 	
 	// 6 devices, 8 bits each - paddle 0..255
 	input [47:0]	paddle,
@@ -119,6 +123,8 @@ wire [7:0] in0_data_out = {VGA_HS, VGA_VS,VGA_HB, VGA_VB, 2'b10, menu, debug};
 wire [7:0] joystick_data_out = joystick[{cpu_addr[4:0],3'd0} +: 8];
 wire [7:0] analog_l_data_out = analog_l[{cpu_addr[3:0],3'd0} +: 8];
 wire [7:0] analog_r_data_out = analog_r[{cpu_addr[3:0],3'd0} +: 8];
+wire [7:0] analog_l2_data_out = analog_l2[{cpu_addr[2:0],3'd0} +: 8];
+wire [7:0] analog_r2_data_out = analog_r2[{cpu_addr[2:0],3'd0} +: 8];
 wire [7:0] paddle_data_out = paddle[{cpu_addr[2:0],3'd0} +: 8];
 wire [7:0] spinner_data_out = spinner[{cpu_addr[3:0],3'd0} +: 8];
 wire [7:0] ps2_key_data_out = ps2_key[{cpu_addr[0],3'd0} +: 8];
@@ -138,6 +144,8 @@ wire video_ctl_cs = cpu_addr == 16'b1000000000000001;
 wire joystick_cs = memory_map_addr == 8'b10000001;
 wire analog_l_cs = memory_map_addr == 8'b10000010;
 wire analog_r_cs = memory_map_addr == 8'b10000011;
+wire analog_l2_cs = memory_map_addr == 8'h90;
+wire analog_r2_cs = memory_map_addr == 8'h91;
 wire paddle_cs = memory_map_addr == 8'b1000100;
 wire spinner_cs = memory_map_addr == 8'b10000101;
 wire ps2_key_cs = memory_map_addr == 8'b10000110;
@@ -274,6 +282,8 @@ assign cpu_din = pgrom_cs ? pgrom_data_out :
 				 joystick_cs ? joystick_data_out :
 				 analog_l_cs ? analog_l_data_out :
 				 analog_r_cs ? analog_r_data_out :
+				 analog_l2_cs ? analog_l2_data_out :
+				 analog_r2_cs ? analog_r2_data_out :
 				 paddle_cs ? paddle_data_out :
 				 spinner_cs ? spinner_data_out :
 				 ps2_key_cs ? ps2_key_data_out :
