@@ -40,7 +40,13 @@ module system (
 
 	// 6 devices, 16 bits each - -127..+127, Y: [15:8], X: [7:0]
 	input [95:0]	analog_r,
-	
+
+	// 6 devices, 8 bits each - 0...255
+	input [47:0]    trigger_l,
+
+	// 6 devices, 8 bits each - 0...255
+	input [47:0]    trigger_r,
+
 	// 6 devices, 8 bits each - paddle 0..255
 	input [47:0]	paddle,
 
@@ -119,6 +125,8 @@ wire [7:0] in0_data_out = {VGA_HS, VGA_VS,VGA_HB, VGA_VB, 2'b10, menu, debug};
 wire [7:0] joystick_data_out = joystick[{cpu_addr[4:0],3'd0} +: 8];
 wire [7:0] analog_l_data_out = analog_l[{cpu_addr[3:0],3'd0} +: 8];
 wire [7:0] analog_r_data_out = analog_r[{cpu_addr[3:0],3'd0} +: 8];
+wire [7:0] trigger_l_data_out = trigger_l[{cpu_addr[2:0],3'd0} +: 8];
+wire [7:0] trigger_r_data_out = trigger_r[{cpu_addr[2:0],3'd0} +: 8];
 wire [7:0] paddle_data_out = paddle[{cpu_addr[2:0],3'd0} +: 8];
 wire [7:0] spinner_data_out = spinner[{cpu_addr[3:0],3'd0} +: 8];
 wire [7:0] ps2_key_data_out = ps2_key[{cpu_addr[0],3'd0} +: 8];
@@ -151,6 +159,8 @@ wire system_pause_cs = cpu_addr == 16'b1000101000110000;
 wire system_menu_cs = cpu_addr == 16'b1000101000110001;
 wire sound_cs = cpu_addr[15:4] == 12'b100010110000;
 wire music_cs = cpu_addr[15:4] == 12'b100010110001;
+wire trigger_l_cs = memory_map_addr == 8'b10001101;
+wire trigger_r_cs = memory_map_addr == 8'b10001110;
 
 // - Casval (character map)
 wire chram_cs = cpu_addr[15:11] == 5'b10011;
@@ -274,6 +284,8 @@ assign cpu_din = pgrom_cs ? pgrom_data_out :
 				 joystick_cs ? joystick_data_out :
 				 analog_l_cs ? analog_l_data_out :
 				 analog_r_cs ? analog_r_data_out :
+				 trigger_l_cs? trigger_l_data_out :
+				 trigger_r_cs? trigger_r_data_out :
 				 paddle_cs ? paddle_data_out :
 				 spinner_cs ? spinner_data_out :
 				 ps2_key_cs ? ps2_key_data_out :

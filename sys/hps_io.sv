@@ -55,6 +55,22 @@ module hps_io #(parameter CONF_STR, CONF_STR_BRAM=1, PS2DIV=0, WIDE=0, VDNUM=1, 
 	output reg [15:0] joystick_r_analog_4,
 	output reg [15:0] joystick_r_analog_5,
 
+	// trigger_l 0..255
+	output reg  [7:0] joystick_l_trigger_0,
+	output reg  [7:0] joystick_l_trigger_1,
+	output reg  [7:0] joystick_l_trigger_2,
+	output reg  [7:0] joystick_l_trigger_3,
+	output reg  [7:0] joystick_l_trigger_4,
+	output reg  [7:0] joystick_l_trigger_5,
+
+	// trigger_r 0..255
+	output reg  [7:0] joystick_r_trigger_0,
+	output reg  [7:0] joystick_r_trigger_1,
+	output reg  [7:0] joystick_r_trigger_2,
+	output reg  [7:0] joystick_r_trigger_3,
+	output reg  [7:0] joystick_r_trigger_4,
+	output reg  [7:0] joystick_r_trigger_5,
+
 	input      [15:0] joystick_0_rumble, // 15:8 - 'large' rumble motor magnitude, 7:0 'small' rumble motor magnitude
 	input      [15:0] joystick_1_rumble,
 	input      [15:0] joystick_2_rumble,
@@ -455,6 +471,35 @@ always@(posedge clk_sys) begin : uio_block
 										 3: joystick_r_analog_3 <= io_din;
 										 4: joystick_r_analog_4 <= io_din;
 										 5: joystick_r_analog_5 <= io_din;
+									endcase
+							endcase
+						end
+				
+				// left trigger
+				'h44: if(!byte_cnt[MAX_W:2]) begin
+							case(byte_cnt[1:0])
+								1: stick_idx <= io_din[3:0]; // first byte is joystick index
+								2: case(stick_idx)
+										 0: joystick_l_trigger_0 <= io_din[7:0];
+										 1: joystick_l_trigger_1 <= io_din[7:0];
+										 2: joystick_l_trigger_2 <= io_din[7:0];
+										 3: joystick_l_trigger_3 <= io_din[7:0];
+										 4: joystick_l_trigger_4 <= io_din[7:0];
+										 5: joystick_l_trigger_5 <= io_din[7:0];
+									endcase
+							endcase
+						end
+				// right trigger
+				'h45: if(!byte_cnt[MAX_W:2]) begin
+							case(byte_cnt[1:0])
+								1: stick_idx <= io_din[3:0]; // first byte is joystick index
+								2: case(stick_idx)
+										 0: joystick_r_trigger_0 <= io_din[7:0];
+										 1: joystick_r_trigger_0 <= io_din[7:0];
+										 2: joystick_r_trigger_0 <= io_din[7:0];
+										 3: joystick_r_trigger_0 <= io_din[7:0];
+										 4: joystick_r_trigger_0 <= io_din[7:0];
+										 5: joystick_r_trigger_0 <= io_din[7:0];
 									endcase
 							endcase
 						end

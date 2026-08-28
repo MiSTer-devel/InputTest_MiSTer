@@ -45,6 +45,9 @@ unsigned char __at(0x8A20) starfield3[5];
 unsigned char __at(0x8A30) system_pause;
 unsigned char __at(0x8A31) system_menu;
 
+unsigned char __at(0x8D00) trigger_l[6];
+unsigned char __at(0x8E00) trigger_r[6];
+
 // - Casval (character map)
 unsigned char __at(0x9800) chram[2048];
 unsigned char __at(0xA000) fgcolram[2048];

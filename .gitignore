@@ -1,4 +1,5 @@
 db
+.DS_Store
 greybox_tmp
 incremental_db
 output_files

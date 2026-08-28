@@ -47,6 +47,20 @@ module emu (
 	input [15:0] joystick_r_analog_4,
 	input [15:0] joystick_r_analog_5,
 
+	input [7:0] joystick_l_trigger_0,
+	input [7:0] joystick_l_trigger_1,
+	input [7:0] joystick_l_trigger_2,
+	input [7:0] joystick_l_trigger_3,
+	input [7:0] joystick_l_trigger_4,
+	input [7:0] joystick_l_trigger_5,
+
+	input [7:0] joystick_r_trigger_0,
+	input [7:0] joystick_r_trigger_1,
+	input [7:0] joystick_r_trigger_2,
+	input [7:0] joystick_r_trigger_3,
+	input [7:0] joystick_r_trigger_4,
+	input [7:0] joystick_r_trigger_5,
+
 	input [7:0] paddle_0,
 	input [7:0] paddle_1,
 	input [7:0] paddle_2,
@@ -130,6 +144,9 @@ system system(
 	.joystick({joystick_5,joystick_4,joystick_3,joystick_2,joystick_1,joystick_0}),
 	.analog_l({joystick_l_analog_5,joystick_l_analog_4,joystick_l_analog_3,joystick_l_analog_2,joystick_l_analog_1,joystick_l_analog_0}),
 	.analog_r({joystick_r_analog_5,joystick_r_analog_4,joystick_r_analog_3,joystick_r_analog_2,joystick_r_analog_1,joystick_r_analog_0}),
+	.trigger_l({joystick_l_trigger_5,joystick_l_trigger_4,joystick_l_trigger_3,joystick_l_trigger_2,joystick_l_trigger_1,joystick_l_trigger_0}),
+	.trigger_r({joystick_r_trigger_5,joystick_r_trigger_4,joystick_r_trigger_3,joystick_r_trigger_2,joystick_r_trigger_1,joystick_r_trigger_0}),
+
 	.paddle({paddle_5,paddle_4,paddle_3,paddle_2,paddle_1,paddle_0}),
 	.spinner({7'b0,spinner_5,7'b0,spinner_4,7'b0,spinner_3,7'b0,spinner_2,7'b0,spinner_1,7'b0,spinner_0}),
 	.ps2_key(ps2_key),

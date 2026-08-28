@@ -1,4 +1,4 @@
 # Make C code
-cd src
+cd src/inputtest
 make clean
-cd ..
+cd ../..

@@ -40,6 +40,8 @@
 	.globl _bgcolram
 	.globl _fgcolram
 	.globl _chram
+	.globl _trigger_r
+	.globl _trigger_l
 	.globl _system_menu
 	.globl _system_pause
 	.globl _starfield3
@@ -79,6 +81,8 @@ _starfield2	=	0x8a10
 _starfield3	=	0x8a20
 _system_pause	=	0x8a30
 _system_menu	=	0x8a31
+_trigger_l	=	0x8d00
+_trigger_r	=	0x8e00
 _chram	=	0x9800
 _fgcolram	=	0xa000
 _bgcolram	=	0xa800

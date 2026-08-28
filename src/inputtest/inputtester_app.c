@@ -38,6 +38,8 @@ signed char ax_l_last[6];
 signed char ay_l_last[6];
 signed char ax_r_last[6];
 signed char ay_r_last[6];
+unsigned char at_l_last[6];
+unsigned char at_r_last[6];
 unsigned char px_last[6];
 signed char sx_toggle_last[6];
 signed char sx_last[6];
@@ -205,6 +207,8 @@ void page_inputtester_advanced()
 
     write_string("POS", 0xFF, 7, 13);
     write_string("SPD  POS", 0xFF, 20, 13);
+    write_string("ATL", 0xFF, 30, 13);
+    write_string("ATR", 0xFF, 34, 13);
 
     char label[5];
     for (unsigned char j = 0; j < 6; j++)
@@ -249,6 +253,8 @@ void reset_inputstates()
         ay_l_last[i] = -1;
         ax_r_last[i] = 1;
         ay_r_last[i] = -1;
+        at_l_last[i] = 1;
+        at_r_last[i] = 1;
         px_last[i] = 1;
         sx_toggle_last[i] = 1;
         sx_last[i] = 1;
@@ -675,6 +681,23 @@ void inputtester_advanced()
             }
             ax_r_last[inputindex] = ax_r;
             ay_r_last[inputindex] = ay_r;
+
+            // Draw analog trigger (only if value changed)
+            unsigned char at_l = trigger_l[inputindex];
+            if (at_l != at_l_last[inputindex])
+            {
+                sprintf(stra, "%4d", at_l);
+                write_string(stra, 0xFF, 29, 14 + inputindex);
+            }
+            at_l_last[inputindex] = at_l;
+
+            unsigned char at_r = trigger_r[inputindex];
+            if (at_r != at_r_last[inputindex])
+            {
+                sprintf(stra, "%4d", at_r);
+                write_string(stra, 0xFF, 33, 14 + inputindex);
+            }
+            at_r_last[inputindex] = at_r;
 
             // Draw paddle inputs (only update if value has changed)
             unsigned char px = paddle[(inputindex)];
